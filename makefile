@@ -40,6 +40,8 @@ DIRS = $(MODDIR) $(BINDIR) $(OBJDIR) $(DOCDIR) $(LIBDIR) $(PREFIX)lib
 
 # Compiler standard flags
 
+OPENCL_LIBRARY_PATH ?= /usr/lib/
+
 LFLAGS=  -L$(LIBDIR) -lfocal -L$(OPENCL_LIBRARY_PATH) -lOpenCL
 ifeq ($(PLATFORM), gnu)
 	FC=gfortran
