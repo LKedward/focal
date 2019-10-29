@@ -390,7 +390,7 @@ submodule (Focal) Focal_Setup
                 kernel%cl_kernel, kernel%work_dim, &
                 c_loc(kernel%global_work_offset), &
                 c_loc(kernel%global_work_size), &
-                localSizePtr, 0, C_NULL_PTR, fclLastKernelEvent)
+                localSizePtr, 0, C_NULL_PTR, c_loc(fclLastKernelEvent))
 
     call fclHandleErrorCode(errcode,'fclLaunchKernel:clEnqueueNDRangeKernel')
 
@@ -445,6 +445,70 @@ submodule (Focal) Focal_Setup
     call fclHandleErrorCode(errcode,'fclSetKernelArg:clSetKernelArg')
 
   end procedure fclSetKernelArg
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclBarrier_1 !(cmdq)
+    !! Enqueue barrier on all events in command queue
+    integer(c_int32_t) :: errcode
+
+    errcode = clEnqueueBarrierWithWaitList( cmdq%cl_command_queue, 0, C_NULL_PTR , C_NULL_PTR)
+
+    call fclHandleErrorCode(errcode,'fclBarrierAll:clEnqueueBarrierWithWaitList')
+
+  end procedure fclBarrier_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclBarrier_2 !(cmdq)
+    !! Enqueue barrier on all events in default command queue
+    call fclBarrier_1(fclDefaultCmdQ)
+
+  end procedure fclBarrier_2
+  ! ---------------------------------------------------------------------------
+  
+
+  module procedure fclFinish_1 !(cmdq)
+    !! Wait on host for all events in user-specified command queue
+    integer(c_int32_t) :: errcode
+
+    errcode = clFinish(cmdq%cl_command_queue)
+
+    call fclHandleErrorCode(errcode,'fclFinish:clFinish')
+
+  end procedure fclFinish_1
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclFinish_2
+    !! Wait on host for all events in focal default command queue
+    call fclFinish_1(fclDefaultCmdQ)
+
+  end procedure fclFinish_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclWaitEvent !(event)
+    !! Wait on host for a specific event
+    integer(c_int32_t) :: errcode
+
+    errcode = clWaitForEvents ( 1, c_loc(event) )
+
+    call fclHandleErrorCode(errcode,'fclWaitEvent:clWaitForEvents')    
+    
+  end procedure fclWaitEvent
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclWaitEventList !(eventList)
+    !! Wait on host for set of events
+    integer(c_int32_t) :: errcode
+
+    errcode = clWaitForEvents ( 1, c_loc(eventList) )
+
+    call fclHandleErrorCode(errcode,'fclWaitEventList:clWaitForEvents')    
+    
+  end procedure fclWaitEventList
   ! ---------------------------------------------------------------------------
 
 

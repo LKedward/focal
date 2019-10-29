@@ -104,13 +104,13 @@ module Focal
   logical :: fclBlockingRead = .true.
     !! Enable/disable block reads when copying from device to host
 
-  type(c_ptr) :: fclLastWriteEvent
+  type(c_ptr), target :: fclLastWriteEvent
     !! openCL pointer to the most recent write event (host-to-device) to be enqueued
-  type(c_ptr) :: fclLastReadEvent
+  type(c_ptr), target :: fclLastReadEvent
     !! openCL pointer to the most recent read event (device-to-host) to be enqueued
-  type(c_ptr) :: fclLastCopyEvent
+  type(c_ptr), target :: fclLastCopyEvent
     !! openCL pointer to the most recent copy event (device-to-device) to be enqueued
-  type(c_ptr) :: fclLastKernelEvent
+  type(c_ptr), target :: fclLastKernelEvent
     !! openCL pointer to the most recent kernel event to be enqueued
 
 
@@ -507,8 +507,48 @@ module Focal
       integer(c_int32_t), intent(in) :: argIndex
       class(*), intent(in), target :: argValue
     end subroutine fclSetKernelArg
-
+    
   end interface
+
+  interface fclBarrier
+    !! Generic interface to enqueue a command queue barrier
+    !!  Wait on device for all preceding queue events to complete before 
+    !!  subsequent events can proceed.
+
+    module subroutine fclBarrier_1(cmdq)
+      !! Enqueue barrier on all events in command queue
+      type(fclCommandQ), intent(in) :: cmdq
+    end subroutine fclBarrier_1
+
+    module subroutine fclBarrier_2()
+      !! Enqueue barrier on all events in default command queue
+    end subroutine fclBarrier_2
+
+  end interface fclBarrier
+
+  interface fclWait
+    !! Generic interface to wait on host for events
+
+    module subroutine fclFinish_1(cmdq)
+      !! Wait on host for all events in user-specified command queue
+      type(fclCommandQ), intent(in) :: cmdq
+    end subroutine fclFinish_1
+
+    module subroutine fclFinish_2()
+      !! Wait on host for all events in focal default command queue
+    end subroutine fclFinish_2
+
+    module subroutine fclWaitEvent(event)
+      !! Wait on host for a specific event
+      type(c_ptr), intent(in), target :: event
+    end subroutine fclWaitEvent
+
+    module subroutine fclWaitEventList(eventList)
+      !! Wait on host for set of events
+      type(c_ptr), intent(in), target :: eventList(:)
+    end subroutine fclWaitEventList
+
+  end interface fclWait
   
 
   ! ---------------------------- UTILITY ROUTINES -------------------------------
