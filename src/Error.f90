@@ -136,6 +136,12 @@ submodule (Focal) Focal_Error
       case (CL_INVALID_ARG_SIZE)
         errstr = 'CL_INVALID_ARG_SIZE'
 
+      case (CL_INVALID_EVENT_WAIT_LIST)
+        errstr = 'CL_INVALID_EVENT_WAIT_LIST'
+
+      case (CL_INVALID_EVENT)
+        errstr = 'CL_INVALID_EVENT'
+
       case (CL_INVALID_OPERATION)
         errstr = 'CL_INVALID_OPERATION'
 
