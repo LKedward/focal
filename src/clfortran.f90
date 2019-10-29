@@ -16,6 +16,14 @@
 !
 ! -----------------------------------------------------------------------------
 !
+! Modified by: LKedward 2019
+!  Add explicit definition of 'BOZ' constants as integers.
+!  Fix interface definitions to be in interface block.
+!
+! https://github.com/LKedward/clfortran
+!
+! -----------------------------------------------------------------------------
+!
 ! This program is free software: you can redistribute it and/or modify
 ! it under the terms of the GNU Lesser General Public License as published by
 ! the Free Software Foundation, either version 3 of the License, or
