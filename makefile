@@ -107,6 +107,7 @@ $(BINDIR)%: $(addprefix $(OBJDIR), %.o)
 
 # Generate libraries
 $(LIBDIR)%: $(BASE_OBJS) $(OBJS)
+	rm -f $@
 	$(AR) -cq $@ $^
 
 # Compile fortran objects
