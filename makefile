@@ -10,7 +10,8 @@ PREFIX ?= /usr/local/
 # Source directories
 vpath %.f90 src
 vpath %.f90 examples
-vpath %.f90 src/external
+vpath %.f90 external
+vpath %.f90 external/clfortran
 
 # Source files
 PROGS = platform_query sum
