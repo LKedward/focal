@@ -5,6 +5,7 @@ MODDIR = mod/
 BINDIR = bin/
 OBJDIR = obj/
 DOCDIR = doc/
+LIBDIR = lib/
 PREFIX ?= /usr/local/
 
 # Source directories
@@ -16,34 +17,30 @@ vpath %.f90 external/clfortran
 # Source files
 PROGS = platform_query sum
 BASE = Focal clfortran Quicksort
-MODULES =
-EXTERNAL =
 SRCS = Error Memory Query Setup Utils
+LIBS = focal
 
 # Compiler
 PLATFORM ?= gnu
 BUILD ?= release
 
-# Libraries
-LD_LIBRARY_OPENCL="/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/lib/x64/"
-
 # --- End Configuration ---
 
 # Objects
 
-MODULE_HEADERS = $(addsuffix _h, $(MODULES))
 BASE_OBJS = $(addprefix $(OBJDIR), $(addsuffix .o, $(BASE)) )
-OBJS = $(addprefix $(OBJDIR), $(addsuffix .o, $(MODULES) $(EXTERNAL) $(SRCS) ) )
+OBJS = $(addprefix $(OBJDIR), $(addsuffix .o, $(MODULES) $(SRCS) ) )
 PROG_OBJS = $(addprefix $(OBJDIR), $(addsuffix .o, $(PROGS) ) )
-HEADER_OBJS = $(addprefix $(OBJDIR), $(addsuffix .o, $(MODULE_HEADERS)) )
 EXEC = $(addprefix $(BINDIR), $(PROGS))
+LIB_OBJS = $(addprefix $(LIBDIR)lib, $(addsuffix .a, $(LIBS)) )
 EXECINSTALL = $(addprefix $(PREFIX)bin/, $(PROGS))
-DIRS = $(MODDIR) $(BINDIR) $(OBJDIR) $(DOCDIR)
+LIBINSTALL = $(addprefix $(PREFIX)lib/lib, $(addsuffix .a, $(LIBS)) )
+DIRS = $(MODDIR) $(BINDIR) $(OBJDIR) $(DOCDIR) $(LIBDIR) $(PREFIX)lib
 
 
 # Compiler standard flags
 
-LFLAGS= -L$(LD_LIBRARY_OPENCL) -lopenCL
+LFLAGS=  -L$(LIBDIR) -lfocal -L$(OPENCL_LIBRARY_PATH) -lOpenCL
 ifeq ($(PLATFORM), gnu)
 	FC=gfortran
 	FFLAGS += -std=f2008 -fimplicit-none -J$(MODDIR)
@@ -78,12 +75,13 @@ endif
 
 
 # --- Recipes ---
-all: $(DIRS) $(EXEC)
+all: $(DIRS) $(EXEC) $(LIB_OBJS)
 
-install: all $(EXECINSTALL)
+install: all $(LIBINSTALL)
 
 uninstall:
 	rm -f $(addprefix $(PREFIX)bin/, $(PROGS))
+	rm -f $(LIBINSTALL)
 
 doc: $(DOCDIR)index.html
 
@@ -91,18 +89,23 @@ clean:
 	rm -f $(OBJDIR)*.o
 	rm -f $(MODDIR)*.mod
 	rm -f $(MODDIR)*.smod
+	rm -f $(LIBDIR)*.a
 	rm -f $(EXEC)
 
 docclean:
 	rm -rf $(DOCDIR)*
 
-# Install programs
-$(PREFIX)bin/%: $(BINDIR)%
+# Install libraries
+$(PREFIX)lib/%: $(LIBDIR)%
 	cp "$<" "$@"
 
-# Link objects
-$(BINDIR)%: $(BASE_OBJS) $(OBJS) $(HEADER_OBJS) $(addprefix $(OBJDIR), %.o)
+# Link executables
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o)
 	$(FC) $^ $(LFLAGS) -o $@
+
+# Generate libraries
+$(LIBDIR)%: $(BASE_OBJS) $(OBJS)
+	$(AR) -cq $@ $^
 
 # Compile fortran objects
 $(OBJDIR)%.o: %.f90
@@ -112,19 +115,16 @@ $(OBJDIR)%.o: %.f90
 $(OBJDIR)%.o: %.f
 	$(FC) $(FFLAGS_LEGACY) -c $< -o $@
 
-# Program objects depend on code modules
-$(PROG_OBJS): $(OBJS)
+# Program objects depend on libraries
+$(PROG_OBJS): $(LIB_OBJS)
+
+# Library objects depend on code modules
+$(LIB_OBJS): $(OBJS)
 
 # Code modules depend on base modules
 $(OBJS): $(BASE_OBJS)
 
-# # Code modules depend on interface modules
-# $(OBJS): $(HEADER_OBJS)
-
-# # Interface modules depend on base module
-# $(HEADER_OBJS): $(BASE_OBJS)
-
-$(DOCDIR)index.html: $(addsuffix .f90, $(PROGS) $(MODULES) $(MODULE_HEADERS))
+$(DOCDIR)index.html: $(addsuffix .f90, $(OBJS) )
 	ford ford.md
 
 $(DIRS):
