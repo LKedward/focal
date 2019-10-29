@@ -10,13 +10,14 @@ PREFIX ?= /usr/local/
 # Source directories
 vpath %.f90 src
 vpath %.f90 examples
+vpath %.f90 src/external
 
 # Source files
 PROGS = platform_query sum
-BASE = Focal clfortran
+BASE = Focal clfortran Quicksort
 MODULES =
 EXTERNAL =
-SRCS = Error Memory Query Setup
+SRCS = Error Memory Query Setup Utils
 
 # Compiler
 PLATFORM ?= gnu

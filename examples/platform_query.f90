@@ -32,7 +32,11 @@ do i=1,size(platforms,1)
     end select
 
     write(*,*) platforms(i)%devices(j)%name
-    write(*,'(A,I4,A)') '          (',platforms(i)%devices(j)%nComputeUnits,' compute units)'
+    write(*,'(A,I6,A,I6,A,I4,A,A)') '          ', &
+               platforms(i)%devices(j)%nComputeUnits,' cores, ', &
+               platforms(i)%devices(j)%global_memory/1024/1024,'MB, ', &
+               platforms(i)%devices(j)%clock_freq, 'MHz, ',&
+               platforms(i)%devices(j)%version
 
   end do
 

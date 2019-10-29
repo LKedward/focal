@@ -10,6 +10,71 @@ submodule (Focal) Focal_Query
 
   contains
 
+  module procedure fclGetPlatformInfo !(platform,key,value)
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html
+
+    integer(c_size_t) :: zero_size = 0
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    errcode = clGetPlatformInfo(platform%cl_platform_id, key, zero_size, C_NULL_PTR, temp_size)
+    call fclHandleErrorCode(errcode,'fclGetPlatformInfo::clGetPlatformInfo')
+
+    allocate(character(len=temp_size) :: value)
+
+    errcode = clGetPlatformInfo(platform%cl_platform_id, key, temp_size, C_LOC(value), size_ret)
+    call fclHandleErrorCode(errcode,'fclGetPlatformInfo::clGetPlatformInfo')
+
+  end procedure fclGetPlatformInfo
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclGetDeviceInfoString !(device,key,value)
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html
+
+    integer(c_size_t) :: zero_size = 0
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    errcode = clGetDeviceInfo(device%cl_device_id, key, zero_size, C_NULL_PTR, temp_size)
+    call fclHandleErrorCode(errcode,'fclGetDeviceInfoString::clGetDeviceInfo')
+
+    allocate( character(len=temp_size) :: value)
+    errcode = clGetDeviceInfo(device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
+    call fclHandleErrorCode(errcode,'fclGetDeviceInfoString::clGetDeviceInfo')
+
+  end procedure fclGetDeviceInfoString
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclGetDeviceInfoInt32 !(device,key,value)
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html
+    
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    temp_size = c_sizeof(int(1,c_int32_t))
+    errcode = clGetDeviceInfo(device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
+    call fclHandleErrorCode(errcode,'fclGetDeviceInfoInt32::clGetDeviceInfo')
+
+  end procedure fclGetDeviceInfoInt32
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclGetDeviceInfoInt64 !(device,key,value)
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html
+    
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    temp_size = c_sizeof(int(1,c_int64_t))
+    errcode = clGetDeviceInfo(device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
+    call fclHandleErrorCode(errcode,'fclGetDeviceInfoInt64::clGetDeviceInfo')
+
+  end procedure fclGetDeviceInfoInt64
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclGetPlatforms !result(platforms)
 
     integer :: i
@@ -50,9 +115,6 @@ submodule (Focal) Focal_Query
   module procedure fclGetPlatform !(platform_id) result(platform)
 
     integer :: i
-    integer(c_size_t) :: zero_size = 0
-    integer(c_size_t) :: temp_size
-    integer(c_size_t) :: size_ret
 
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: int32_ret
@@ -79,50 +141,12 @@ submodule (Focal) Focal_Query
 
     end do
 
-    ! --- Platform profile ---
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_PROFILE, zero_size, C_NULL_PTR, temp_size)
-    call fclHandleErrorCode(errcode)
-
-    allocate(platform%profile(temp_size))
-
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_PROFILE, temp_size, C_LOC(platform%profile), size_ret)
-    call fclHandleErrorCode(errcode)
-
-    ! --- Platform version ---
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_VERSION, zero_size, C_NULL_PTR, temp_size)
-    call fclHandleErrorCode(errcode)
-
-    allocate(platform%version(temp_size))
-
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_VERSION, temp_size, C_LOC(platform%version), size_ret)
-    call fclHandleErrorCode(errcode)
-
-    ! --- Platform name ---
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_NAME, zero_size, C_NULL_PTR, temp_size)
-    call fclHandleErrorCode(errcode)
-
-    allocate(platform%name(temp_size))
-
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_NAME, temp_size, C_LOC(platform%name), size_ret)
-    call fclHandleErrorCode(errcode)
-
-    ! --- Platform vendor ---
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_VENDOR, zero_size, C_NULL_PTR, temp_size)
-    call fclHandleErrorCode(errcode)
-
-    allocate(platform%vendor(temp_size))
-
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_VENDOR, temp_size, C_LOC(platform%vendor), size_ret)
-    call fclHandleErrorCode(errcode)
-
-    ! --- Platform extensions ---
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_EXTENSIONS, zero_size, C_NULL_PTR, temp_size)
-    call fclHandleErrorCode(errcode)
-
-    allocate(platform%extensions(temp_size))
-
-    errcode = clGetPlatformInfo(platform_id, CL_PLATFORM_EXTENSIONS, temp_size, C_LOC(platform%extensions), size_ret)
-    call fclHandleErrorCode(errcode)
+    ! --- Populate fclPlatform info strings ---
+    call fclGetPlatformInfo(platform,CL_PLATFORM_PROFILE,platform%profile)
+    call fclGetPlatformInfo(platform,CL_PLATFORM_VERSION,platform%version)
+    call fclGetPlatformInfo(platform,CL_PLATFORM_NAME,platform%name)
+    call fclGetPlatformInfo(platform,CL_PLATFORM_VENDOR,platform%vendor)
+    call fclGetPlatformInfo(platform,CL_PLATFORM_EXTENSIONS,platform%extensions)
 
   end procedure fclGetPlatform
   ! ---------------------------------------------------------------------------
@@ -131,34 +155,18 @@ submodule (Focal) Focal_Query
   module procedure fclGetDevice !(device_id) result(device)
     ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html
 
-    integer(c_size_t) :: zero_size = 0
-    integer(c_int32_t) :: errcode
-    integer(c_size_t) :: temp_size, size_ret
-
     device%cl_device_id = device_id
 
-    ! Name
-    errcode = clGetDeviceInfo(device_id, CL_DEVICE_NAME, zero_size, C_NULL_PTR, temp_size)
-    call fclHandleErrorCode(errcode)
-
-    allocate(device%name(temp_size))
-    errcode = clGetDeviceInfo(device_id, CL_DEVICE_NAME, temp_size, C_LOC(device%name), size_ret)
-    call fclHandleErrorCode(errcode)
-
-    ! Device type
-    temp_size = c_sizeof(device%cl_device_type)
-    errcode = clGetDeviceInfo(device_id, CL_DEVICE_TYPE, temp_size, C_LOC(device%cl_device_type), size_ret)
-    call fclHandleErrorCode(errcode)
-
-    ! Maximum compute units.
-    temp_size = c_sizeof(device%nComputeUnits)
-    errcode = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS, temp_size, C_LOC(device%nComputeUnits), size_ret)
-    call fclHandleErrorCode(errcode)
-
-    !! @todo CL_DEVICE_GLOBAL_MEM_SIZE CL_DEVICE_MAX_CLOCK_FREQUENCY
-    !!  CL_DEVICE_VERSION CL_DRIVER_VERSION @endtodo
+    call fclGetDeviceInfo(device,CL_DEVICE_NAME,device%name)
+    call fclGetDeviceInfo(device,CL_DEVICE_TYPE,device%cl_device_type)
+    call fclGetDeviceInfo(device,CL_DEVICE_MAX_COMPUTE_UNITS,device%nComputeUnits)
+    call fclGetDeviceInfo(device,CL_DEVICE_GLOBAL_MEM_SIZE,device%global_memory)
+    call fclGetDeviceInfo(device,CL_DEVICE_MAX_CLOCK_FREQUENCY,device%clock_freq)
+    call fclGetDeviceInfo(device,CL_DEVICE_VERSION,device%version)
 
   end procedure fclGetDevice
   ! ---------------------------------------------------------------------------
+  
+  
 
 end submodule Focal_Query

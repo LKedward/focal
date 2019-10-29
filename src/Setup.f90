@@ -12,7 +12,7 @@ submodule (Focal) Focal_Setup
 
 
 
-  module procedure fclCreateContext !(platform) result(ctx)
+  module procedure fclCreateContextWithPlatform !(platform) result(ctx)
 
     integer(c_intptr_t), target :: properties(3)
     integer(c_int32_t) :: errcode
@@ -27,16 +27,172 @@ submodule (Focal) Focal_Setup
 
     call fclHandleErrorCode(errcode)
 
-    platform%ctx = ctx
-    ctx%platform => platform
+    ! platform%ctx = ctx
+    ctx%platform = platform
 
     return
 
-  end procedure fclCreateContext
+  end procedure fclCreateContextWithPlatform
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclCreateDeviceCommandQ !(ctx,device,enableProfiling,outOfOrderExec) result(cmdq)
+  module procedure fclCreateContextWithVendor !(vendor) result(ctx)
+
+    integer :: i
+    logical :: vendorFound
+
+    type(fclPlatform), pointer :: platforms(:)
+    type(fclPlatform) :: chosenPlatform
+
+    ! Get platforms
+    platforms => fclGetPlatforms();
+
+    vendorFound = .FALSE.
+    do i=1,size(platforms,1)
+
+      if (index( upperstr(platforms(i)%vendor) , upperstr(vendor) ) > 0) then
+        chosenPlatform = platforms(i)
+        vendorFound = .TRUE.
+        exit
+      end if
+
+    end do
+
+    if (vendorFound) then
+      ctx = fclCreateContextWithPlatform(chosenPlatform)
+    else
+      call fclRuntimeError('fclCreateContextWithVendor: vendor "'//trim(vendor)//'" was not found.')
+    end if
+
+  end procedure fclCreateContextWithVendor
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclSetDefaultContext !(ctx)
+    ! Set the global default context
+    fclDefaultCtx = ctx
+
+  end procedure fclSetDefaultContext
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFindDevices_1 !(ctx,type,nameLike,sortBy) result(deviceList)
+    !! Create command queue by finding a device
+    use quicksort
+    integer :: i,j
+
+    integer :: sortMetric(ctx%platform%numDevice)
+    integer :: sortList(ctx%platform%numDevice)
+    logical :: filter(ctx%platform%numDevice)
+
+    integer(c_int64_t) :: typeFilter
+    integer(c_int64_t) :: deviceType
+    integer :: nFiltered, nFill
+    
+    integer(c_int64_t) :: int64Metric
+
+    character(3) :: CPU_TYPE
+    CPU_TYPE = 'CPU'
+
+    ! --- Parse any request to filter by device type ---
+    typeFilter = 0
+    if (present(type)) then
+      if (index(upperstr(type),'CPU') > 0) then
+        typeFilter = CL_DEVICE_TYPE_CPU
+      elseif (index( upperstr(type) , 'GPU' ) > 0) then
+        typeFilter = CL_DEVICE_TYPE_GPU
+      else
+        call fclRuntimeError("fclFindDevices: "// &
+        "Unknown type specified for type argument. Expecting 'cpu' or 'gpu'.'")
+      end if
+    end if
+
+    ! --- Process the devices ---
+    filter = .true.
+
+    do i=1,ctx%platform%numDevice
+
+      ! --- Filter by device type ---
+      if (typeFilter > 0) then
+
+        call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_TYPE,deviceType)
+
+        if (deviceType /= typeFilter) then
+          filter(i) = .false.         ! Filtered out by device type
+        end if
+
+      end if
+
+      ! --- Extract sorting metric ---
+      if (present(sortBy)) then
+
+        select case (upperstr(sortBy))
+        case ('MEMORY')
+          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_GLOBAL_MEM_SIZE,int64Metric)
+          sortMetric(i) = int(int64Metric/1000000,c_int32_t) ! Convert to megabytes to avoid overflow in int32
+  
+        case ('CORES')
+          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_COMPUTE_UNITS,sortMetric(i))
+  
+        case ('CLOCK')
+          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_CLOCK_FREQUENCY,sortMetric(i))
+  
+        end select
+
+      else
+        sortMetric(i) = 0
+      end if
+
+      ! --- Filter by device name ---
+      if (present(nameLike)) then
+        if (index(upperstr(ctx%platform%devices(i)%name),upperstr(nameLike)) == 0) then
+          filter(i) = .false.         ! Filtered out by device name
+        end if
+      end if
+
+    end do
+
+    ! --- Sort by sorting metric ---
+    sortMetric = -sortMetric          ! Sort descending
+    sortList = [(i,i=1,ctx%platform%numDevice)]
+    call quick_sort(sortMetric,sortList)
+    
+    nFiltered = count(filter)
+    if (nFiltered < 1) then
+      call fclRuntimeError("fclFindDevices: no devices found matching criteria")
+    end if
+
+    ! --- Output filtered sorted list of devices ---
+    allocate(deviceList(nFiltered))
+    nFill = 1
+    do i=1,ctx%platform%numDevice
+
+      if (filter(i)) then
+        j = sortList(i)
+        deviceList(nFill) = ctx%platform%devices(j)
+        nFill = nFill + 1
+      end if
+
+      if (nFill > nFiltered) then
+        exit
+      end if
+
+    end do
+
+  end procedure fclFindDevices_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFindDevices_2 !(type,nameLike,sortBy) result(deviceList)
+
+    deviceList => fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
+
+  end procedure fclFindDevices_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCreateCommandQ_1 !(ctx,device,enableProfiling,outOfOrderExec) result(cmdq)
+    !! Create a command queue with a Focal device object
 
     integer(c_int32_t) :: errcode
     integer(c_int64_t) :: properties
@@ -58,9 +214,25 @@ submodule (Focal) Focal_Setup
     cmdq%cl_command_queue = clCreateCommandQueue(ctx%cl_context, device%cl_device_id, &
                                   properties ,errcode)
 
-    call fclHandleErrorCode(errcode,'fclCreateDeviceCommandQ::clCreateCommandQueue')
+    call fclHandleErrorCode(errcode,'fclCreateDeviceCommandQWithDevice::clCreateCommandQueue')
 
-  end procedure fclCreateDeviceCommandQ
+  end procedure fclCreateCommandQ_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCreateCommandQ_2 !(device,enableProfiling,outOfOrderExec) result(cmdq)
+    !! Create a command queue with a Focal device object using default context
+    cmdq = fclCreateCommandQ_1(fclDefaultCtx,device,enableProfiling,outOfOrderExec)
+
+  end procedure fclCreateCommandQ_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclSetDefaultCommandQ !(cmdq)
+    !! Set the global default command queue
+    fclDefaultCmdQ = cmdq
+
+  end procedure fclSetDefaultCommandQ
   ! ---------------------------------------------------------------------------
 
 
