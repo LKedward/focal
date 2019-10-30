@@ -555,11 +555,13 @@ module Focal
 
   interface
 
-    character(len=len(linei)) module function upperstr(linei)
+    module function upperstr(linei)
       !! Return copy of string converted to uppercase
       !! Used for case-insensitive string comparison
       character(len=*),intent(in) :: linei
-        !! input string to convert to uppercase
+        !! Input string to convert to uppercase
+      character(len=len(linei)) upperstr
+        !! Converted string output
     end function upperstr
 
     module subroutine fclSourceFromFile(filename,sourceString)
