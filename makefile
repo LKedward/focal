@@ -15,14 +15,10 @@ vpath %.f90 external
 vpath %.f90 external/clfortran
 
 # Source files
-PROGS = platform_query sum
+PROGS = 
 BASE = Focal clfortran Quicksort
 SRCS = Error Memory Query Setup Utils
 LIBS = focal
-
-# Compiler
-PLATFORM ?= gnu
-BUILD ?= release
 
 # --- End Configuration ---
 
@@ -38,46 +34,18 @@ LIBINSTALL = $(addprefix $(PREFIX)lib/lib, $(addsuffix .a, $(LIBS)) )
 DIRS = $(MODDIR) $(BINDIR) $(OBJDIR) $(DOCDIR) $(LIBDIR) $(PREFIX)lib
 
 
-# Compiler standard flags
+# --- Link Flags ---
+OPENCL_DIR ?= /usr/lib/
+LFLAGS=  -L$(LIBDIR) -lfocal -L$(OPENCL_DIR) -lOpenCL
 
-OPENCL_LIBRARY_PATH ?= /usr/lib/
-
-LFLAGS=  -L$(LIBDIR) -lfocal -L$(OPENCL_LIBRARY_PATH) -lOpenCL
-ifeq ($(PLATFORM), gnu)
-	FC=gfortran
-	FFLAGS += -std=f2008 -fimplicit-none -J$(MODDIR)
-	FFLAGS_LEGACY = -fimplicit-none -J$(MODDIR)
-
-else ifeq ($(PLATFORM), intel)
-	FC=ifort
-	FFLAGS += -stand:f08 -module:$(MODDIR)
-	FFLAGS_LEGACY = $(FFLAGS)
-
-else
-  $(error unrecognized platform.)
-endif
-
-
-# Compile debug flags
-ifeq ($(PLATFORM)-$(BUILD), gnu-debug)
-	FFLAGS += -g -Og -C -Wall -fbounds-check -fbacktrace -fno-realloc-lhs -ffpe-trap=invalid,zero,overflow
-
-else ifeq ($(PLATFORM)-$(BUILD), intel-debug)
-	FFLAGS += -g -O0 -check all -debug all -traceback -fpe0
-
-else ifeq ($(PLATFORM)-$(BUILD), gnu-release)
-	FFLAGS += -O3 -flto
-
-else ifeq ($(PLATFORM)-$(BUILD), intel-release)
-	FFLAGS += -O3 -ipo
-
-else
-  $(error unrecognized build target.)
-endif
-
+# --- Compiler flags ---
+include make.compiler
 
 # --- Recipes ---
 all: $(DIRS) $(EXEC) $(LIB_OBJS)
+
+examples: $(LIB_OBJS)
+	cd examples; make $(MAKEFLAGS)
 
 install: all $(LIBINSTALL)
 
@@ -92,7 +60,7 @@ clean:
 	rm -f $(MODDIR)*.mod
 	rm -f $(MODDIR)*.smod
 	rm -f $(LIBDIR)*.a
-	rm -f $(EXEC)
+	rm -f $(BINDIR)*
 
 docclean:
 	rm -rf $(DOCDIR)*
@@ -113,10 +81,6 @@ $(LIBDIR)%: $(BASE_OBJS) $(OBJS)
 # Compile fortran objects
 $(OBJDIR)%.o: %.f90
 	$(FC) $(FFLAGS) -c $< -o $@
-
-# Compile legacy fortran objects
-$(OBJDIR)%.o: %.f
-	$(FC) $(FFLAGS_LEGACY) -c $< -o $@
 
 # Program objects depend on libraries
 $(PROG_OBJS): $(LIB_OBJS)

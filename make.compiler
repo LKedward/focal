@@ -1,0 +1,33 @@
+# --- Compile flags ---
+# Compiler
+PLATFORM ?= gnu
+BUILD ?= release
+ifeq ($(PLATFORM), gnu)
+	FC=gfortran
+	FFLAGS += -std=f2008 -fimplicit-none -J$(MODDIR)
+	FFLAGS_LEGACY = -fimplicit-none -J$(MODDIR)
+
+else ifeq ($(PLATFORM), intel)
+	FC=ifort
+	FFLAGS += -stand:f08 -module:$(MODDIR)
+	FFLAGS_LEGACY = $(FFLAGS)
+
+else
+  $(error unrecognized platform.)
+endif
+
+ifeq ($(PLATFORM)-$(BUILD), gnu-debug)
+	FFLAGS += -g -Og -C -Wall -fbounds-check -fbacktrace -fno-realloc-lhs -ffpe-trap=invalid,zero,overflow
+
+else ifeq ($(PLATFORM)-$(BUILD), gnu-release)
+	FFLAGS += -O3 -flto
+
+else ifeq ($(PLATFORM)-$(BUILD), intel-debug)
+	FFLAGS += -g -O0 -check all -debug all -traceback -fpe0
+
+else ifeq ($(PLATFORM)-$(BUILD), intel-release)
+	FFLAGS += -fast
+
+else
+  $(error unrecognized build target.)
+endif
