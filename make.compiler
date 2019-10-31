@@ -4,6 +4,7 @@ PLATFORM ?= gnu
 BUILD ?= release
 ifeq ($(PLATFORM), gnu)
 	FC=gfortran
+	AR=gcc-ar
 	FFLAGS += -std=f2008 -fimplicit-none -J$(MODDIR)
 	FFLAGS_LEGACY = -fimplicit-none -J$(MODDIR)
 
