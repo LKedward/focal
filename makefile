@@ -96,3 +96,5 @@ $(DOCDIR)index.html: $(addsuffix .f90, $(OBJS) )
 
 $(DIRS):
 	mkdir $@
+
+.PHONY: all examples install uninstall doc clean docclean

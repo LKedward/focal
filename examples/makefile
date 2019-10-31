@@ -8,6 +8,7 @@ OBJDIR = $(FOCAL_DIR)/obj/
 MODDIR = $(FOCAL_DIR)/mod/
 
 # --- Targets ---
+FOCAL_LIB = $(FOCAL_DIR)/lib/libfocal.a
 EXEC = $(addprefix $(BINDIR), $(PROGS))
 DIRS = $(MODDIR) $(BINDIR) $(OBJDIR)
 
@@ -20,17 +21,17 @@ LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS)
 include $(FOCAL_DIR)/make.compiler
 
 # --- Recipes ---
-all: $(DIRS) $(EXEC) 
+all: $(DIRS) $(EXEC)
 
 clean:
 	rm -f $(EXEC)
 
 # Link executables
-$(BINDIR)%: $(addprefix $(OBJDIR), %.o)
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o) $(FOCAL_LIB)
 	$(FC) $^ $(LFLAGS) -o $@
 
 # Compile fortran objects
-$(OBJDIR)%.o: %.f90
+$(OBJDIR)%.o: %.f90 
 	$(FC) $(FFLAGS) -c $< -o $@
 
 $(DIRS):
