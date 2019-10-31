@@ -4,7 +4,8 @@ Focal is a module library which wraps calls to the openCL runtime API (using [cl
 The guiding principle for this is: __to make simple things simple, and complex things possible__.
 
 __Project status:__ *Beta*
-__Documentation__: [LKedward.github.io/focal-docs](https://lkedward.github.io/focal-docs/)
+
+__Documentation__: [lkedward.github.io/focal-docs](https://lkedward.github.io/focal-docs/)
 
 ## Getting started
 
