@@ -8,6 +8,9 @@ submodule (Focal) Focal_Error
   use clfortran
   implicit none
   
+  integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
+    !! Extension error: No valid ICDs found
+
   contains
 
   module procedure fclHandleBuildError !(builderrcode,prog,ctx)
@@ -144,6 +147,9 @@ submodule (Focal) Focal_Error
 
       case (CL_INVALID_OPERATION)
         errstr = 'CL_INVALID_OPERATION'
+
+      case (CL_PLATFORM_NOT_FOUND_KHR)
+        errstr = 'CL_PLATFORM_NOT_FOUND_KHR'
 
       case default
         errstr = 'UNKNOWN'
