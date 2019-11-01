@@ -1,5 +1,5 @@
 PROGS = platform_query sum
-
+KERNELS = sum.cl
 # --- Directories ---
 FOCAL_DIR ?= ..
 OPENCL_DIR ?= /usr/lib/
@@ -27,12 +27,20 @@ clean:
 	rm -f $(EXEC)
 
 # Link executables
-$(BINDIR)%: $(addprefix $(OBJDIR), %.o) $(FOCAL_LIB)
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o) fclKernels.o $(FOCAL_LIB)
 	$(FC) $^ $(LFLAGS) -o $@
 
 # Compile fortran objects
 $(OBJDIR)%.o: %.f90 
 	$(FC) $(FFLAGS) -c $< -o $@
 
+# Compile kernel binary resource
+fclKernels.o: fclKernels.cl
+	ld -r -b binary fclKernels.cl -o $@
+	nm $@
+
+# Concatenate kernel files
+fclKernels.cl: $(KERNELS)
+	cat $^ > fclKernels.cl
 $(DIRS):
 	mkdir $@

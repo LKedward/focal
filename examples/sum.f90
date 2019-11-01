@@ -25,7 +25,8 @@ devices => fclFindDevices(sortBy='cores')
 call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1),enableProfiling=.true.))
 
 ! Load kernel from file and compile
-call fclSourceFromFile('examples/sum.cl',kernelSrc)
+! call fclSourceFromFile('examples/sum.cl',kernelSrc)
+call fclGetKernelResource(kernelSrc)
 prog = fclCompileProgram(kernelSrc)
 sumKernel = fclGetProgramKernel(prog,'sum')
 
