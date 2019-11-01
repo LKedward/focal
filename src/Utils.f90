@@ -7,7 +7,38 @@ submodule (Focal) Focal_Utils
 
   implicit none
 
+  character(1), target, bind(C,name="_binary_fclKernels_cl_start") :: i0
+    !! c interoperable character for start of fclKernels binary resource
+  character(1), target, bind(C,name="_binary_fclKernels_cl_end") :: i1
+    !! c interoperable character for sendtart of fclKernels binary resource
+
   contains
+
+  
+  module procedure fclGetKernelResource !(kernelString)
+
+    integer(c_intptr_t) :: a0, a1
+    integer :: i, length
+    character(1), pointer :: text(:)
+    
+    type(c_ptr) :: aa
+    
+    aa = c_loc(i0)
+
+    a0 = transfer(c_loc(i0),a0)
+    a1 = transfer(c_loc(i1),a1)
+    length = a1 - a0
+    
+    call c_f_pointer(aa,text,shape=[length])
+  
+    allocate(character(len=length) :: kernelString)
+    do i=1,length
+      kernelString(i:i) = text(i)
+    end do
+
+  end procedure fclGetKernelResource
+  ! -----------------------------------------------------------------------------
+
 
   module procedure upperstr ! character(len=len(linei)) function upperstr(linei)
     !! Return copy of string converted to uppercase

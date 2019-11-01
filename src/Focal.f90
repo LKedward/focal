@@ -555,6 +555,16 @@ module Focal
 
   interface
 
+    module subroutine fclGetKernelResource(kernelString)
+      !! Retrieve kernel source linked as a binary resource.
+      !!  Use linker ld to include kernel source with:
+      !!   ld -r -b binary -o fclKernels.o fclKernels.cl
+      !! (Object file MUST be called fclKernels.o, with no path)
+      !! Then link resulting object file as normal
+      character(:), allocatable, intent(out) :: kernelString
+        !! Kernel source as fortran character string
+    end subroutine fclGetKernelResource
+
     module function upperstr(linei)
       !! Return copy of string converted to uppercase
       !! Used for case-insensitive string comparison
