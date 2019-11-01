@@ -3,4 +3,6 @@
 *.mod
 *.smod
 *.a
+doc/*
+*fclKernels.cl
 

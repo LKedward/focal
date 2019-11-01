@@ -15,18 +15,18 @@ module Focal
   ! ---------------------------- CONSTANT PARAMETERS --------------------------
 
   integer, parameter :: errStringLen = 50
+    !! Max length of OpenCL error code strings
 
 
   ! ---------------------------- FOCAL TYPES ----------------------------------
   type :: fclPlatform
     !! Type wrapper for openCL platform objects
-    integer(c_intptr_t) :: cl_platform_id            !! openCL platform pointer
-    character(:), allocatable :: profile
-    character(:), allocatable :: version
-    character(:), allocatable :: name
-    character(:), allocatable :: vendor
-    character(:), allocatable :: extensions
-    ! type(fclContext) :: ctx                          !! Focal context object
+    integer(c_intptr_t) :: cl_platform_id            !! OpenCL platform pointer
+    character(:), allocatable :: profile             !! OpenCL Profile string
+    character(:), allocatable :: version             !! OpenCL Version
+    character(:), allocatable :: name                !! Platform name
+    character(:), allocatable :: vendor              !! Platform vendor
+    character(:), allocatable :: extensions          !! Platform extensions
     integer :: numDevice                             !! No. of devices
     type(fclDevice), pointer :: devices(:)           !! Focal device objects
     integer(c_intptr_t), allocatable :: cl_device_ids(:) !! openCL device pointers
@@ -35,15 +35,15 @@ module Focal
   type :: fclContext
     !! Type wrapper for openCL context objects
     integer(c_intptr_t) :: cl_context                !! openCL context pointer
-    type(fclPlatform) :: platform           !! Focal platform object
+    type(fclPlatform) :: platform                    !! Focal platform object
   end type fclContext
 
   type :: fclDevice
     !! Type wrapper for openCL device objects
-    integer(c_intptr_t) :: cl_device_id              !! openCL device pointer
-    integer(c_int64_t) :: cl_device_type             !! openCL type
-    character(:), allocatable :: name
-    integer(c_int32_t) :: nComputeUnits
+    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
+    integer(c_int64_t) :: cl_device_type             !! Device type
+    character(:), allocatable :: name                !! Device name
+    integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
     integer(c_int64_t) :: global_memory              !! Total global memory, bytes
     integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
     character(:), allocatable :: version             !! OpenCL version
@@ -63,12 +63,12 @@ module Focal
     !! Type wrapper for openCL kernel objects
     integer(c_intptr_t) :: cl_kernel                 !! openCL kernel pointer
     character(:), allocatable :: name                !! Kernel name
-    integer(c_int32_t) :: work_dim = 1               !! No. of dimensions
-    integer(c_size_t) :: global_work_offset(3) = 0   !!
-    integer(c_size_t) :: global_work_size(3) = 0
-    integer(c_size_t) :: local_work_size(3) = 0
+    integer(c_int32_t) :: work_dim = 1               !! Number of work-range dimensions
+    integer(c_size_t) :: global_work_offset(3) = 0   !! Global work dimension offsets
+    integer(c_size_t) :: global_work_size(3) = 0     !! Global work-range dimensions
+    integer(c_size_t) :: local_work_size(3) = 0      !! Local work-group dimensions
     contains
-    procedure, pass :: launch => fclLaunchKernel
+    procedure, pass :: launch => fclLaunchKernel     !! Launch the kernel
   end type fclKernel
 
   type :: fclDeviceBuffer
@@ -121,27 +121,27 @@ module Focal
 
     module subroutine fclHandleBuildError(builderrcode,prog,ctx)
       !! Check an openCL error code and print build log if necessary
-      integer, intent(in) :: builderrcode
-      type(fclProgram), intent(in) :: prog
-      type(fclContext), intent(in) :: ctx
+      integer, intent(in) :: builderrcode            !! OpenCL API error code
+      type(fclProgram), intent(in) :: prog           !! Focal program object
+      type(fclContext), intent(in) :: ctx            !! Focal context object
     end subroutine fclHandleBuildError
 
     module subroutine fclHandleErrorCode(errcode,descrip,stopnow)
       !! Check an openCL error code: stops and prints error if noT CL_SUCCESS
-      integer(c_int32_t), intent(in) :: errcode
-      character(*), intent(in), optional :: descrip
-      logical, intent(in), optional :: stopnow
+      integer(c_int32_t), intent(in) :: errcode      !! OpenCL API error code
+      character(*), intent(in), optional :: descrip  !! Description of current API call
+      logical, intent(in), optional :: stopnow       !! Don't halt if .false. (default .true.)
     end subroutine fclHandleErrorCode
 
     module function fclGetErrorString(errcode) result(errstr)
       !! Return the text representation for an openCL error code
-      integer, intent(in) :: errcode
-      character(errStringLen) :: errstr
+      integer, intent(in) :: errcode                 !! OpenCL API error code
+      character(errStringLen) :: errstr              !! Returns OpenCL error string
     end function fclGetErrorString
 
     module subroutine fclRuntimeError(descrip)
       !! Stop and print message for Focal errors not caused by openCL API call
-      character(*), intent(in), optional :: descrip
+      character(*), intent(in), optional :: descrip  !! Description of current API call
     end subroutine fclRuntimeError
 
   end interface
@@ -151,7 +151,7 @@ module Focal
 
   ! ---------------------------- MEMORY ROUTINES -------------------------------
   interface assignment(=)
-    !! Generic interface for assignment of fclBuffer objects
+    !! Generic interface for assignment of fclBuffer objects by operator-overloading
     procedure :: fclMemWriteScalarInt32
     procedure :: fclMemWriteScalarFloat
     procedure :: fclMemWriteScalarDouble
@@ -172,18 +172,20 @@ module Focal
     !! Generic interface to initialise double array on device
 
     module function fclBufferDouble_1(cmdq,dim,read,write) result(mem)
-      type(fclCommandQ), intent(in) :: cmdq
-      integer, intent(in) :: dim
-      logical, intent(in) :: read
-      logical, intent(in) :: write
-      type(fclDeviceDouble) :: mem
+      !! Interface for user-specified command queue
+      type(fclCommandQ), intent(in) :: cmdq          !! Queue with which to associate new buffer
+      integer, intent(in) :: dim                     !! Dimension of new buffer
+      logical, intent(in) :: read                    !! Read access of device kernels
+      logical, intent(in) :: write                   !! Write access of device kernels
+      type(fclDeviceDouble) :: mem                   !! Returns focal memory object 
     end function fclBufferDouble_1
 
     module function fclBufferDouble_2(dim,read,write) result(mem)
-      integer, intent(in) :: dim
-      logical, intent(in) :: read
-      logical, intent(in) :: write
-      type(fclDeviceDouble) :: mem
+      !! Interface to use the default command queue
+      integer, intent(in) :: dim                     !! Dimension of new buffer
+      logical, intent(in) :: read                    !! Read access of device kernels
+      logical, intent(in) :: write                   !! Write access of device kernels
+      type(fclDeviceDouble) :: mem                   !! Returns focal memory object 
     end function fclBufferDouble_2
 
   end interface fclBufferDouble
@@ -192,18 +194,20 @@ module Focal
     !! Generic interface to initialise float array on device
 
     module function fclBufferFloat_1(cmdq,dim,read,write) result(mem)
-      type(fclCommandQ), intent(in) :: cmdq
-      integer, intent(in) :: dim
-      logical, intent(in) :: read
-      logical, intent(in) :: write
-      type(fclDeviceFloat) :: mem
+      !! Interface for user-specified command queue
+      type(fclCommandQ), intent(in) :: cmdq          !! Queue with which to associate new buffer
+      integer, intent(in) :: dim                     !! Dimension of new buffer
+      logical, intent(in) :: read                    !! Read access of device kernels
+      logical, intent(in) :: write                   !! Write access of device kernels
+      type(fclDeviceFloat) :: mem                    !! Returns focal memory object 
     end function fclBufferFloat_1
 
     module function fclBufferFloat_2(dim,read,write) result(mem)
-      integer, intent(in) :: dim
-      logical, intent(in) :: read
-      logical, intent(in) :: write
-      type(fclDeviceFloat) :: mem
+      !! Interface to use the default command queue
+      integer, intent(in) :: dim                     !! Dimension of new buffer
+      logical, intent(in) :: read                    !! Read access of device kernels
+      logical, intent(in) :: write                   !! Write access of device kernels
+      type(fclDeviceFloat) :: mem                    !! Returns focal memory object 
     end function fclBufferFloat_2
 
   end interface fclBufferFloat
@@ -213,120 +217,151 @@ module Focal
     !! Generic interface to initialise int32 array on device
 
     module function fclBufferInt32_1(cmdq,dim,read,write) result(mem)
-      type(fclCommandQ), intent(in) :: cmdq
-      integer, intent(in) :: dim
-      logical, intent(in) :: read
-      logical, intent(in) :: write
-      type(fclDeviceInt32) :: mem
+      !! Interface for user-specified command queue
+      type(fclCommandQ), intent(in) :: cmdq          !! Queue with which to associate new buffer
+      integer, intent(in) :: dim                     !! Dimension of new buffer
+      logical, intent(in) :: read                    !! Read access of device kernels
+      logical, intent(in) :: write                   !! Write access of device kernels
+      type(fclDeviceInt32) :: mem                    !! Returns focal memory object 
     end function fclBufferInt32_1
 
     module function fclBufferInt32_2(dim,read,write) result(mem)
-      integer, intent(in) :: dim
-      logical, intent(in) :: read
-      logical, intent(in) :: write
-      type(fclDeviceInt32) :: mem
+      !! Interface to use the default command queue
+      integer, intent(in) :: dim                     !! Dimension of new buffer
+      logical, intent(in) :: read                    !! Read access of device kernels
+      logical, intent(in) :: write                   !! Write access of device kernels
+      type(fclDeviceInt32) :: mem                    !! Returns focal memory object 
     end function fclBufferInt32_2
 
   end interface fclBufferInt32
 
   interface
     module function fclBuffer(cmdq,nBytes,read,write) result(cl_mem)
-      type(fclCommandQ), intent(in), target :: cmdq
-      integer(c_size_t), intent(in) :: nBytes
-      logical, intent(in) :: read
-      logical, intent(in) :: write
-      integer(c_intptr_t) :: cl_mem
+      !! Initialise a device memory buffer with nBytes
+      type(fclCommandQ), intent(in), target :: cmdq  !! Dimension of new buffer
+      integer(c_size_t), intent(in) :: nBytes        !! Size of new buffer in bytes
+      logical, intent(in) :: read                    !! Read access of device kernels
+      logical, intent(in) :: write                   !! Write access of device kernels
+      integer(c_intptr_t) :: cl_mem                  !! Returns OpenCL memory pointer 
     end function fclBuffer
 
     ! --------- Write scalar to device ---------
 
     module subroutine fclMemWriteScalar(memObject,hostBufferPtr,nBytesPattern)
-      class(fclDeviceBuffer), intent(inout) :: memObject
-      type(c_ptr), intent(in) :: hostBufferPtr
-      integer(c_size_t), intent(in) :: nBytesPattern
+      !! Fill device buffer with scalar pattern
+      class(fclDeviceBuffer), intent(inout) :: memObject   !! Focal memory object to fill
+      type(c_ptr), intent(in) :: hostBufferPtr             !! C Pointer to host scalar patter
+      integer(c_size_t), intent(in) :: nBytesPattern       !! Size of scalar pattern in bytes
     end subroutine fclMemWriteScalar
 
     module subroutine fclMemWriteScalarInt32(memObject,hostValue)
-      class(fclDeviceInt32), intent(inout) :: memObject
-      integer(c_int32_t), intent(in), target :: hostValue
+      !! Assign a scalar integer to a device integer memory buffer
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceInt32), intent(inout) :: memObject    !! Focal memory object to fill
+      integer(c_int32_t), intent(in), target :: hostValue  !! Host value with which to fill
     end subroutine fclMemWriteScalarInt32
 
     module subroutine fclMemWriteScalarFloat(memObject,hostValue)
-      class(fclDeviceFloat), intent(inout) :: memObject
-      real(c_float), intent(in), target :: hostValue
+      !! Assign a scalar float to a device float memory buffer
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceFloat), intent(inout) :: memObject    !! Focal memory object to fill
+      real(c_float), intent(in), target :: hostValue       !! Host value with which to fill
     end subroutine fclMemWriteScalarFloat
 
     module subroutine fclMemWriteScalarDouble(memObject,hostValue)
-      class(fclDeviceDouble), intent(inout) :: memObject
-      real(c_double), intent(in), target :: hostValue
+      !! Assign a scalar double to a device double memory buffer
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceDouble), intent(inout) :: memObject   !! Focal memory object to fill
+      real(c_double), intent(in), target :: hostValue      !! Host value with which to fill
     end subroutine fclMemWriteScalarDouble
 
     ! --------- Write host array to device array ---------
 
     module subroutine fclMemWrite(memObject,hostBufferPtr,nBytes)
-      class(fclDeviceBuffer), intent(inout) :: memObject
-      type(c_ptr), intent(in) :: hostBufferPtr
-      integer(c_size_t), intent(in) :: nBytes
+      !! Transfer host buffer to device buffer
+      class(fclDeviceBuffer), intent(inout) :: memObject   !! Focal memory object (target)
+      type(c_ptr), intent(in) :: hostBufferPtr             !! C Pointer to host array (source)
+      integer(c_size_t), intent(in) :: nBytes              !! Size of buffers in bytes
     end subroutine fclMemWrite
 
     module subroutine fclMemWriteInt32(memObject,hostBuffer)
-      class(fclDeviceInt32), intent(inout) :: memObject
-      integer(c_int32_t), intent(in), target :: hostBuffer(:)
+      !! Transfer host integer array to device integer array
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceInt32), intent(inout) :: memObject    !! Focal memory object (target)
+      integer(c_int32_t), intent(in), target :: hostBuffer(:) !! Host array (source)
     end subroutine fclMemWriteInt32
 
     module subroutine fclMemWriteFloat(memObject,hostBuffer)
-      class(fclDeviceFloat), intent(inout) :: memObject
-      real(c_float), intent(in), target :: hostBuffer(:)
+      !! Transfer host float array to device float array
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceFloat), intent(inout) :: memObject    !! Focal memory object (target)
+      real(c_float), intent(in), target :: hostBuffer(:)   !! Host array (source)
     end subroutine fclMemWriteFloat
 
     module subroutine fclMemWriteDouble(memObject,hostBuffer)
-      class(fclDeviceDouble), intent(inout) :: memObject
-      real(c_double), intent(in), target :: hostBuffer(:)
+      !! Transfer host double array to device double array
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceDouble), intent(inout) :: memObject   !! Focal memory object (target)
+      real(c_double), intent(in), target :: hostBuffer(:)  !! Host array (source)
     end subroutine fclMemWriteDouble
 
     ! --------- Read device array into host array ---------
 
     module subroutine fclMemRead(hostBufferPtr,memObject,nBytes)
-      type(c_ptr), intent(in) :: hostBufferPtr
-      class(fclDeviceBuffer), intent(in) :: memObject
-      integer(c_size_t), intent(in) :: nBytes
+      !! Transfer device buffer to host buffer
+      type(c_ptr), intent(in) :: hostBufferPtr             !! C pointer to host buffer (target)
+      class(fclDeviceBuffer), intent(in) :: memObject      !! Focal memory object (source)
+      integer(c_size_t), intent(in) :: nBytes              !! Size of buffers in bytes
     end subroutine fclMemRead
 
     module subroutine fclMemReadInt32(hostBuffer,memObject)
-      integer(c_int32_t), intent(inout), target :: hostBuffer(:)
-      class(fclDeviceInt32), intent(in) :: memObject
+      !! Transfer device integer array to host integer array
+      !!  Called by operator-overloading of assignment(=)
+      integer(c_int32_t), intent(inout), target :: hostBuffer(:) !! Host array (target)
+      class(fclDeviceInt32), intent(in) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadInt32
 
     module subroutine fclMemReadFloat(hostBuffer,memObject)
-      real(c_float), intent(inout), target :: hostBuffer(:)
-      class(fclDeviceFloat), intent(in) :: memObject
+      !! Transfer device float array to host float array
+      !!  Called by operator-overloading of assignment(=)
+      real(c_float), intent(inout), target :: hostBuffer(:) !! Host array (target)
+      class(fclDeviceFloat), intent(in) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadFloat
 
     module subroutine fclMemReadDouble(hostBuffer,memObject)
-      real(c_double), intent(inout), target :: hostBuffer(:)
-      class(fclDeviceDouble), intent(in) :: memObject
+      !! Transfer device double array to host double array
+      !!  Called by operator-overloading of assignment(=)
+      real(c_double), intent(inout), target :: hostBuffer(:) !! Host array (target)
+      class(fclDeviceDouble), intent(in) :: memObject      !! Focal memory object (source)
     end subroutine fclMemReadDouble
 
     ! --------- Copy device array to device array ---------
 
     module subroutine fclMemCopy(memObject1,memObject2)
-      class(fclDeviceBuffer), intent(inout) :: memObject1
-      class(fclDeviceBuffer), intent(in) :: memObject2
+      !! Transfer device buffer to device buffer
+      class(fclDeviceBuffer), intent(inout) :: memObject1  !! Focal memory object (target)
+      class(fclDeviceBuffer), intent(in) :: memObject2     !! Focal memory object (source)
     end subroutine fclMemCopy
 
     module subroutine fclMemCopyInt32(memObject1,memObject2)
-      class(fclDeviceInt32), intent(inout), target :: memObject1
-      class(fclDeviceInt32), intent(in) :: memObject2
+      !! Transfer device integer array to device integer array
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceInt32), intent(inout), target :: memObject1 !! Focal memory object (target)
+      class(fclDeviceInt32), intent(in) :: memObject2      !! Focal memory object (source)
     end subroutine fclMemCopyInt32
 
     module subroutine fclMemCopyFloat(memObject1,memObject2)
-      class(fclDeviceFloat), intent(inout), target :: memObject1
-      class(fclDeviceFloat), intent(in) :: memObject2
+      !! Transfer device float array to device float array
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceFloat), intent(inout), target :: memObject1 !! Focal memory object (target)
+      class(fclDeviceFloat), intent(in) :: memObject2      !! Focal memory object (source)
     end subroutine fclMemCopyFloat
 
     module subroutine fclMemCopyDouble(memObject1,memObject2)
-      class(fclDeviceDouble), intent(inout), target :: memObject1
-      class(fclDeviceDouble), intent(in) :: memObject2
+      !! Transfer device double array to device double array
+      !!  Called by operator-overloading of assignment(=)
+      class(fclDeviceDouble), intent(inout), target :: memObject1 !! Focal memory object (target)
+      class(fclDeviceDouble), intent(in) :: memObject2     !! Focal memory object (source)
     end subroutine fclMemCopyDouble
 
   end interface
