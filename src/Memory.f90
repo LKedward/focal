@@ -117,7 +117,10 @@ submodule (Focal) Focal_Memory
 
     errcode = clEnqueueFillBuffer(memObject%cmdq%cl_command_queue, &
                 memObject%cl_mem, hostBufferPtr, nBytesPattern, &
-                int(0,c_size_t), memObject%nBytes, 0, C_NULL_PTR, c_loc(fclLastWriteEvent))
+                int(0,c_size_t), memObject%nBytes, 0, C_NULL_PTR, &
+                c_loc(memObject%cmdq%lastWriteEvent%cl_event))
+
+    fclLastWriteEvent = memObject%cmdq%lastWriteEvent
 
     call fclHandleErrorCode(errcode,'fclMemWriteScalar:clEnqueueFillBuffer')
 
@@ -168,7 +171,9 @@ submodule (Focal) Focal_Memory
 
     errcode = clEnqueueWriteBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
           blocking_write,int(0,c_size_t),nBytes,hostBufferPtr, &
-          0,C_NULL_PTR,c_loc(fclLastWriteEvent))
+          0,C_NULL_PTR,c_loc(memObject%cmdq%lastWriteEvent%cl_event))
+
+    fclLastWriteEvent = memObject%cmdq%lastWriteEvent
 
     call fclHandleErrorCode(errcode,'fclMemWrite:clEnqueueWriteBuffer')
 
@@ -222,7 +227,9 @@ submodule (Focal) Focal_Memory
 
     errcode = clEnqueueReadBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
           blocking_read,int(0,c_size_t),nBytes,hostBufferPtr, &
-          0,C_NULL_PTR,c_loc(fclLastReadEvent))
+          0,C_NULL_PTR,c_loc(memObject%cmdq%lastReadEvent%cl_event))
+
+    fclLastReadEvent = memObject%cmdq%lastReadEvent
 
     call fclHandleErrorCode(errcode,'fclMemRead:clEnqueueReadBuffer')
 
@@ -290,7 +297,9 @@ submodule (Focal) Focal_Memory
                 memObject2%cl_mem, memObject1%cl_mem, &
                 int(0,c_size_t), int(0,c_size_t), &
                 memObject2%nBytes, &
-                0,C_NULL_PTR,c_loc(fclLastCopyEvent))
+                0,C_NULL_PTR,c_loc(memObject1%cmdq%lastCopyEvent%cl_event))
+
+      fclLastCopyEvent = memObject1%cmdq%lastCopyEvent
 
       call fclHandleErrorCode(errcode,'fclMemCopy:clEnqueueCopyBuffer')
 

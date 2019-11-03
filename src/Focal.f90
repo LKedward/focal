@@ -49,15 +49,29 @@ module Focal
     character(:), allocatable :: version             !! OpenCL version
   end type fclDevice
 
+  type :: fclEvent
+    !! Type wrapper for OpenCL event pointers
+    type(c_ptr) :: cl_event                          !! OpenCL event pointer
+  end type fclEvent
+
   type :: fclCommandQ
     !! Type wrapper for openCL command queue objects
     integer(c_intptr_t) :: cl_command_queue          !! openCL command Q pointer
+    type(fclEvent) :: lastWriteEvent
+      !! openCL pointer to the most recent write event (host-to-device) to be enqueued
+    type(fclEvent) :: lastReadEvent
+      !! openCL pointer to the most recent read event (device-to-host) to be enqueued
+    type(fclEvent) :: lastCopyEvent
+      !! openCL pointer to the most recent copy event (device-to-device) to be enqueued
+    type(fclEvent) :: lastKernelEvent
+      !! openCL pointer to the most recent kernel event to be enqueued
   end type fclCommandQ
 
   type :: fclProgram
     !! Type wrapper for openCL program objects
     integer(c_intptr_t) :: cl_program                !! openCL program pointer
   end type fclProgram
+
 
   type :: fclKernel
     !! Type wrapper for openCL kernel objects
@@ -93,10 +107,10 @@ module Focal
 
   ! ---------------------------- GLOBAL PARAMETERS ----------------------------
 
-  type(fclCommandQ) :: fclDefaultCmdQ
+  type(fclCommandQ), target :: fclDefaultCmdQ
     !! Default command queue: used when command queue is omittetd in focal api calls
 
-  type(fclContext) :: fclDefaultCtx
+  type(fclContext), target :: fclDefaultCtx
     !! Default context: used when context is omittetd in focal api calls
 
   logical :: fclBlockingWrite = .true.
@@ -104,13 +118,13 @@ module Focal
   logical :: fclBlockingRead = .true.
     !! Enable/disable block reads when copying from device to host
 
-  type(c_ptr), target :: fclLastWriteEvent
+  type(fclEvent), target :: fclLastWriteEvent
     !! openCL pointer to the most recent write event (host-to-device) to be enqueued
-  type(c_ptr), target :: fclLastReadEvent
+  type(fclEvent), target :: fclLastReadEvent
     !! openCL pointer to the most recent read event (device-to-host) to be enqueued
-  type(c_ptr), target :: fclLastCopyEvent
+  type(fclEvent), target :: fclLastCopyEvent
     !! openCL pointer to the most recent copy event (device-to-device) to be enqueued
-  type(c_ptr), target :: fclLastKernelEvent
+  type(fclEvent), target :: fclLastKernelEvent
     !! openCL pointer to the most recent kernel event to be enqueued
 
 
@@ -177,7 +191,7 @@ module Focal
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
-      type(fclDeviceDouble) :: mem                   !! Returns focal memory object 
+      type(fclDeviceDouble) :: mem                   !! Returns focal memory object
     end function fclBufferDouble_1
 
     module function fclBufferDouble_2(dim,read,write) result(mem)
@@ -185,7 +199,7 @@ module Focal
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
-      type(fclDeviceDouble) :: mem                   !! Returns focal memory object 
+      type(fclDeviceDouble) :: mem                   !! Returns focal memory object
     end function fclBufferDouble_2
 
   end interface fclBufferDouble
@@ -199,7 +213,7 @@ module Focal
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
-      type(fclDeviceFloat) :: mem                    !! Returns focal memory object 
+      type(fclDeviceFloat) :: mem                    !! Returns focal memory object
     end function fclBufferFloat_1
 
     module function fclBufferFloat_2(dim,read,write) result(mem)
@@ -207,7 +221,7 @@ module Focal
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
-      type(fclDeviceFloat) :: mem                    !! Returns focal memory object 
+      type(fclDeviceFloat) :: mem                    !! Returns focal memory object
     end function fclBufferFloat_2
 
   end interface fclBufferFloat
@@ -222,7 +236,7 @@ module Focal
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
-      type(fclDeviceInt32) :: mem                    !! Returns focal memory object 
+      type(fclDeviceInt32) :: mem                    !! Returns focal memory object
     end function fclBufferInt32_1
 
     module function fclBufferInt32_2(dim,read,write) result(mem)
@@ -230,7 +244,7 @@ module Focal
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
-      type(fclDeviceInt32) :: mem                    !! Returns focal memory object 
+      type(fclDeviceInt32) :: mem                    !! Returns focal memory object
     end function fclBufferInt32_2
 
   end interface fclBufferInt32
@@ -242,14 +256,14 @@ module Focal
       integer(c_size_t), intent(in) :: nBytes        !! Size of new buffer in bytes
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
-      integer(c_intptr_t) :: cl_mem                  !! Returns OpenCL memory pointer 
+      integer(c_intptr_t) :: cl_mem                  !! Returns OpenCL memory pointer
     end function fclBuffer
 
     ! --------- Write scalar to device ---------
 
     module subroutine fclMemWriteScalar(memObject,hostBufferPtr,nBytesPattern)
       !! Fill device buffer with scalar pattern
-      class(fclDeviceBuffer), intent(inout) :: memObject   !! Focal memory object to fill
+      class(fclDeviceBuffer), intent(inout), target :: memObject   !! Focal memory object to fill
       type(c_ptr), intent(in) :: hostBufferPtr             !! C Pointer to host scalar patter
       integer(c_size_t), intent(in) :: nBytesPattern       !! Size of scalar pattern in bytes
     end subroutine fclMemWriteScalar
@@ -279,7 +293,7 @@ module Focal
 
     module subroutine fclMemWrite(memObject,hostBufferPtr,nBytes)
       !! Transfer host buffer to device buffer
-      class(fclDeviceBuffer), intent(inout) :: memObject   !! Focal memory object (target)
+      class(fclDeviceBuffer), intent(inout), target :: memObject   !! Focal memory object (target)
       type(c_ptr), intent(in) :: hostBufferPtr             !! C Pointer to host array (source)
       integer(c_size_t), intent(in) :: nBytes              !! Size of buffers in bytes
     end subroutine fclMemWrite
@@ -310,7 +324,7 @@ module Focal
     module subroutine fclMemRead(hostBufferPtr,memObject,nBytes)
       !! Transfer device buffer to host buffer
       type(c_ptr), intent(in) :: hostBufferPtr             !! C pointer to host buffer (target)
-      class(fclDeviceBuffer), intent(in) :: memObject      !! Focal memory object (source)
+      class(fclDeviceBuffer), intent(in), target :: memObject      !! Focal memory object (source)
       integer(c_size_t), intent(in) :: nBytes              !! Size of buffers in bytes
     end subroutine fclMemRead
 
@@ -339,7 +353,7 @@ module Focal
 
     module subroutine fclMemCopy(memObject1,memObject2)
       !! Transfer device buffer to device buffer
-      class(fclDeviceBuffer), intent(inout) :: memObject1  !! Focal memory object (target)
+      class(fclDeviceBuffer), intent(inout), target :: memObject1  !! Focal memory object (target)
       class(fclDeviceBuffer), intent(in) :: memObject2     !! Focal memory object (source)
     end subroutine fclMemCopy
 
@@ -400,7 +414,7 @@ module Focal
       integer(c_int32_t), intent(in) :: key
       integer(c_int64_t), intent(out), target :: value
     end subroutine fclGetDeviceInfoInt64
-  
+
   end interface fclGetDeviceInfo
 
   interface
@@ -442,8 +456,8 @@ module Focal
     end function fclCreateContextWithVendor
 
   end interface fclCreateContext
-  
-  interface 
+
+  interface
     module subroutine fclSetDefaultContext(ctx)
       !! Set the global default context
       type(fclContext), intent(in) :: ctx
@@ -542,12 +556,12 @@ module Focal
       integer(c_int32_t), intent(in) :: argIndex
       class(*), intent(in), target :: argValue
     end subroutine fclSetKernelArg
-    
+
   end interface
 
   interface fclBarrier
     !! Generic interface to enqueue a command queue barrier
-    !!  Wait on device for all preceding queue events to complete before 
+    !!  Wait on device for all preceding queue events to complete before
     !!  subsequent events can proceed.
 
     module subroutine fclBarrier_1(cmdq)
@@ -575,16 +589,16 @@ module Focal
 
     module subroutine fclWaitEvent(event)
       !! Wait on host for a specific event
-      type(c_ptr), intent(in), target :: event
+      type(fclEvent), intent(in), target :: event
     end subroutine fclWaitEvent
 
     module subroutine fclWaitEventList(eventList)
       !! Wait on host for set of events
-      type(c_ptr), intent(in), target :: eventList(:)
+      type(fclEvent), intent(in), target :: eventList(:)
     end subroutine fclWaitEventList
 
   end interface fclWait
-  
+
 
   ! ---------------------------- UTILITY ROUTINES -------------------------------
 

@@ -88,7 +88,7 @@ submodule (Focal) Focal_Setup
     integer(c_int64_t) :: typeFilter
     integer(c_int64_t) :: deviceType
     integer :: nFiltered, nFill
-    
+
     integer(c_int64_t) :: int64Metric
 
     character(3) :: CPU_TYPE
@@ -130,13 +130,13 @@ submodule (Focal) Focal_Setup
         case ('MEMORY')
           call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_GLOBAL_MEM_SIZE,int64Metric)
           sortMetric(i) = int(int64Metric/1000000,c_int32_t) ! Convert to megabytes to avoid overflow in int32
-  
+
         case ('CORES')
           call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_COMPUTE_UNITS,sortMetric(i))
-  
+
         case ('CLOCK')
           call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_CLOCK_FREQUENCY,sortMetric(i))
-  
+
         end select
 
       else
@@ -156,7 +156,7 @@ submodule (Focal) Focal_Setup
     sortMetric = -sortMetric          ! Sort descending
     sortList = [(i,i=1,ctx%platform%numDevice)]
     call quick_sort(sortMetric,sortList)
-    
+
     nFiltered = count(filter)
     if (nFiltered < 1) then
       call fclRuntimeError("fclFindDevices: no devices found matching criteria")
@@ -316,7 +316,7 @@ submodule (Focal) Focal_Setup
     !!  in the corresponding fclLaunchKernel_2 procedure @endwarning
 
     integer(c_int32_t) :: errcode
-    type(fclCommandQ) :: cmdQ
+    type(fclCommandQ), pointer :: cmdQ
     type(c_ptr) :: localSizePtr
     integer :: i0
 
@@ -337,13 +337,13 @@ submodule (Focal) Focal_Setup
 
     ! --- Check if command queue was specified ---
     i0 = 0
-    cmdQ = fclDefaultCmdQ
+    cmdQ => fclDefaultCmdQ
     if (present(a0)) then
       select type(arg => a0)
 
       class is (fclCommandQ)
         !! cmdQ is specified in first arg
-        cmdQ = arg
+        cmdQ => arg
         i0 = 0
 
       class default
@@ -390,9 +390,11 @@ submodule (Focal) Focal_Setup
                 kernel%cl_kernel, kernel%work_dim, &
                 c_loc(kernel%global_work_offset), &
                 c_loc(kernel%global_work_size), &
-                localSizePtr, 0, C_NULL_PTR, c_loc(fclLastKernelEvent))
+                localSizePtr, 0, C_NULL_PTR, c_loc(cmdQ%lastKernelEvent%cl_event))
 
     call fclHandleErrorCode(errcode,'fclLaunchKernel:clEnqueueNDRangeKernel')
+
+    fclLastKernelEvent = cmdQ%lastKernelEvent
 
   end procedure fclLaunchKernel
   ! ---------------------------------------------------------------------------
@@ -466,7 +468,7 @@ submodule (Focal) Focal_Setup
 
   end procedure fclBarrier_2
   ! ---------------------------------------------------------------------------
-  
+
 
   module procedure fclFinish_1 !(cmdq)
     !! Wait on host for all events in user-specified command queue
@@ -479,7 +481,7 @@ submodule (Focal) Focal_Setup
   end procedure fclFinish_1
   ! ---------------------------------------------------------------------------
 
-  
+
   module procedure fclFinish_2
     !! Wait on host for all events in focal default command queue
     call fclFinish_1(fclDefaultCmdQ)
@@ -492,22 +494,27 @@ submodule (Focal) Focal_Setup
     !! Wait on host for a specific event
     integer(c_int32_t) :: errcode
 
-    errcode = clWaitForEvents ( 1, c_loc(event) )
+    errcode = clWaitForEvents ( 1, c_loc(event%cl_event) )
 
-    call fclHandleErrorCode(errcode,'fclWaitEvent:clWaitForEvents')    
-    
+    call fclHandleErrorCode(errcode,'fclWaitEvent:clWaitForEvents')
+
   end procedure fclWaitEvent
   ! ---------------------------------------------------------------------------
 
 
   module procedure fclWaitEventList !(eventList)
     !! Wait on host for set of events
+    integer :: i
     integer(c_int32_t) :: errcode
+    type(c_ptr), target :: cl_eventList(size(eventList,1))
 
-    errcode = clWaitForEvents ( 1, c_loc(eventList) )
+    ! Populate array of c_ptr
+    cl_eventList = [(eventList(i)%cl_event,i=1,size(eventList,1))]
 
-    call fclHandleErrorCode(errcode,'fclWaitEventList:clWaitForEvents')    
-    
+    errcode = clWaitForEvents ( size(eventList,1), c_loc(cl_eventList) )
+
+    call fclHandleErrorCode(errcode,'fclWaitEventList:clWaitForEvents')
+
   end procedure fclWaitEventList
   ! ---------------------------------------------------------------------------
 
