@@ -114,6 +114,17 @@ module Focal
     integer(c_size_t) :: nBytes                      !! Size of local argument in bytes
   end type fclLocalArgument
 
+  ! ---------------------------- ABSTRACT INTERFACES --------------------------
+
+  abstract interface
+    subroutine fclErrorHandlerInterface(errcode,focalCall,oclCall)
+      use iso_c_binding
+      integer(c_int32_t), intent(in) :: errcode
+      character(*), intent(in) :: focalCall
+      character(*), intent(in) :: oclCall
+    end subroutine fclErrorHandlerInterface
+  end interface
+
   ! ---------------------------- GLOBAL PARAMETERS ----------------------------
 
   !! @note Use of global parameters must not restrict ability to use the module 
@@ -134,7 +145,7 @@ module Focal
   type(fclEvent), target :: fclLastKernelEvent
     !! openCL pointer to the most recent kernel event to be enqueued
 
-
+  procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
 
 
   ! ---------------------------- ERROR ROUTINES -------------------------------
@@ -147,12 +158,11 @@ module Focal
       type(fclContext), intent(in) :: ctx            !! Focal context object
     end subroutine fclHandleBuildError
 
-    module subroutine fclHandleErrorCode(errcode,descrip,stopnow)
-      !! Check an openCL error code: stops and prints error if noT CL_SUCCESS
-      integer(c_int32_t), intent(in) :: errcode      !! OpenCL API error code
-      character(*), intent(in), optional :: descrip  !! Description of current API call
-      logical, intent(in), optional :: stopnow       !! Don't halt if .false. (default .true.)
-    end subroutine fclHandleErrorCode
+    module subroutine fclDefaultErrorHandler(errcode,focalCall,oclCall)
+      integer(c_int32_t), intent(in) :: errcode
+      character(*), intent(in) :: focalCall
+      character(*), intent(in) :: oclCall
+    end subroutine fclDefaultErrorHandler
 
     module function fclGetErrorString(errcode) result(errstr)
       !! Return the text representation for an openCL error code
@@ -166,8 +176,6 @@ module Focal
     end subroutine fclRuntimeError
 
   end interface
-
-
 
 
   ! ---------------------------- MEMORY ROUTINES -------------------------------

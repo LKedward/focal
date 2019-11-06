@@ -88,7 +88,7 @@ submodule (Focal) Focal_Memory
                   CL_QUEUE_CONTEXT,c_sizeof(cl_context), &
                   c_loc(cl_context), size_ret)
 
-    call fclHandleErrorCode(errcode,'fclBuffer:clGetCommandQueueInfo')
+    call fclErrorHandler(errcode,'fclBuffer','clGetCommandQueueInfo')
 
     MEM_FLAGS = CL_MEM_READ_WRITE
     if (.not.write.and..not.read) then
@@ -105,7 +105,7 @@ submodule (Focal) Focal_Memory
     cl_mem = clCreateBuffer(cl_context,MEM_FLAGS, &
                       nBytes,C_NULL_PTR,errcode)
 
-    call fclHandleErrorCode(errcode,'fclBuffer:clCreateBuffer')
+    call fclErrorHandler(errcode,'fclBuffer','clCreateBuffer')
 
   end procedure fclBuffer
   ! ---------------------------------------------------------------------------
@@ -122,7 +122,7 @@ submodule (Focal) Focal_Memory
 
     fclLastWriteEvent = memObject%cmdq%lastWriteEvent
 
-    call fclHandleErrorCode(errcode,'fclMemWriteScalar:clEnqueueFillBuffer')
+    call fclErrorHandler(errcode,'fclMemWriteScalar','clEnqueueFillBuffer')
 
   end procedure fclMemWriteScalar
   ! ---------------------------------------------------------------------------
@@ -175,7 +175,7 @@ submodule (Focal) Focal_Memory
 
     fclLastWriteEvent = memObject%cmdq%lastWriteEvent
 
-    call fclHandleErrorCode(errcode,'fclMemWrite:clEnqueueWriteBuffer')
+    call fclErrorHandler(errcode,'fclMemWrite','clEnqueueWriteBuffer')
 
   end procedure fclMemWrite
   ! ---------------------------------------------------------------------------
@@ -231,7 +231,7 @@ submodule (Focal) Focal_Memory
 
     fclLastReadEvent = memObject%cmdq%lastReadEvent
 
-    call fclHandleErrorCode(errcode,'fclMemRead:clEnqueueReadBuffer')
+    call fclErrorHandler(errcode,'fclMemRead','clEnqueueReadBuffer')
 
   end procedure fclMemRead
   ! ---------------------------------------------------------------------------
@@ -301,7 +301,7 @@ submodule (Focal) Focal_Memory
 
       fclLastCopyEvent = memObject1%cmdq%lastCopyEvent
 
-      call fclHandleErrorCode(errcode,'fclMemCopy:clEnqueueCopyBuffer')
+      call fclErrorHandler(errcode,'fclMemCopy','clEnqueueCopyBuffer')
 
     end if
 

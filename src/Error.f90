@@ -10,8 +10,22 @@ submodule (Focal) Focal_Error
   
   integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
     !! Extension error: No valid ICDs found
-
+  
   contains
+
+  module procedure fclDefaultErrorHandler
+    
+    if (errcode /= CL_SUCCESS) then
+
+      write(*,*) '(!) Fatal openCl error ',errcode,' : ',trim(fclGetErrorString(errcode))
+      write(*,*) '      at ',focalCall,':',oclCall
+      
+      stop 1
+    end if
+
+  end procedure fclDefaultErrorHandler
+  ! ---------------------------------------------------------------------------
+
 
   module procedure fclHandleBuildError !(builderrcode,prog,ctx)
 
@@ -20,12 +34,10 @@ submodule (Focal) Focal_Error
     integer(c_size_t), target :: buffLen, int32_ret
     character(len=1,kind=c_char), allocatable, target :: buildLogBuffer(:)
 
-    call fclHandleErrorCode(builderrcode,'fclCompileProgram:clBuildProgram',stopnow=.false.)
-
     ! Handle compilation error
     if (builderrcode /= CL_SUCCESS) then
 
-      ! Echo kernel from first device
+      write(*,*) '(!) Fatal openCl error while building kernel: ',errcode,' : ',trim(fclGetErrorString(errcode))
 
       ! Iterate over context devices 
       do i=1,ctx%platform%numDevice
@@ -36,7 +48,7 @@ submodule (Focal) Focal_Error
         errcode = clGetProgramBuildInfo(prog%cl_program, ctx%platform%cl_device_ids(1), &
           CL_PROGRAM_BUILD_LOG, int(0,c_size_t), C_NULL_PTR, buffLen);
 
-        call fclHandleErrorCode(errcode,'fclCompileProgram:clGetProgramBuildInfo')
+        call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
 
         allocate(buildLogBuffer(buffLen))
         buffLen = size(buildLogBuffer,1)
@@ -44,7 +56,7 @@ submodule (Focal) Focal_Error
         errcode = clGetProgramBuildInfo(prog%cl_program, ctx%platform%cl_device_ids(1), & 
           CL_PROGRAM_BUILD_LOG, buffLen, c_loc(buildLogBuffer), int32_ret);
 
-        call fclHandleErrorCode(errcode,'fclCompileProgram:clGetProgramBuildInfo')
+        call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
 
         write(*,*) buildLogBuffer
         write(*,*)
@@ -56,29 +68,7 @@ submodule (Focal) Focal_Error
       stop
     end if
 
-
   end procedure fclHandleBuildError
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclHandleErrorCode !(errcode,descrip,stopnow)
-
-    if (errcode /= CL_SUCCESS) then
-      write(*,*) '(!) Fatal openCl error ',errcode,' : ',trim(fclGetErrorString(errcode))
-      if (present(descrip)) then
-        write(*,*) '      at ',descrip
-      end if
-
-      if (present(stopnow)) then
-        if (stopnow) then
-          stop
-        end if
-      else
-        stop
-      end if
-    end if
-
-  end procedure fclHandleErrorCode
   ! ---------------------------------------------------------------------------
 
 
@@ -141,7 +131,7 @@ submodule (Focal) Focal_Error
 
       case (CL_INVALID_KERNEL_ARGS)
         errstr = 'CL_INVALID_KERNEL_ARGS'
-        
+
       case (CL_INVALID_EVENT_WAIT_LIST)
         errstr = 'CL_INVALID_EVENT_WAIT_LIST'
 

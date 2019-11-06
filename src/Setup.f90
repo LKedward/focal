@@ -25,7 +25,7 @@ submodule (Focal) Focal_Setup
                 platform%numDevice, c_loc(platform%cl_device_ids), &
                 C_NULL_FUNPTR, C_NULL_PTR, errcode)
 
-    call fclHandleErrorCode(errcode)
+    call fclErrorHandler(errcode,'fclCreateContextWithPlatform','clCreateContext')
 
     ! platform%ctx = ctx
     ctx%platform = platform
@@ -214,7 +214,7 @@ submodule (Focal) Focal_Setup
     cmdq%cl_command_queue = clCreateCommandQueue(ctx%cl_context, device%cl_device_id, &
                                   properties ,errcode)
 
-    call fclHandleErrorCode(errcode,'fclCreateDeviceCommandQWithDevice::clCreateCommandQueue')
+    call fclErrorHandler(errcode,'fclCreateDeviceCommandQWithDevice','clCreateCommandQueue')
 
   end procedure fclCreateCommandQ_1
   ! ---------------------------------------------------------------------------
@@ -254,7 +254,7 @@ submodule (Focal) Focal_Setup
     prog%cl_program = clCreateProgramWithSource(ctx%cl_context,1, &
                           C_LOC(c_source_p),C_NULL_PTR,errcode)
 
-    call fclHandleErrorCode(errcode,'fclCompileProgram:clCreateProgramWithSource')
+    call fclErrorHandler(errcode,'fclCompileProgram','clCreateProgramWithSource')
 
     if (present(options)) then
       allocate(c_options(len(options)+1))
@@ -301,7 +301,7 @@ submodule (Focal) Focal_Setup
 
     kern%cl_kernel = clCreateKernel(prog%cl_program,C_LOC(c_name),errcode)
 
-    call fclHandleErrorCode(errcode,'fclGetProgramKernel:clCreateKernel')
+    call fclErrorHandler(errcode,'fclGetProgramKernel','clCreateKernel')
 
     allocate(character(len=len(kernelName)) :: kern%name)
     kern%name = kernelName
@@ -392,7 +392,7 @@ submodule (Focal) Focal_Setup
                 c_loc(kernel%global_work_size), &
                 localSizePtr, 0, C_NULL_PTR, c_loc(cmdQ%lastKernelEvent%cl_event))
 
-    call fclHandleErrorCode(errcode,'fclLaunchKernel:clEnqueueNDRangeKernel')
+    call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
     fclLastKernelEvent = cmdQ%lastKernelEvent
 
@@ -448,7 +448,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clSetKernelArg(kernel%cl_kernel,argIndex,argSize,argPtr)
 
-    call fclHandleErrorCode(errcode,'fclSetKernelArg:clSetKernelArg')
+    call fclErrorHandler(errcode,'fclSetKernelArg','clSetKernelArg')
 
   end procedure fclSetKernelArg
   ! ---------------------------------------------------------------------------
@@ -484,7 +484,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clEnqueueBarrierWithWaitList( cmdq%cl_command_queue, 0, C_NULL_PTR , C_NULL_PTR)
 
-    call fclHandleErrorCode(errcode,'fclBarrierAll:clEnqueueBarrierWithWaitList')
+    call fclErrorHandler(errcode,'fclBarrierAll','clEnqueueBarrierWithWaitList')
 
   end procedure fclBarrier_1
   ! ---------------------------------------------------------------------------
@@ -504,7 +504,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clFinish(cmdq%cl_command_queue)
 
-    call fclHandleErrorCode(errcode,'fclFinish:clFinish')
+    call fclErrorHandler(errcode,'fclFinish','clFinish')
 
   end procedure fclFinish_1
   ! ---------------------------------------------------------------------------
@@ -524,7 +524,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clWaitForEvents ( 1, c_loc(event%cl_event) )
 
-    call fclHandleErrorCode(errcode,'fclWaitEvent:clWaitForEvents')
+    call fclErrorHandler(errcode,'fclWaitEvent','clWaitForEvents')
 
   end procedure fclWaitEvent
   ! ---------------------------------------------------------------------------
@@ -541,7 +541,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clWaitForEvents ( size(eventList,1), c_loc(cl_eventList) )
 
-    call fclHandleErrorCode(errcode,'fclWaitEventList:clWaitForEvents')
+    call fclErrorHandler(errcode,'fclWaitEventList','clWaitForEvents')
 
   end procedure fclWaitEventList
   ! ---------------------------------------------------------------------------
