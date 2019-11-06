@@ -163,7 +163,7 @@ submodule (Focal) Focal_Memory
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_write
 
-    if (fclBlockingWrite) then
+    if (memObject%cmdq%fclBlockingWrite) then
       blocking_write = CL_TRUE
     else
       blocking_write = CL_FALSE
@@ -219,7 +219,7 @@ submodule (Focal) Focal_Memory
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_read
 
-    if (fclBlockingRead) then
+    if (memObject%cmdq%fclBlockingRead) then
       blocking_read = CL_TRUE
     else
       blocking_read = CL_FALSE

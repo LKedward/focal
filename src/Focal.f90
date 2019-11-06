@@ -57,6 +57,10 @@ module Focal
   type :: fclCommandQ
     !! Type wrapper for openCL command queue objects
     integer(c_intptr_t) :: cl_command_queue          !! openCL command Q pointer
+    logical :: fclBlockingWrite = .true.
+      !! Enable/disable blocking writes when copying from host to device
+    logical :: fclBlockingRead = .true.
+      !! Enable/disable block reads when copying from device to host
     type(fclEvent) :: lastWriteEvent
       !! openCL pointer to the most recent write event (host-to-device) to be enqueued
     type(fclEvent) :: lastReadEvent
@@ -112,11 +116,6 @@ module Focal
 
   type(fclContext), target :: fclDefaultCtx
     !! Default context: used when context is omittetd in focal api calls
-
-  logical :: fclBlockingWrite = .true.
-    !! Enable/disable blocking writes when copying from host to device
-  logical :: fclBlockingRead = .true.
-    !! Enable/disable block reads when copying from device to host
 
   type(fclEvent), target :: fclLastWriteEvent
     !! openCL pointer to the most recent write event (host-to-device) to be enqueued
