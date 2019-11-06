@@ -108,6 +108,11 @@ module Focal
     !! Type wrapper for memory objects representing double
   end type fclDeviceDouble
 
+  type :: fclLocalArgument
+    !! Type for specifying local kernel arguments.
+    !!  Instantiate with on of: fclLocalInt32, fclLocalFloat, fclLocalDouble
+    integer(c_size_t) :: nBytes                      !! Size of local argument in bytes
+  end type fclLocalArgument
 
   ! ---------------------------- GLOBAL PARAMETERS ----------------------------
 
@@ -555,6 +560,24 @@ module Focal
       integer(c_int32_t), intent(in) :: argIndex
       class(*), intent(in), target :: argValue
     end subroutine fclSetKernelArg
+
+    module function fclLocalInt32(nElem) result(localArg)
+      !! Create a integer local kernel argument object for launching kernels
+      integer, intent(in) :: nElem                    !! No of array elements
+      type(fclLocalArgument) :: localArg             !! Returns local argument object
+    end function fclLocalInt32
+
+    module function fclLocalFloat(nElem) result(localArg)
+      !! Create a float local kernel argument object for launching kernels
+      integer, intent(in) :: nElem                    !! No of array elements
+      type(fclLocalArgument) :: localArg             !! Returns local argument object
+    end function fclLocalFloat
+
+    module function fclLocalDouble(nElem) result(localArg)
+      !! Create a double local kernel argument object for launching kernels
+      integer, intent(in) :: nElem                    !! No of array elements
+      type(fclLocalArgument) :: localArg             !! Returns local argument object
+    end function fclLocalDouble
 
   end interface
 

@@ -423,6 +423,10 @@ submodule (Focal) Focal_Setup
         argPtr = c_loc(arg%cl_mem)
         argSize = c_sizeof(arg%cl_mem)
 
+      class is (fclLocalArgument)
+        argPtr = C_NULL_PTR
+        argSize = arg%nBytes
+
       type is (integer(c_int32_t))
         argPtr = c_loc(arg)
         argSize = c_sizeof(int(1,c_int32_t))
@@ -447,6 +451,30 @@ submodule (Focal) Focal_Setup
     call fclHandleErrorCode(errcode,'fclSetKernelArg:clSetKernelArg')
 
   end procedure fclSetKernelArg
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclLocalInt32 !(nElem) result(localArg)
+    !! Create a integer local kernel argument object for launching kernels
+    localArg%nBytes = c_sizeof(int(1,c_int32_t))*nElem
+
+  end procedure fclLocalInt32
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclLocalFloat !(nElem) result(localArg)
+    !! Create a integer local kernel argument object for launching kernels
+    localArg%nBytes = c_sizeof(real(1.0,c_float))*nElem
+
+  end procedure fclLocalFloat
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclLocalDouble !(nElem) result(localArg)
+    !! Create a integer local kernel argument object for launching kernels
+    localArg%nBytes = c_sizeof(real(1.0d0,c_double))*nElem
+
+  end procedure fclLocalDouble
   ! ---------------------------------------------------------------------------
 
 
