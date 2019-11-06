@@ -7,9 +7,9 @@ submodule (Focal) Focal_Utils
 
   implicit none
 
-  character(1), target, bind(C,name="_binary_fclKernels_cl_start") :: i0
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_start") :: i0
     !! c interoperable character for start of fclKernels binary resource
-  character(1), target, bind(C,name="_binary_fclKernels_cl_end") :: i1
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: i1
     !! c interoperable character for sendtart of fclKernels binary resource
 
   contains
@@ -18,7 +18,7 @@ submodule (Focal) Focal_Utils
   module procedure fclGetKernelResource !(kernelString)
 
     integer(c_intptr_t) :: a0, a1
-    integer :: i, length
+    integer(c_intptr_t) :: i, length
     character(1), pointer :: text(:)
     
     type(c_ptr) :: aa

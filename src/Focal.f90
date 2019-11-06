@@ -116,6 +116,9 @@ module Focal
 
   ! ---------------------------- GLOBAL PARAMETERS ----------------------------
 
+  !! @note Use of global parameters must not restrict ability to use the module 
+  !!       asynchronously or within parallel/multithread environment @endnote
+
   type(fclCommandQ), target :: fclDefaultCmdQ
     !! Default command queue: used when command queue is omittetd in focal api calls
 

@@ -28,9 +28,6 @@ implicit none
 integer, DIMENSION (:), INTENT(INOUT)  :: list
 INTEGER, DIMENSION (:), INTENT(INOUT)  :: order
 
-! Local variable
-INTEGER :: i
-
 CALL quick_sort_1(1, SIZE(list))
 
 CONTAINS
