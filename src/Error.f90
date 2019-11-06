@@ -139,6 +139,9 @@ submodule (Focal) Focal_Error
       case (CL_INVALID_ARG_SIZE)
         errstr = 'CL_INVALID_ARG_SIZE'
 
+      case (CL_INVALID_KERNEL_ARGS)
+        errstr = 'CL_INVALID_KERNEL_ARGS'
+        
       case (CL_INVALID_EVENT_WAIT_LIST)
         errstr = 'CL_INVALID_EVENT_WAIT_LIST'
 
