@@ -326,5 +326,17 @@ submodule (Focal) Focal_Memory
   end procedure fclMemCopyDouble
   ! ---------------------------------------------------------------------------
 
+  
+  module procedure fclFreeBuffer !(memObject)
+    !! Release device memory associated with memObject
+
+    integer(c_int32_t) :: errcode
+
+    errcode = clReleaseMemObject(memObject%cl_mem)
+
+    call fclErrorHandler(errcode,'fclBufferFree','clReleaseMemObject')
+
+  end procedure fclFreeBuffer
+  ! ---------------------------------------------------------------------------
 
 end submodule Focal_Memory

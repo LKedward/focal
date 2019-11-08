@@ -62,13 +62,13 @@ module Focal
     logical :: fclBlockingRead = .true.
       !! Enable/disable block reads when copying from device to host
     type(fclEvent) :: lastWriteEvent
-      !! openCL pointer to the most recent write event (host-to-device) to be enqueued
+      !! Focal event object for the most recent write event (host-to-device) to be enqueued
     type(fclEvent) :: lastReadEvent
-      !! openCL pointer to the most recent read event (device-to-host) to be enqueued
+      !! Focal event object for the most recent read event (device-to-host) to be enqueued
     type(fclEvent) :: lastCopyEvent
-      !! openCL pointer to the most recent copy event (device-to-device) to be enqueued
+      !! Focal event object for the most recent copy event (device-to-device) to be enqueued
     type(fclEvent) :: lastKernelEvent
-      !! openCL pointer to the most recent kernel event to be enqueued
+      !! Focal event object for the most recent kernel event to be enqueued
   end type fclCommandQ
 
   type :: fclProgram
@@ -137,13 +137,13 @@ module Focal
     !! Default context: used when context is omittetd in focal api calls
 
   type(fclEvent), target :: fclLastWriteEvent
-    !! openCL pointer to the most recent write event (host-to-device) to be enqueued
+    !! Focal event object for the most recent write event (host-to-device) to be enqueued
   type(fclEvent), target :: fclLastReadEvent
-    !! openCL pointer to the most recent read event (device-to-host) to be enqueued
+    !! Focal event object for the most recent read event (device-to-host) to be enqueued
   type(fclEvent), target :: fclLastCopyEvent
-    !! openCL pointer to the most recent copy event (device-to-device) to be enqueued
+    !! Focal event object for the most recent copy event (device-to-device) to be enqueued
   type(fclEvent), target :: fclLastKernelEvent
-    !! openCL pointer to the most recent kernel event to be enqueued
+    !! Focal event object for the most recent kernel event to be enqueued
 
   procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
 
@@ -392,6 +392,12 @@ module Focal
       class(fclDeviceDouble), intent(inout), target :: memObject1 !! Focal memory object (target)
       class(fclDeviceDouble), intent(in) :: memObject2     !! Focal memory object (source)
     end subroutine fclMemCopyDouble
+
+    ! --------- Free device memory object ---------
+    module subroutine fclFreeBuffer(memObject)
+      !! Release device memory associated with memObject
+      class(fclDeviceBuffer) :: memObject
+    end subroutine fclFreeBuffer
 
   end interface
 

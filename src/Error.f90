@@ -157,8 +157,8 @@ submodule (Focal) Focal_Error
 
     write(*,*) '(!) Fatal runtime error: an incorrect Focal program has been written.'
     if (present(descrip)) then
-        write(*,*) '      at ',descrip
-      end if
+      write(*,*) '      at ',descrip
+    end if
     stop
 
   end procedure fclRuntimeError
