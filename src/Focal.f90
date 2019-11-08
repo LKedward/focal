@@ -409,6 +409,9 @@ module Focal
   interface
 
     module subroutine fclGetPlatformInfo(platform,key,value)
+      !! Query platform information.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetPlatformInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
       type(fclplatform), intent(in) :: platform
       integer(c_int32_t), intent(in) :: key
       character(:), allocatable, intent(out), target :: value
@@ -417,6 +420,9 @@ module Focal
   end interface
 
   interface fclGetDeviceInfo
+    !! Generic interface to query device information.
+    !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceInfo.html)
+    !! for values of 'key' argument contained in clfortran module.
 
     module subroutine fclGetDeviceInfoString(device,key,value)
       type(fclDevice), intent(in) :: device
@@ -441,21 +447,25 @@ module Focal
   interface
 
     module function fclGetPlatforms() result(platforms)
+      !! Return pointer to array of available fclPlatforms
       type(fclPlatform), pointer :: platforms(:)
     end function fclGetPlatforms
 
     module function fclGetPlatform(platform_id) result(platform)
-      integer(c_intptr_t), intent(in) :: platform_id
+      !! Return fclPlatform object for OpenCL platform id
+      integer(c_intptr_t), intent(in) :: platform_id !! OpenCL platform id
       type(fclPlatform), target :: platform
     end function fclGetPlatform
 
     module function fclGetPlatformDevices(platform_id) result(devices)
-      integer(c_intptr_t), intent(in) :: platform_id
+      !! Return pointer to array of fclDevices on platform id
+      integer(c_intptr_t), intent(in) :: platform_id !! OpenCL platform id
       type(fclDevice), pointer :: devices(:)
     end function fclGetPlatformDevices
 
     module function fclGetDevice(device_id) result(device)
-      integer(c_intptr_t), intent(in) :: device_id
+      !! Return fclDevice for OpenCL device id
+      integer(c_intptr_t), intent(in) :: device_id   !! OpenCL device id
       type(fclDevice), target :: device
     end function fclGetDevice
 
@@ -467,12 +477,15 @@ module Focal
     !! Generic interface to create a context
 
     module function fclCreateContextWithPlatform(platform) result(ctx)
+      !! Create a context with fclPlatform object
       type(fclPlatform), intent(inout), target :: platform
       type(fclContext), target :: ctx
     end function fclCreateContextWithPlatform
 
     module function fclCreateContextWithVendor(vendor) result(ctx)
-      character(*), intent(in) :: vendor
+      !! Create a context with the first platform where the vendor property
+      !!  contains a specified string (case-insensitive).
+      character(*), intent(in) :: vendor             !! String with which to match platform vendor
       type(fclContext), target :: ctx
     end function fclCreateContextWithVendor
 
@@ -510,19 +523,19 @@ module Focal
 
     module function fclCreateCommandQ_1(ctx,device,enableProfiling,outOfOrderExec) result(cmdq)
       !! Create a command queue with a Focal device object
-      type(fclContext), intent(in), target :: ctx
-      type(fclDevice), intent(inout), target :: device
-      logical, intent(in), optional :: enableProfiling
-      logical, intent(in), optional :: outOfOrderExec
-      type(fclCommandQ) :: cmdq
+      type(fclContext), intent(in), target :: ctx          !! Context containing device for command queue
+      type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
+      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling 
+      logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
+      type(fclCommandQ) :: cmdq                            !! Returns fclCommandQ object
     end function fclCreateCommandQ_1
 
     module function fclCreateCommandQ_2(device,enableProfiling,outOfOrderExec) result(cmdq)
       !! Create a command queue with a Focal device object using default context
-      type(fclDevice), intent(inout), target :: device
-      logical, intent(in), optional :: enableProfiling
-      logical, intent(in), optional :: outOfOrderExec
-      type(fclCommandQ) :: cmdq
+      type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
+      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling 
+      logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
+      type(fclCommandQ) :: cmdq                            !! Returns fclCommandQ object
     end function fclCreateCommandQ_2
 
   end interface fclCreateCommandQ
@@ -541,16 +554,18 @@ module Focal
     !! Generic interface to compile an openCL program
 
     module function fclCompileProgram_1(ctx,source,options) result(prog)
+      !! Compile program source on context ctx
       type(fclContext), intent(in), target :: ctx
-      character(*), intent(in) :: source
-      character(*), intent(in), optional :: options
-      type(fclProgram) :: prog
+      character(*), intent(in) :: source             !! Program source code
+      character(*), intent(in), optional :: options  !! OpenCL compilation options
+      type(fclProgram) :: prog                       !! Returns fclProgram object
     end function fclCompileProgram_1
 
     module function fclCompileProgram_2(source,options) result(prog)
-      character(*), intent(in) :: source
-      character(*), intent(in), optional :: options
-      type(fclProgram) :: prog
+      !! Compile program source on fclDefaultContext
+      character(*), intent(in) :: source             !! Program source code
+      character(*), intent(in), optional :: options  !! OpenCL compilation options
+      type(fclProgram) :: prog                       !! Returns fclProgram object
     end function fclCompileProgram_2
 
   end interface fclCompileProgram
@@ -558,9 +573,10 @@ module Focal
   interface
 
     module function fclGetProgramKernel(prog,kernelName) result(kern)
-      type(fclProgram), intent(in) :: prog
-      character(*), intent(in) :: kernelName
-      type(fclKernel) :: kern
+      !! Extract a kernel object for execution from a compiled program object
+      type(fclProgram), intent(in) :: prog           !! Compiled program object containing kernel
+      character(*), intent(in) :: kernelName         !! Name of kernel to extract for execution
+      type(fclKernel) :: kern                        !! Returns fclKernel object for execution
     end function fclGetProgramKernel
 
     module subroutine fclLaunchKernel(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
@@ -569,30 +585,34 @@ module Focal
       class(*), intent(in), optional, target :: a0
         !! Focal command queue or first kernel argument
       class(*), intent(in), optional, target :: a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
-        !! Subsequent kernel arguments
+        !! Subsequent kernel arguments.
+        !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclLaunchKernel
 
     module subroutine fclSetKernelArg(kernel,argIndex,argValue)
-      type(fclKernel), intent(in) :: kernel
-      integer(c_int32_t), intent(in) :: argIndex
+      !! Set a specific kernel argument 
+      type(fclKernel), intent(in) :: kernel          !! Focal kernel object
+      integer(c_int32_t), intent(in) :: argIndex     !! Index of kernel argument to set
       class(*), intent(in), target :: argValue
+        !! Value of kernel argument.
+        !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclSetKernelArg
 
     module function fclLocalInt32(nElem) result(localArg)
       !! Create a integer local kernel argument object for launching kernels
-      integer, intent(in) :: nElem                    !! No of array elements
+      integer, intent(in) :: nElem                   !! No of array elements
       type(fclLocalArgument) :: localArg             !! Returns local argument object
     end function fclLocalInt32
 
     module function fclLocalFloat(nElem) result(localArg)
       !! Create a float local kernel argument object for launching kernels
-      integer, intent(in) :: nElem                    !! No of array elements
+      integer, intent(in) :: nElem                   !! No of array elements
       type(fclLocalArgument) :: localArg             !! Returns local argument object
     end function fclLocalFloat
 
     module function fclLocalDouble(nElem) result(localArg)
       !! Create a double local kernel argument object for launching kernels
-      integer, intent(in) :: nElem                    !! No of array elements
+      integer, intent(in) :: nElem                   !! No of array elements
       type(fclLocalArgument) :: localArg             !! Returns local argument object
     end function fclLocalDouble
 
