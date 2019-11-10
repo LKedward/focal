@@ -92,7 +92,7 @@ module Focal
   type :: fclDeviceBuffer
     !! Type wrapper for openCL memory objects
     integer(c_intptr_t) :: cl_mem                    !! openCL memory pointer
-    type(fclCommandQ) :: cmdq                        !! Focal commandQ object
+    type(fclCommandQ), pointer :: cmdq               !! Focal commandQ object
     integer(c_size_t) :: nBytes = -1                 !! Size of buffer in bytes
   end type fclDeviceBuffer
 
@@ -127,7 +127,7 @@ module Focal
 
   ! ---------------------------- GLOBAL PARAMETERS ----------------------------
 
-  !! @note Use of global parameters must not restrict ability to use the module 
+  !! @note Use of global parameters must not restrict ability to use the module
   !!       asynchronously or within parallel/multithread environment @endnote
 
   type(fclCommandQ), target :: fclDefaultCmdQ
@@ -202,7 +202,7 @@ module Focal
 
     module function fclBufferDouble_1(cmdq,dim,read,write) result(mem)
       !! Interface for user-specified command queue
-      type(fclCommandQ), intent(in) :: cmdq          !! Queue with which to associate new buffer
+      type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
@@ -224,7 +224,7 @@ module Focal
 
     module function fclBufferFloat_1(cmdq,dim,read,write) result(mem)
       !! Interface for user-specified command queue
-      type(fclCommandQ), intent(in) :: cmdq          !! Queue with which to associate new buffer
+      type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
@@ -247,7 +247,7 @@ module Focal
 
     module function fclBufferInt32_1(cmdq,dim,read,write) result(mem)
       !! Interface for user-specified command queue
-      type(fclCommandQ), intent(in) :: cmdq          !! Queue with which to associate new buffer
+      type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
@@ -525,7 +525,7 @@ module Focal
       !! Create a command queue with a Focal device object
       type(fclContext), intent(in), target :: ctx          !! Context containing device for command queue
       type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
-      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling 
+      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling
       logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
       type(fclCommandQ) :: cmdq                            !! Returns fclCommandQ object
     end function fclCreateCommandQ_1
@@ -533,7 +533,7 @@ module Focal
     module function fclCreateCommandQ_2(device,enableProfiling,outOfOrderExec) result(cmdq)
       !! Create a command queue with a Focal device object using default context
       type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
-      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling 
+      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling
       logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
       type(fclCommandQ) :: cmdq                            !! Returns fclCommandQ object
     end function fclCreateCommandQ_2
@@ -590,7 +590,7 @@ module Focal
     end subroutine fclLaunchKernel
 
     module subroutine fclSetKernelArg(kernel,argIndex,argValue)
-      !! Set a specific kernel argument 
+      !! Set a specific kernel argument
       type(fclKernel), intent(in) :: kernel          !! Focal kernel object
       integer(c_int32_t), intent(in) :: argIndex     !! Index of kernel argument to set
       class(*), intent(in), target :: argValue

@@ -15,7 +15,7 @@ submodule (Focal) Focal_Memory
     integer(c_size_t) :: nBytes
     nBytes = c_sizeof(real(1.0d0,c_double))*dim
     mem%cl_mem = fclBuffer(cmdq,nBytes,read,write)
-    mem%cmdq = cmdq
+    mem%cmdq => cmdq
     mem%nBytes = nBytes
 
   end procedure fclBufferDouble_1
@@ -35,7 +35,7 @@ submodule (Focal) Focal_Memory
     integer(c_size_t) :: nBytes
     nBytes = c_sizeof(real(1.0,c_float))*dim
     mem%cl_mem = fclBuffer(cmdq,nBytes,read,write)
-    mem%cmdq = cmdq
+    mem%cmdq => cmdq
     mem%nBytes = nBytes
 
   end procedure fclBufferFloat_1
@@ -55,7 +55,7 @@ submodule (Focal) Focal_Memory
     integer(c_size_t) :: nBytes
     nBytes = c_sizeof(int(1,c_int32_t))*dim
     mem%cl_mem = fclBuffer(cmdq,nBytes,read,write)
-    mem%cmdq = cmdq
+    mem%cmdq => cmdq
     mem%nBytes = nBytes
 
   end procedure fclBufferInt32_1
@@ -286,7 +286,7 @@ submodule (Focal) Focal_Memory
       !  therefore copy host pointer from source object
 
       memObject1%cl_mem = memObject2%cl_mem
-      memObject1%cmdQ = memObject2%cmdQ
+      memObject1%cmdQ => memObject2%cmdQ
       memObject1%nBytes = memObject2%nBytes
 
     else
