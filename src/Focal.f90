@@ -57,9 +57,9 @@ module Focal
   type :: fclCommandQ
     !! Type wrapper for openCL command queue objects
     integer(c_intptr_t) :: cl_command_queue          !! openCL command Q pointer
-    logical :: fclBlockingWrite = .true.
+    logical :: blockingWrite = .true.
       !! Enable/disable blocking writes when copying from host to device
-    logical :: fclBlockingRead = .true.
+    logical :: blockingRead = .true.
       !! Enable/disable block reads when copying from device to host
     type(fclEvent) :: lastWriteEvent
       !! Focal event object for the most recent write event (host-to-device) to be enqueued

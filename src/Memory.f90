@@ -163,7 +163,7 @@ submodule (Focal) Focal_Memory
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_write
 
-    if (memObject%cmdq%fclBlockingWrite) then
+    if (memObject%cmdq%blockingWrite) then
       blocking_write = CL_TRUE
     else
       blocking_write = CL_FALSE
@@ -219,7 +219,7 @@ submodule (Focal) Focal_Memory
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_read
 
-    if (memObject%cmdq%fclBlockingRead) then
+    if (memObject%cmdq%blockingRead) then
       blocking_read = CL_TRUE
     else
       blocking_read = CL_FALSE
@@ -326,7 +326,7 @@ submodule (Focal) Focal_Memory
   end procedure fclMemCopyDouble
   ! ---------------------------------------------------------------------------
 
-  
+
   module procedure fclFreeBuffer !(memObject)
     !! Release device memory associated with memObject
 
