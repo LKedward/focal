@@ -117,9 +117,11 @@ submodule (Focal) Focal_Memory
 
     errcode = clEnqueueFillBuffer(memObject%cmdq%cl_command_queue, &
                 memObject%cl_mem, hostBufferPtr, nBytesPattern, &
-                int(0,c_size_t), memObject%nBytes, 0, C_NULL_PTR, &
+                int(0,c_size_t), memObject%nBytes, &
+                memObject%cmdq%nDependency, memObject%cmdq%dependencyListPtr, &
                 c_loc(memObject%cmdq%lastWriteEvent%cl_event))
 
+    call fclClearDependencies()
     fclLastWriteEvent = memObject%cmdq%lastWriteEvent
 
     call fclErrorHandler(errcode,'fclMemWriteScalar','clEnqueueFillBuffer')
@@ -171,8 +173,10 @@ submodule (Focal) Focal_Memory
 
     errcode = clEnqueueWriteBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
           blocking_write,int(0,c_size_t),nBytes,hostBufferPtr, &
-          0,C_NULL_PTR,c_loc(memObject%cmdq%lastWriteEvent%cl_event))
+          memObject%cmdq%nDependency, memObject%cmdq%dependencyListPtr, &
+          c_loc(memObject%cmdq%lastWriteEvent%cl_event))
 
+    call fclClearDependencies()
     fclLastWriteEvent = memObject%cmdq%lastWriteEvent
 
     call fclErrorHandler(errcode,'fclMemWrite','clEnqueueWriteBuffer')
@@ -227,8 +231,10 @@ submodule (Focal) Focal_Memory
 
     errcode = clEnqueueReadBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
           blocking_read,int(0,c_size_t),nBytes,hostBufferPtr, &
-          0,C_NULL_PTR,c_loc(memObject%cmdq%lastReadEvent%cl_event))
+          memObject%cmdq%nDependency, memObject%cmdq%dependencyListPtr, &
+          c_loc(memObject%cmdq%lastReadEvent%cl_event))
 
+    call fclClearDependencies()
     fclLastReadEvent = memObject%cmdq%lastReadEvent
 
     call fclErrorHandler(errcode,'fclMemRead','clEnqueueReadBuffer')
@@ -297,8 +303,10 @@ submodule (Focal) Focal_Memory
                 memObject2%cl_mem, memObject1%cl_mem, &
                 int(0,c_size_t), int(0,c_size_t), &
                 memObject2%nBytes, &
-                0,C_NULL_PTR,c_loc(memObject1%cmdq%lastCopyEvent%cl_event))
+                memObject1%cmdq%nDependency, memObject1%cmdq%dependencyListPtr, &
+                c_loc(memObject1%cmdq%lastCopyEvent%cl_event))
 
+      call fclClearDependencies()
       fclLastCopyEvent = memObject1%cmdq%lastCopyEvent
 
       call fclErrorHandler(errcode,'fclMemCopy','clEnqueueCopyBuffer')

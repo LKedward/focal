@@ -17,6 +17,8 @@ module Focal
   integer, parameter :: errStringLen = 50
     !! Max length of OpenCL error code strings
 
+  integer, parameter :: dependencyListAllocation = 10
+    !! Default allocation increment for dependency lists
 
   ! ---------------------------- FOCAL TYPES ----------------------------------
   type :: fclPlatform
@@ -69,6 +71,14 @@ module Focal
       !! Focal event object for the most recent copy event (device-to-device) to be enqueued
     type(fclEvent) :: lastKernelEvent
       !! Focal event object for the most recent kernel event to be enqueued
+    type(c_ptr), allocatable :: dependencyList(:)
+      !! List of pre-requisite events for next enqueued action.
+      !!  All events in this list are used as dependencies for the next enqueued
+      !!   operation. At enqueueing, the list is cleared.
+    type(c_ptr) :: dependencyListPtr = C_NULL_PTR
+      !! C pointer to dependency list. C_NULL_PTR when nDependency is zero.
+    integer :: nDependency = 0
+      !! Number of items in dependency list
   end type fclCommandQ
 
   type :: fclProgram
@@ -658,6 +668,47 @@ module Focal
 
   end interface fclWait
 
+  interface fclSetDependency
+    !! Generic interface to set pre-requisite events for the next enqueued action.
+    !!  This does not append to any existing dependencies - it overwrites the dependency list.
+
+    module subroutine fclSetDependencyEvent_1(cmdQ,event)
+      !! Interface for specifying a single event dependency on specific cmdq
+      type(fclCommandQ), intent(inout), target :: cmdQ
+      type(fclEvent), intent(in) :: event
+    end subroutine fclSetDependencyEvent_1
+
+    module subroutine fclSetDependencyEvent_2(event)
+      !! Interface for specifying a single event dependency on default cmdq
+      type(fclEvent), intent(in) :: event
+    end subroutine fclSetDependencyEvent_2
+
+    module subroutine fclSetDependencyEventList_1(cmdq,eventList)
+      !! Interface for specifying a list of dependent events on specific cmdq
+      type(fclCommandQ), intent(inout), target :: cmdQ
+      type(fclEvent), intent(in) :: eventList(:)
+    end subroutine fclSetDependencyEventList_1
+
+    module subroutine fclSetDependencyEventList_2(eventList)
+      !! Interface for specifying a list of dependent events on default cmdq
+      type(fclEvent), intent(in) :: eventList(:)
+    end subroutine fclSetDependencyEventList_2
+
+  end interface fclSetDependency
+
+  interface fclClearDependencies
+    !! Generic interface to reset dependency list
+
+    module subroutine fclClearDependencies_1(cmdq)
+      !! Interface for specific command queue
+      type(fclCommandQ), intent(inout) :: cmdq
+    end subroutine fclClearDependencies_1
+
+    module subroutine fclClearDependencies_2()
+      !! Interface for default command queueu
+    end subroutine fclClearDependencies_2
+
+  end interface fclClearDependencies
 
   ! ---------------------------- UTILITY ROUTINES -------------------------------
 
