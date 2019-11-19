@@ -531,20 +531,26 @@ module Focal
   interface fclCreateCommandQ
     !! Generic interface to create a device command queue
 
-    module function fclCreateCommandQ_1(ctx,device,enableProfiling,outOfOrderExec) result(cmdq)
+    module function fclCreateCommandQ_1(ctx,device,enableProfiling,outOfOrderExec,&
+                                          blockingWrite,blockingRead) result(cmdq)
       !! Create a command queue with a Focal device object
       type(fclContext), intent(in), target :: ctx          !! Context containing device for command queue
       type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
       logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling
       logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
+      logical, intent(in), optional :: blockingWrite       !! Enable/disable host-blocking write to device
+      logical, intent(in), optional :: blockingRead        !! Enable/disable host-blocking read from device
       type(fclCommandQ) :: cmdq                            !! Returns fclCommandQ object
     end function fclCreateCommandQ_1
 
-    module function fclCreateCommandQ_2(device,enableProfiling,outOfOrderExec) result(cmdq)
+    module function fclCreateCommandQ_2(device,enableProfiling,outOfOrderExec,&
+                                          blockingWrite,blockingRead) result(cmdq)
       !! Create a command queue with a Focal device object using default context
       type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
       logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling
       logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
+      logical, intent(in), optional :: blockingWrite       !! Enable/disable host-blocking write to device
+      logical, intent(in), optional :: blockingRead        !! Enable/disable host-blocking read from device
       type(fclCommandQ) :: cmdq                            !! Returns fclCommandQ object
     end function fclCreateCommandQ_2
 

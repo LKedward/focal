@@ -191,7 +191,8 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclCreateCommandQ_1 !(ctx,device,enableProfiling,outOfOrderExec) result(cmdq)
+  module procedure fclCreateCommandQ_1 !(ctx,device,enableProfiling,outOfOrderExec,&
+                                         !blockingWrite,blockingRead) result(cmdq)
     !! Create a command queue with a Focal device object
 
     integer(c_int32_t) :: errcode
@@ -211,6 +212,14 @@ submodule (Focal) Focal_Setup
       end if
     end if
 
+    if (present(blockingWrite)) then
+      cmdq%blockingWrite = blockingWrite
+    end if
+
+    if (present(blockingRead)) then
+      cmdq%blockingRead = blockingRead
+    end if
+
     cmdq%cl_command_queue = clCreateCommandQueue(ctx%cl_context, device%cl_device_id, &
                                   properties ,errcode)
 
@@ -220,9 +229,11 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclCreateCommandQ_2 !(device,enableProfiling,outOfOrderExec) result(cmdq)
+  module procedure fclCreateCommandQ_2 !(device,enableProfiling,outOfOrderExec,&
+                                         !blockingWrite,blockingRead) result(cmdq) 
     !! Create a command queue with a Focal device object using default context
-    cmdq = fclCreateCommandQ_1(fclDefaultCtx,device,enableProfiling,outOfOrderExec)
+    cmdq = fclCreateCommandQ_1(fclDefaultCtx,device,enableProfiling,outOfOrderExec, &
+                                           blockingWrite,blockingRead)
 
   end procedure fclCreateCommandQ_2
   ! ---------------------------------------------------------------------------
