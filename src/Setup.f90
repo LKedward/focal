@@ -202,13 +202,13 @@ submodule (Focal) Focal_Setup
 
     if (present(enableProfiling)) then
       if (enableProfiling) then
-        properties = iand(properties,CL_QUEUE_PROFILING_ENABLE)
+        properties = ior(properties,CL_QUEUE_PROFILING_ENABLE)
       end if
     end if
 
     if (present(outOfOrderExec)) then
       if (outOfOrderExec) then
-        properties = iand(properties,CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
+        properties = ior(properties,CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
       end if
     end if
 
