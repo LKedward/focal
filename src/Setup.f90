@@ -496,9 +496,12 @@ submodule (Focal) Focal_Setup
     integer(c_int32_t) :: errcode
 
     errcode = clEnqueueBarrierWithWaitList( cmdq%cl_command_queue, &
-                  cmdq%nDependency, cmdq%dependencyListPtr , C_NULL_PTR)
+                  cmdq%nDependency, cmdq%dependencyListPtr , &
+                  c_loc(cmdq%lastBarrierEvent%cl_event))
 
     call fclErrorHandler(errcode,'fclBarrierAll','clEnqueueBarrierWithWaitList')
+
+    fclLastBarrierEvent = cmdq%lastBarrierEvent
 
   end procedure fclBarrier_1
   ! ---------------------------------------------------------------------------

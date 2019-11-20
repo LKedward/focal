@@ -71,6 +71,8 @@ module Focal
       !! Focal event object for the most recent copy event (device-to-device) to be enqueued
     type(fclEvent) :: lastKernelEvent
       !! Focal event object for the most recent kernel event to be enqueued
+    type(fclEvent) :: lastBarrierEvent
+      !! Focal event object for the most recent barrier event to be enqueued
     type(c_ptr), allocatable :: dependencyList(:)
       !! List of pre-requisite events for next enqueued action.
       !!  All events in this list are used as dependencies for the next enqueued
@@ -154,9 +156,11 @@ module Focal
     !! Focal event object for the most recent copy event (device-to-device) to be enqueued
   type(fclEvent), target :: fclLastKernelEvent
     !! Focal event object for the most recent kernel event to be enqueued
+  type(fclEvent), target :: fclLastBarrierEvent
+    !! Focal event object for the most recent barrier event to be enqueued
 
   procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
-
+    !! Procedure pointer for custom OpenCL runtime error handler
 
   ! ---------------------------- ERROR ROUTINES -------------------------------
   interface
@@ -641,7 +645,7 @@ module Focal
 
     module subroutine fclBarrier_1(cmdq)
       !! Enqueue barrier on all events in command queue
-      type(fclCommandQ), intent(in) :: cmdq
+      type(fclCommandQ), intent(in), target :: cmdq
     end subroutine fclBarrier_1
 
     module subroutine fclBarrier_2()
