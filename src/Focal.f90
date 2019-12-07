@@ -786,6 +786,36 @@ module Focal
   end interface fclClearDependencies
 
 
+  ! ---------------------------- DEBUG ROUTINES -------------------------------
+  interface
+
+    module subroutine fclDbgCheckKernelNArg(kernel,nArg)
+      !! Check that number of actual args matches number of kernel args
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: nArg
+    end subroutine fclDbgCheckKernelNArg
+
+    module subroutine fclDbgCheckKernelArgType(kernel,argNo,type)
+      !! Checks the types of arguments passed to kernels
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      character(*), intent(in) :: type
+    end subroutine fclDbgCheckKernelArgType
+
+    module subroutine fclDbgCheckKernelArgQualifier(kernel,argNo,qualifier)
+      !! Checks the address qualifier of arguments passed to kernels
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      character(*), intent(in) :: qualifier
+    end subroutine fclDbgCheckKernelArgQualifier
+
+  end interface
+
+
+
   ! ---------------------------- UTILITY ROUTINES -------------------------------
 
   interface
