@@ -471,6 +471,57 @@ module Focal
 
   end interface fclGetDeviceInfo
 
+  interface fclGetKernelInfo
+    !! Generic interface to query kernel information.
+    !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+    !! for values of 'key' argument contained in clfortran module.
+
+    module subroutine fclGetKernelInfoString(kernel,key,value)
+      !! Query kernel information for string info.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer(c_int32_t), intent(in) :: key
+      character(:), allocatable, intent(out), target :: value
+    end subroutine fclGetKernelInfoString
+
+    module subroutine fclGetKernelInfoInt32(kernel,key,value)
+      !! Query kernel information for 32bit integer.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer(c_int32_t), intent(in) :: key
+      integer(c_int32_t), intent(out), target :: value
+    end subroutine fclGetKernelInfoInt32
+
+  end interface fclGetKernelInfo
+
+  interface fclGetKernelArgInfo
+    !! Generic interface to query kernel argument information.
+    !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+    !! for values of 'key' argument contained in clfortran module.
+
+    module subroutine fclGetKernelArgInfoString(kernel,argNo,key,value)
+      !! Query kernel information for string info.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      integer(c_int32_t), intent(in) :: key
+      character(:), allocatable, intent(out), target :: value
+    end subroutine fclGetKernelArgInfoString
+
+    module subroutine fclGetKernelArgInfoInt32(kernel,argNo,key,value)
+      !! Query kernel information for 32bit integer.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      integer(c_int32_t), intent(in) :: key
+      integer(c_int32_t), intent(out), target :: value
+    end subroutine fclGetKernelArgInfoInt32
+
+  end interface fclGetKernelArgInfo
 
   interface
 

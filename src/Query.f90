@@ -46,10 +46,10 @@ submodule (Focal) Focal_Query
   end procedure fclGetDeviceInfoString
   ! ---------------------------------------------------------------------------
 
-  
+
   module procedure fclGetDeviceInfoInt32 !(device,key,value)
     ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html
-    
+
     integer(c_int32_t) :: errcode
     integer(c_size_t) :: temp_size, size_ret
 
@@ -63,7 +63,7 @@ submodule (Focal) Focal_Query
 
   module procedure fclGetDeviceInfoInt64 !(device,key,value)
     ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html
-    
+
     integer(c_int32_t) :: errcode
     integer(c_size_t) :: temp_size, size_ret
 
@@ -72,6 +72,74 @@ submodule (Focal) Focal_Query
     call fclErrorHandler(errcode,'fclGetDeviceInfoInt64','clGetDeviceInfo')
 
   end procedure fclGetDeviceInfoInt64
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclGetKernelInfoString !(kernel,key,value)
+    !! Query kernel information for string info.
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetKernelInfo.html
+
+    integer(c_size_t) :: zero_size = 0
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    errcode = clGetKernelInfo(kernel%cl_kernel, key, zero_size, C_NULL_PTR, temp_size)
+    call fclErrorHandler(errcode,'fclGetKernelInfoString','clGetKernelInfo')
+
+    allocate( character(len=temp_size) :: value)
+    errcode = clGetKernelInfo(kernel%cl_kernel, key, temp_size, C_LOC(value), size_ret)
+    call fclErrorHandler(errcode,'fclGetKernelInfoString','clGetKernelInfo')
+
+  end procedure fclGetKernelInfoString
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclGetKernelInfoInt32 !(kernel,key,value)
+    !! Query kernel information for 32bit integer.
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetKernelInfo.html
+
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    temp_size = c_sizeof(int(1,c_int32_t))
+    errcode = clGetKernelInfo(kernel%cl_kernel, key, temp_size, C_LOC(value), size_ret)
+    call fclErrorHandler(errcode,'fclGetKernelInfoInt32','clGetKernelInfo')
+
+  end procedure fclGetKernelInfoInt32
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclGetKernelArgInfoString !(kernel,key,value)
+    !! Query kernel argument information for string info.
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetKernelArgInfo.html
+
+    integer(c_size_t) :: zero_size = 0
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    errcode = clGetKernelArgInfo(kernel%cl_kernel, argNo, key, zero_size, C_NULL_PTR, temp_size)
+    call fclErrorHandler(errcode,'fclGetKernelArgInfoString','clGetKernelArgInfo')
+
+    allocate( character(len=temp_size) :: value)
+    errcode = clGetKernelArgInfo(kernel%cl_kernel, argNo, key, temp_size, C_LOC(value), size_ret)
+    call fclErrorHandler(errcode,'fclGetKernelArgInfoString','clGetKernelArgInfo')
+
+  end procedure fclGetKernelArgInfoString
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclGetKernelArgInfoInt32 !(kernel,argNo,key,value)
+    !! Query kernel argument information for 32bit integer.
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetKernelArgInfo.html
+
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    temp_size = c_sizeof(int(1,c_int32_t))
+    errcode = clGetKernelArgInfo(kernel%cl_kernel, argNo, key, temp_size, C_LOC(value), size_ret)
+    call fclErrorHandler(errcode,'fclGetKernelInfoInt32','clGetKernelInfo')
+
+  end procedure fclGetKernelArgInfoInt32
   ! ---------------------------------------------------------------------------
 
 
@@ -93,7 +161,7 @@ submodule (Focal) Focal_Query
     ! Populate platform_ids array
     errcode = clGetPlatformIDs(num_platforms,c_loc(platform_ids),int32_ret)
     call fclErrorHandler(errcode,'fclGetPlatforms','clGetPlatformIDs')
-    
+
     ! Populate output fclPlatform structure array
     allocate(platforms(num_platforms))
 
@@ -166,7 +234,7 @@ submodule (Focal) Focal_Query
 
   end procedure fclGetDevice
   ! ---------------------------------------------------------------------------
-  
-  
+
+
 
 end submodule Focal_Query
