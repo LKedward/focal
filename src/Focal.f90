@@ -126,6 +126,18 @@ module Focal
     integer(c_size_t) :: nBytes                      !! Size of local argument in bytes
   end type fclLocalArgument
 
+  type, extends(fclLocalArgument) :: fclLocalArgInt32
+    !! Type wrapper for local kernel arguments representing 32 bit integers
+  end type fclLocalArgInt32
+
+  type, extends(fclLocalArgument) :: fclLocalArgFloat
+    !! Type wrapper for local kernel arguments representing floats
+  end type fclLocalArgFloat
+
+  type, extends(fclLocalArgument) :: fclLocalArgDouble
+    !! Type wrapper for local kernel arguments representing doubles
+  end type fclLocalArgDouble
+
   ! ---------------------------- ABSTRACT INTERFACES --------------------------
 
   abstract interface
@@ -163,6 +175,7 @@ module Focal
     !! Procedure pointer for custom OpenCL runtime error handler
 
   ! ---------------------------- ERROR ROUTINES -------------------------------
+
   interface
 
     module subroutine fclHandleBuildError(builderrcode,prog,ctx)
@@ -458,6 +471,7 @@ module Focal
 
   end interface fclGetDeviceInfo
 
+
   interface
 
     module function fclGetPlatforms() result(platforms)
@@ -621,19 +635,19 @@ module Focal
     module function fclLocalInt32(nElem) result(localArg)
       !! Create a integer local kernel argument object for launching kernels
       integer, intent(in) :: nElem                   !! No of array elements
-      type(fclLocalArgument) :: localArg             !! Returns local argument object
+      type(fclLocalArgInt32) :: localArg             !! Returns local argument object
     end function fclLocalInt32
 
     module function fclLocalFloat(nElem) result(localArg)
       !! Create a float local kernel argument object for launching kernels
       integer, intent(in) :: nElem                   !! No of array elements
-      type(fclLocalArgument) :: localArg             !! Returns local argument object
+      type(fclLocalArgFloat) :: localArg             !! Returns local argument object
     end function fclLocalFloat
 
     module function fclLocalDouble(nElem) result(localArg)
       !! Create a double local kernel argument object for launching kernels
       integer, intent(in) :: nElem                   !! No of array elements
-      type(fclLocalArgument) :: localArg             !! Returns local argument object
+      type(fclLocalArgDouble) :: localArg            !! Returns local argument object
     end function fclLocalDouble
 
   end interface
@@ -719,6 +733,7 @@ module Focal
     end subroutine fclClearDependencies_2
 
   end interface fclClearDependencies
+
 
   ! ---------------------------- UTILITY ROUTINES -------------------------------
 
