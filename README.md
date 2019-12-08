@@ -8,11 +8,9 @@ __Documentation__: [lkedward.github.io/focal-docs](https://lkedward.github.io/fo
 
 __License__: [MIT](./LICENSE)
 
-## Key Features
+__Key features:__
 
-Key features provided by Focal:
-
- - removes the need to use c pointers in Fortran to call the OpenCL API;
+ - Focal removes the need to use c pointers in Fortran to call the OpenCL API;
  - provides a level of type-safety through the use of typed buffer objects;
  - decreases the verbosity of OpenCL API calls while still providing the same functionality;
  - abstracts away low-level details, such as buffer size in bytes, not appropriate to Fortran;
