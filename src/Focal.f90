@@ -525,6 +525,19 @@ module Focal
 
   interface
 
+    module subroutine fclGetEventInfo(event,key,value)
+      !! Query kernel information for 32bit integer.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclEvent), intent(in) :: event
+      integer(c_int32_t), intent(in) :: key
+      integer(c_int32_t), intent(out), target :: value
+    end subroutine fclGetEventInfo
+
+  end interface
+
+  interface
+
     module function fclGetPlatforms() result(platforms)
       !! Return pointer to array of available fclPlatforms
       type(fclPlatform), pointer :: platforms(:)

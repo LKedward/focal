@@ -143,6 +143,21 @@ submodule (Focal) Focal_Query
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclGetEventInfo !(event,key,value)
+    !! Query event information for 32bit integer.
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetEventInfo.html
+
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    temp_size = c_sizeof(int(1,c_int32_t))
+    errcode = clGetEventInfo(event%cl_event, key, temp_size, C_LOC(value), size_ret)
+    call fclErrorHandler(errcode,'fclGetEventInfo','clGetEventInfo')
+
+  end procedure fclGetEventInfo
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclGetPlatforms !result(platforms)
 
     integer :: i
