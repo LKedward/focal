@@ -616,7 +616,7 @@ submodule (Focal) Focal_Setup
     !! Wait on host for set of events
     integer :: i
     integer(c_int32_t) :: errcode
-    type(c_ptr), target :: cl_eventList(size(eventList,1))
+    integer(c_intptr_t), target :: cl_eventList(size(eventList,1))
 
     ! Populate array of c_ptr
     cl_eventList = [(eventList(i)%cl_event,i=1,size(eventList,1))]

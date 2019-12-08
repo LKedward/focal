@@ -53,7 +53,7 @@ module Focal
 
   type :: fclEvent
     !! Type wrapper for OpenCL event pointers
-    type(c_ptr) :: cl_event                          !! OpenCL event pointer
+    integer(c_intptr_t) :: cl_event                          !! OpenCL event pointer
   end type fclEvent
 
   type :: fclCommandQ
@@ -73,7 +73,7 @@ module Focal
       !! Focal event object for the most recent kernel event to be enqueued
     type(fclEvent) :: lastBarrierEvent
       !! Focal event object for the most recent barrier event to be enqueued
-    type(c_ptr), allocatable :: dependencyList(:)
+    integer(c_intptr_t), allocatable :: dependencyList(:)
       !! List of pre-requisite events for next enqueued action.
       !!  All events in this list are used as dependencies for the next enqueued
       !!   operation. At enqueueing, the list is cleared.
