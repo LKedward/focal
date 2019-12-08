@@ -789,8 +789,30 @@ module Focal
   ! ---------------------------- DEBUG ROUTINES -------------------------------
   interface
 
+    module subroutine fclDbgCheckBufferInit(memObject,descrip)
+      !! Check that a device buffer object has been initialised.
+      !! @note Debug routine: only executed for debug build. @endnote
+      class(fclDeviceBuffer), intent(in) :: memObject
+      character(*), intent(in) :: descrip
+    end subroutine fclDbgCheckBufferInit
+
+    module subroutine fclDbgCheckBufferSize(memObject,hostBytes,descrip)
+      !! Check that a host buffer matches the size in bytes of a device buffer.
+      !! @note Debug routine: only executed for debug build. @endnote
+      class(fclDeviceBuffer), intent(in) :: memObject
+      integer(c_size_t), intent(in) :: hostBytes
+      character(*), intent(in) :: descrip
+    end subroutine fclDbgCheckBufferSize
+
+    module subroutine fclDbgCheckCopyBufferSize(memObject1,memObject2)
+      !! Check that a host buffer matches the size in bytes of a device buffer.
+      !! @note Debug routine: only executed for debug build. @endnote
+      class(fclDeviceBuffer), intent(in) :: memObject1 ! Destination buffer
+      class(fclDeviceBuffer), intent(in) :: memObject2 ! Source buffer
+    end subroutine fclDbgCheckCopyBufferSize
+
     module subroutine fclDbgCheckKernelNArg(kernel,nArg)
-      !! Check that number of actual args matches number of kernel args
+      !! Check that number of actual args matches number of kernel args.
       !! @note Debug routine: only executed for debug build. @endnote
       type(fclKernel), intent(in) :: kernel
       integer, intent(in) :: nArg
@@ -805,7 +827,7 @@ module Focal
     end subroutine fclDbgCheckKernelArgType
 
     module subroutine fclDbgCheckKernelArgQualifier(kernel,argNo,qualifier)
-      !! Checks the address qualifier of arguments passed to kernels
+      !! Checks the address qualifier of arguments passed to kernels.
       !! @note Debug routine: only executed for debug build. @endnote
       type(fclKernel), intent(in) :: kernel
       integer, intent(in) :: argNo

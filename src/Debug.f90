@@ -10,6 +10,62 @@ submodule (Focal) Focal_Debug
 
   contains
 
+  module procedure fclDbgCheckBufferInit !(memObject,descrip)
+    !! Check that a device buffer object has been initialised.
+
+    if (memObject%nBytes <= 0) then
+
+      write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+      write(*,*) ' Attempt to use uninitialised device buffer at: ',descrip
+      write(*,*)
+
+      call fclRuntimeError('fclDbgCheckBufferInit')
+
+    end if
+
+  end procedure fclDbgCheckBufferInit
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDbgCheckBufferSize !(memObject,hostBytes,descrip)
+    !! Check that a host buffer matches the size in bytes of a device buffer
+
+    if (hostBytes /= memObject%nBytes) then
+
+      write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+      write(*,*) ' Mismatch in size between host buffer and device buffer at: ',descrip
+      write(*,*) ' Host buffer size: ',hostBytes
+      write(*,*) ' Device buffer size: ',memObject%nBytes
+      write(*,*)
+
+      call fclRuntimeError('fclDbgCheckBufferSize')
+
+    end if
+
+  end procedure fclDbgCheckBufferSize
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDbgCheckCopyBufferSize !(memObject1,memObject2)
+    !! Check that device buffers match in size in bytes for copying
+
+    if (memObject1%nBytes /= memObject2%nBytes) then
+
+      write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+      write(*,*) ' Mismatch in size between source buffer and destination buffer'//&
+                  '  while attempting to copy device buffers. (fclMemCopy)'
+      write(*,*) ' Source buffer size: ',memObject2%nBytes
+      write(*,*) ' Destination buffer size: ',memObject1%nBytes
+      write(*,*)
+
+      call fclRuntimeError('fclDbgCheckCopyBufferSize')
+
+    end if
+
+  end procedure fclDbgCheckCopyBufferSize
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclDbgCheckKernelNArg !(kernel,nArg)
     !! Check that number of actual args matches number of kernel args
 

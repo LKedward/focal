@@ -453,24 +453,28 @@ submodule (Focal) Focal_Setup
         argPtr = c_loc(arg%cl_mem)
         argSize = c_sizeof(arg%cl_mem)
         call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
 
       class is (fclDeviceInt32)
         argPtr = c_loc(arg%cl_mem)
         argSize = c_sizeof(arg%cl_mem)
         call fclDbgCheckKernelArgType(kernel,argIndex,'int*')
         call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
 
       class is (fclDeviceFloat)
         argPtr = c_loc(arg%cl_mem)
         argSize = c_sizeof(arg%cl_mem)
         call fclDbgCheckKernelArgType(kernel,argIndex,'float*')
         call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
 
       class is (fclDeviceDouble)
         argPtr = c_loc(arg%cl_mem)
         argSize = c_sizeof(arg%cl_mem)
         call fclDbgCheckKernelArgType(kernel,argIndex,'double*')
         call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
 
       class is (fclLocalArgument)
         argPtr = C_NULL_PTR
