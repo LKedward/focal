@@ -8,17 +8,23 @@ OBJDIR = $(FOCAL_DIR)/obj/
 MODDIR = $(FOCAL_DIR)/mod/
 
 # --- Targets ---
-FOCAL_LIB = $(FOCAL_DIR)/lib/libfocal.a
+FOCAL_LIB = $(addprefix $(FOCAL_DIR)/lib/, libfocal.a libfocaldbg.a)
 EXEC = $(addprefix $(BINDIR), $(PROGS))
 DIRS = $(MODDIR) $(BINDIR) $(OBJDIR)
 
-# --- Link Flags ---
-FOCAL_LFLAGS ?= -L$(FOCAL_DIR)/lib -lfocal
-OPENCL_LFLAGS ?= -L$(OPENCL_DIR) -lOpenCL
-LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS)
-
 # --- Compiler Flags ---
 include $(FOCAL_DIR)/make.compiler
+
+# --- Link Flags ---
+ifeq ($(BUILD), release)
+    FOCAL_LFLAGS ?= -L$(FOCAL_DIR)/lib -lfocal
+else ifeq ($(BUILD), debug)
+    FOCAL_LFLAGS ?= -L$(FOCAL_DIR)/lib -lfocaldbg
+else
+    $(error unrecognized build.)
+endif
+OPENCL_LFLAGS ?= -g -L$(OPENCL_DIR) -lOpenCL 
+LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS)
 
 # --- Recipes ---
 all: $(DIRS) $(EXEC)
@@ -26,12 +32,15 @@ all: $(DIRS) $(EXEC)
 clean:
 	rm -f $(EXEC)
 
+# Executables are dependent on focal libs
+#$(EXEC): $(FOCAL_LIB)
+
 # Link executables
-$(BINDIR)%: $(addprefix $(OBJDIR), %.o) fclKernels.o $(FOCAL_LIB)
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o) fclKernels.o 
 	$(FC) $^ $(LFLAGS) -o $@
 
 # Compile fortran objects
-$(OBJDIR)%.o: %.f90 
+$(OBJDIR)%.o: %.f90 $(FOCAL_LIB)
 	$(FC) $(FFLAGS) -c $< -o $@
 
 # Compile kernel binary resource

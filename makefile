@@ -15,10 +15,10 @@ vpath %.f90 external
 vpath %.f90 external/clfortran
 
 # Source files
-PROGS = 
+PROGS =
 BASE = Focal clfortran Quicksort
 SRCS = Error Memory Query Setup Utils
-LIBS = focal
+LIBS = focal focaldbg
 
 # --- End Configuration ---
 
@@ -73,10 +73,15 @@ $(PREFIX)lib/%: $(LIBDIR)%
 $(BINDIR)%: $(addprefix $(OBJDIR), %.o)
 	$(FC) $^ $(LFLAGS) -o $@
 
-# Generate libraries
-$(LIBDIR)%: $(BASE_OBJS) $(OBJS)
+# Generate release library
+$(LIBDIR)libfocal.a: $(BASE_OBJS) $(OBJS) $(OBJDIR)NoDebug.o
 	rm -f $@
 	$(AR) -cq $@ $^
+
+# Generate debug library
+$(LIBDIR)libfocaldbg.a: $(BASE_OBJS) $(OBJS) $(OBJDIR)Debug.o
+		rm -f $@
+		$(AR) -cq $@ $^
 
 # Compile fortran objects
 $(OBJDIR)%.o: %.f90

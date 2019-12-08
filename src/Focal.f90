@@ -53,7 +53,7 @@ module Focal
 
   type :: fclEvent
     !! Type wrapper for OpenCL event pointers
-    type(c_ptr) :: cl_event                          !! OpenCL event pointer
+    integer(c_intptr_t) :: cl_event                          !! OpenCL event pointer
   end type fclEvent
 
   type :: fclCommandQ
@@ -73,7 +73,7 @@ module Focal
       !! Focal event object for the most recent kernel event to be enqueued
     type(fclEvent) :: lastBarrierEvent
       !! Focal event object for the most recent barrier event to be enqueued
-    type(c_ptr), allocatable :: dependencyList(:)
+    integer(c_intptr_t), allocatable :: dependencyList(:)
       !! List of pre-requisite events for next enqueued action.
       !!  All events in this list are used as dependencies for the next enqueued
       !!   operation. At enqueueing, the list is cleared.
@@ -126,6 +126,18 @@ module Focal
     integer(c_size_t) :: nBytes                      !! Size of local argument in bytes
   end type fclLocalArgument
 
+  type, extends(fclLocalArgument) :: fclLocalArgInt32
+    !! Type wrapper for local kernel arguments representing 32 bit integers
+  end type fclLocalArgInt32
+
+  type, extends(fclLocalArgument) :: fclLocalArgFloat
+    !! Type wrapper for local kernel arguments representing floats
+  end type fclLocalArgFloat
+
+  type, extends(fclLocalArgument) :: fclLocalArgDouble
+    !! Type wrapper for local kernel arguments representing doubles
+  end type fclLocalArgDouble
+
   ! ---------------------------- ABSTRACT INTERFACES --------------------------
 
   abstract interface
@@ -163,6 +175,7 @@ module Focal
     !! Procedure pointer for custom OpenCL runtime error handler
 
   ! ---------------------------- ERROR ROUTINES -------------------------------
+
   interface
 
     module subroutine fclHandleBuildError(builderrcode,prog,ctx)
@@ -458,6 +471,71 @@ module Focal
 
   end interface fclGetDeviceInfo
 
+  interface fclGetKernelInfo
+    !! Generic interface to query kernel information.
+    !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+    !! for values of 'key' argument contained in clfortran module.
+
+    module subroutine fclGetKernelInfoString(kernel,key,value)
+      !! Query kernel information for string info.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer(c_int32_t), intent(in) :: key
+      character(:), allocatable, intent(out), target :: value
+    end subroutine fclGetKernelInfoString
+
+    module subroutine fclGetKernelInfoInt32(kernel,key,value)
+      !! Query kernel information for 32bit integer.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer(c_int32_t), intent(in) :: key
+      integer(c_int32_t), intent(out), target :: value
+    end subroutine fclGetKernelInfoInt32
+
+  end interface fclGetKernelInfo
+
+  interface fclGetKernelArgInfo
+    !! Generic interface to query kernel argument information.
+    !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+    !! for values of 'key' argument contained in clfortran module.
+
+    module subroutine fclGetKernelArgInfoString(kernel,argNo,key,value)
+      !! Query kernel information for string info.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      integer(c_int32_t), intent(in) :: key
+      character(:), allocatable, intent(out), target :: value
+    end subroutine fclGetKernelArgInfoString
+
+    module subroutine fclGetKernelArgInfoInt32(kernel,argNo,key,value)
+      !! Query kernel information for 32bit integer.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      integer(c_int32_t), intent(in) :: key
+      integer(c_int32_t), intent(out), target :: value
+    end subroutine fclGetKernelArgInfoInt32
+
+  end interface fclGetKernelArgInfo
+
+  interface
+
+    module subroutine fclGetEventInfo(event,key,value)
+      !! Query kernel information for 32bit integer.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclEvent), intent(in) :: event
+      integer(c_int32_t), intent(in) :: key
+      integer(c_int32_t), intent(out), target :: value
+    end subroutine fclGetEventInfo
+
+  end interface
+
   interface
 
     module function fclGetPlatforms() result(platforms)
@@ -621,19 +699,19 @@ module Focal
     module function fclLocalInt32(nElem) result(localArg)
       !! Create a integer local kernel argument object for launching kernels
       integer, intent(in) :: nElem                   !! No of array elements
-      type(fclLocalArgument) :: localArg             !! Returns local argument object
+      type(fclLocalArgInt32) :: localArg             !! Returns local argument object
     end function fclLocalInt32
 
     module function fclLocalFloat(nElem) result(localArg)
       !! Create a float local kernel argument object for launching kernels
       integer, intent(in) :: nElem                   !! No of array elements
-      type(fclLocalArgument) :: localArg             !! Returns local argument object
+      type(fclLocalArgFloat) :: localArg             !! Returns local argument object
     end function fclLocalFloat
 
     module function fclLocalDouble(nElem) result(localArg)
       !! Create a double local kernel argument object for launching kernels
       integer, intent(in) :: nElem                   !! No of array elements
-      type(fclLocalArgument) :: localArg             !! Returns local argument object
+      type(fclLocalArgDouble) :: localArg            !! Returns local argument object
     end function fclLocalDouble
 
   end interface
@@ -719,6 +797,67 @@ module Focal
     end subroutine fclClearDependencies_2
 
   end interface fclClearDependencies
+
+
+  ! ---------------------------- DEBUG ROUTINES -------------------------------
+  interface
+
+    module subroutine fclDbgCheckBufferInit(memObject,descrip)
+      !! Check that a device buffer object has been initialised.
+      !! @note Debug routine: only executed for debug build. @endnote
+      class(fclDeviceBuffer), intent(in) :: memObject
+      character(*), intent(in) :: descrip
+    end subroutine fclDbgCheckBufferInit
+
+    module subroutine fclDbgCheckBufferSize(memObject,hostBytes,descrip)
+      !! Check that a host buffer matches the size in bytes of a device buffer.
+      !! @note Debug routine: only executed for debug build. @endnote
+      class(fclDeviceBuffer), intent(in) :: memObject
+      integer(c_size_t), intent(in) :: hostBytes
+      character(*), intent(in) :: descrip
+    end subroutine fclDbgCheckBufferSize
+
+    module subroutine fclDbgCheckCopyBufferSize(memObject1,memObject2)
+      !! Check that a host buffer matches the size in bytes of a device buffer.
+      !! @note Debug routine: only executed for debug build. @endnote
+      class(fclDeviceBuffer), intent(in) :: memObject1 ! Destination buffer
+      class(fclDeviceBuffer), intent(in) :: memObject2 ! Source buffer
+    end subroutine fclDbgCheckCopyBufferSize
+
+    module subroutine fclDbgCheckKernelNArg(kernel,nArg)
+      !! Check that number of actual args matches number of kernel args.
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: nArg
+    end subroutine fclDbgCheckKernelNArg
+
+    module subroutine fclDbgCheckKernelArgType(kernel,argNo,type)
+      !! Checks the types of arguments passed to kernels
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      character(*), intent(in) :: type
+    end subroutine fclDbgCheckKernelArgType
+
+    module subroutine fclDbgCheckKernelArgQualifier(kernel,argNo,qualifier)
+      !! Checks the address qualifier of arguments passed to kernels.
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclKernel), intent(in) :: kernel
+      integer, intent(in) :: argNo
+      character(*), intent(in) :: qualifier
+    end subroutine fclDbgCheckKernelArgQualifier
+
+    module subroutine fclDbgWait(event,descrip)
+      !! Wait for an event to complete and check for successful completion.
+      !! Throw runtime error if status is not CL_COMPLETE.
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclEvent), intent(in) :: event              !! Event object to check
+      character(*), intent(in), optional :: descrip    !! Description for debugging
+    end subroutine fclDbgWait
+
+  end interface
+
+
 
   ! ---------------------------- UTILITY ROUTINES -------------------------------
 

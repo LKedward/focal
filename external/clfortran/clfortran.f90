@@ -19,6 +19,7 @@
 ! Modified by: LKedward 2019
 !  Add explicit definition of 'BOZ' constants as integers.
 !  Fix interface definitions to be in interface block.
+!  Add definitions of cl_event_command_execution_status constants
 !
 ! https://github.com/LKedward/clfortran
 !
@@ -104,7 +105,7 @@ module clfortran
     integer(c_int32_t), parameter :: CL_INVALID_COMPILER_OPTIONS                  = -66
     integer(c_int32_t), parameter :: CL_INVALID_LINKER_OPTIONS                    = -67
     integer(c_int32_t), parameter :: CL_INVALID_DEVICE_PARTITION_COUNT            = -68
-    
+
     ! OpenCL Version
     integer(c_int32_t), parameter :: CL_VERSION_1_0                               = 1
     integer(c_int32_t), parameter :: CL_VERSION_1_1                               = 1
@@ -308,7 +309,7 @@ module clfortran
     integer(c_int32_t), parameter :: CL_MEM_OBJECT_IMAGE1D                      = int(Z'10F4',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_MEM_OBJECT_IMAGE1D_ARRAY                = int(Z'10F5',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_MEM_OBJECT_IMAGE1D_BUFFER               = int(Z'10F6',kind=c_int32_t)
-    
+
     ! cl_mem_info
     integer(c_int32_t), parameter :: CL_MEM_TYPE                                = int(Z'1100',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_MEM_FLAGS                               = int(Z'1101',kind=c_int32_t)
@@ -332,26 +333,26 @@ module clfortran
     integer(c_int32_t), parameter :: CL_IMAGE_INFO_BUFFER                       = int(Z'1118',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_IMAGE_INFO_NUM_MIP_LEVELS               = int(Z'1119',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_IMAGE_INFO_NUM_SAMPLES                  = int(Z'111A',kind=c_int32_t)
-    
+
     ! cl_addressing_mode
     integer(c_int32_t), parameter :: CL_ADDRESS_NONE                            = int(Z'1130',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_ADDRESS_CLAMP_TO_EDGE                   = int(Z'1131',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_ADDRESS_CLAMP                           = int(Z'1132',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_ADDRESS_REPEAT                          = int(Z'1133',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_ADDRESS_MIRRORED_REPEAT                 = int(Z'1134',kind=c_int32_t)
-    
-    ! cl_filter_mode                                                              
+
+    ! cl_filter_mode
     integer(c_int32_t), parameter :: CL_FILTER_NEAREST                          = int(Z'1140',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_FILTER_LINEAR                           = int(Z'1141',kind=c_int32_t)
-    
-    ! cl_sampler_info                                                            
+
+    ! cl_sampler_info
     integer(c_int32_t), parameter :: CL_SAMPLER_REFERENCE_COUNT                 = int(Z'1150',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_SAMPLER_CONTEXT                         = int(Z'1151',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_SAMPLER_NORMALIZED_COORDS               = int(Z'1152',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_SAMPLER_ADDRESSING_MODE                 = int(Z'1153',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_SAMPLER_FILTER_MODE                     = int(Z'1154',kind=c_int32_t)
-    
-    ! cl_program_info                                                             
+
+    ! cl_program_info
     integer(c_int32_t), parameter :: CL_PROGRAM_REFERENCE_COUNT                 = int(Z'1160',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_CONTEXT                         = int(Z'1161',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_NUM_DEVICES                     = int(Z'1162',kind=c_int32_t)
@@ -361,14 +362,14 @@ module clfortran
     integer(c_int32_t), parameter :: CL_PROGRAM_BINARIES                        = int(Z'1166',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_NUM_KERNELS                     = int(Z'1167',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_KERNEL_NAMES                    = int(Z'1168',kind=c_int32_t)
-    
-    ! cl_program_build_info                                                      
+
+    ! cl_program_build_info
     integer(c_int32_t), parameter :: CL_PROGRAM_BUILD_STATUS                    = int(Z'1181',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_BUILD_OPTIONS                   = int(Z'1182',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_BUILD_LOG                       = int(Z'1183',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_BINARY_TYPE                     = int(Z'1184',kind=c_int32_t)
-    
-    ! cl_program_binary_type                                                      
+
+    ! cl_program_binary_type
     integer(c_int32_t), parameter :: CL_PROGRAM_BINARY_TYPE_NONE                = int(Z'0',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT     = int(Z'1',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_BINARY_TYPE_LIBRARY             = int(Z'2',kind=c_int32_t)
@@ -379,7 +380,7 @@ module clfortran
     integer(c_int32_t), parameter :: CL_BUILD_NONE                              = -1
     integer(c_int32_t), parameter :: CL_BUILD_ERROR                             = -2
     integer(c_int32_t), parameter :: CL_BUILD_IN_PROGRESS                       = -3
-    
+
     ! cl_kernel_info
     integer(c_int32_t), parameter :: CL_KERNEL_FUNCTION_NAME                    = int(Z'1190',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_KERNEL_NUM_ARGS                         = int(Z'1191',kind=c_int32_t)
@@ -406,7 +407,7 @@ module clfortran
     integer(c_int32_t), parameter :: CL_KERNEL_ARG_ACCESS_WRITE_ONLY            = int(Z'11A1',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_KERNEL_ARG_ACCESS_READ_WRITE            = int(Z'11A2',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_KERNEL_ARG_ACCESS_NONE                  = int(Z'11A3',kind=c_int32_t)
-    
+
     ! cl_kernel_arg_type_qualifer - bitfield (int64)
     integer(c_int64_t), parameter :: CL_KERNEL_ARG_TYPE_NONE                    = int(b'000',kind=c_int64_t)
     integer(c_int64_t), parameter :: CL_KERNEL_ARG_TYPE_CONST                   = int(b'001',kind=c_int64_t)
@@ -420,26 +421,31 @@ module clfortran
     integer(c_int32_t), parameter :: CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE=int(Z'11B3',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_KERNEL_PRIVATE_MEM_SIZE                 = int(Z'11B4',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_KERNEL_GLOBAL_WORK_SIZE                 = int(Z'11B5',kind=c_int32_t)
-    
+
     ! cl_event_info
     integer(c_int32_t), parameter :: CL_EVENT_COMMAND_QUEUE                     = int(Z'11D0',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_EVENT_COMMAND_TYPE                      = int(Z'11D1',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_EVENT_REFERENCE_COUNT                   = int(Z'11D2',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_EVENT_COMMAND_EXECUTION_STATUS          = int(Z'11D3',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_EVENT_CONTEXT                           = int(Z'11D4',kind=c_int32_t)
-    
+
     ! cl_profiling_info
     integer(c_int32_t), parameter :: CL_PROFILING_COMMAND_QUEUED                = int(Z'1280',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROFILING_COMMAND_SUBMIT                = int(Z'1281',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROFILING_COMMAND_START                 = int(Z'1282',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROFILING_COMMAND_END                   = int(Z'1283',kind=c_int32_t)
-    
-    
-    type, BIND(C) :: cl_image_format 
+
+    ! cl_event_command_execution_status
+    integer(c_int32_t), parameter :: CL_COMPLETE                                = int(Z'0',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_RUNNING                                 = int(Z'1',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_SUBMITTED                               = int(Z'2',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_QUEUED                                  = int(Z'3',kind=c_int32_t)
+
+    type, BIND(C) :: cl_image_format
         integer(c_int32_t) :: image_channel_order
         integer(c_int32_t) :: image_channel_data_type
     end type cl_image_format
-    
+
     type, BIND(C) :: cl_image_desc
         integer(c_int32_t)  :: image_type
         integer(c_size_t)   :: image_width
@@ -457,7 +463,7 @@ module clfortran
     ! Start interfaces.
     !
 !    contains
-    
+
     interface
 !    ! ------------
 !    ! Platform API
@@ -761,12 +767,12 @@ module clfortran
             integer(c_int32_t), intent(out) :: errcode_ret
 
         end function
-                        
+
     ! clRetainMemObject
         integer(c_int32_t) function clRetainMemObject(mem_obj) &
             BIND(C, NAME='clRetainMemObject')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value  :: mem_obj
 
@@ -776,7 +782,7 @@ module clfortran
         integer(c_int32_t) function clReleaseMemObject(mem_obj) &
             BIND(C, NAME='clReleaseMemObject')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value  :: mem_obj
 
@@ -791,7 +797,7 @@ module clfortran
                 num_image_formats) &
             BIND(C, NAME='clGetSupportedImageFormats')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value  :: context
             integer(c_int64_t), value   :: flags
@@ -801,7 +807,7 @@ module clfortran
             integer(c_int32_t), intent(out) :: num_image_formats
 
         end function
-        
+
     ! clGetMemObjectInfo
         integer(c_int32_t) function clGetMemObjectInfo(memobj, &
                  param_name, &
@@ -819,7 +825,7 @@ module clfortran
             integer(c_size_t), intent(out) :: param_value_size_ret
 
         end function
-        
+
     ! clGetImageInfo
         integer(c_int32_t) function clGetImageInfo(image, &
                  param_name, &
@@ -828,7 +834,7 @@ module clfortran
                  param_value_size_ret) &
             BIND(C, NAME='clGetImageInfo')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: image
             integer(c_int32_t), value  :: param_name
@@ -855,7 +861,7 @@ module clfortran
     ! ------------
     ! Sampler APIs
     ! ------------
-    
+
     ! clCreateSampler
         integer(c_intptr_t) function clCreateSampler(context, &
                 normalized_coords, &
@@ -864,36 +870,36 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clCreateSampler')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: context
             integer(c_int32_t), value :: normalized_coords
-            integer(c_int32_t), value :: addressing_mode 
+            integer(c_int32_t), value :: addressing_mode
             integer(c_int32_t), value :: filter_mode
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
-        
+
     ! clRetainSampler
         integer(c_int32_t) function clRetainSampler(sampler) &
             BIND(C, NAME='clRetainSampler')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: sampler
-            
+
         end function
 
     ! clReleaseSampler
         integer(c_int32_t) function clReleaseSampler(sampler) &
             BIND(C, NAME='clReleaseSampler')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: sampler
-            
+
         end function
-        
+
     ! clGetSamplerInfo
         integer(c_int32_t) function clGetSamplerInfo(sampler, &
                  param_name, &
@@ -911,11 +917,11 @@ module clfortran
             integer(c_size_t), intent(out) :: param_value_size_ret
 
         end function
-        
+
     ! -------------------
     ! Program Object APIs
     ! -------------------
-    
+
     ! clCreateProgramWithSource
         integer(c_intptr_t) function clCreateProgramWithSource(context, &
                 count, &
@@ -924,14 +930,14 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clCreateProgramWithSource')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: context
             integer(c_int32_t), value :: count
             type(c_ptr), value :: strings
             type(c_ptr), value :: lengths
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clCreateProgramWithBinary
@@ -944,7 +950,7 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clCreateProgramWithBinary')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: context
             integer(c_int32_t), value :: num_devices
@@ -953,7 +959,7 @@ module clfortran
             type(c_ptr), value :: binaries
             type(c_ptr), value :: binary_status
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clCreateProgramWithBuiltInKernels
@@ -964,34 +970,34 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clCreateProgramWithBuiltInKernels')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: context
             integer(c_int32_t), value :: num_devices
             type(c_ptr), value :: device_list
             type(c_ptr), value :: kernel_names
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clRetainProgram
         integer(c_int32_t) function clRetainProgram(program) &
             BIND(C, NAME='clRetainProgram')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: program
-            
+
         end function
 
     ! clReleaseProgram
         integer(c_int32_t) function clReleaseProgram(program) &
             BIND(C, NAME='clReleaseProgram')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: program
-            
+
         end function
 
     ! clBuildProgram
@@ -1003,7 +1009,7 @@ module clfortran
                 user_data) &
             BIND(C, NAME='clBuildProgram')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: program
             integer(c_int32_t), value :: num_devices
@@ -1011,7 +1017,7 @@ module clfortran
             type(c_ptr), value :: options
             type(c_funptr), value :: pfn_notify
             type(c_ptr), value :: user_data
-            
+
         end function
 
     ! clCompileProgram
@@ -1026,7 +1032,7 @@ module clfortran
                 user_data) &
             BIND(C, NAME='clCompileProgram')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: program
             integer(c_int32_t), value :: num_devices
@@ -1037,7 +1043,7 @@ module clfortran
             type(c_ptr), value :: header_include_names
             type(c_funptr), value :: pfn_notify
             type(c_ptr), value :: user_data
-            
+
         end function
 
     ! clLinkProgram
@@ -1052,7 +1058,7 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clLinkProgram')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: context
             integer(c_int32_t), value :: num_devices
@@ -1063,17 +1069,17 @@ module clfortran
             type(c_funptr), value :: pfn_notify
             type(c_ptr), value :: user_data
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clUnloadPlatformCompiler
         integer(c_int32_t) function clUnloadPlatformCompiler(platform) &
             BIND(C, NAME='clUnloadPlatformCompiler')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: platform
-            
+
         end function
 
     ! clGetProgramInfo
@@ -1117,19 +1123,19 @@ module clfortran
     ! ------------------
     ! Kernel Object APIs
     ! ------------------
-    
+
     ! clCreateKernel
         integer(c_intptr_t) function clCreateKernel(program, &
                 kernel_name, &
                 errcode_ret) &
             BIND(C, NAME='clCreateKernel')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: program
             type(c_ptr), value :: kernel_name
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clCreateKernelsInProgram
@@ -1139,35 +1145,35 @@ module clfortran
                 num_kernels_ret) &
             BIND(C, NAME='clCreateKernelsInProgram')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: program
             integer(c_int32_t), value :: num_kernels
             type(c_ptr), value :: kernels
             integer(c_int32_t), intent(out) :: num_kernels_ret
-            
+
         end function
 
     ! clRetainKernel
         integer(c_int32_t) function clRetainKernel(kernel) &
             BIND(C, NAME='clRetainKernel')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: kernel
-            
+
         end function
 
     ! clReleaseKernel
         integer(c_int32_t) function clReleaseKernel(kernel) &
             BIND(C, NAME='clReleaseKernel')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: kernel
-            
+
         end function
-        
+
     ! clSetKernelArg
         integer(c_int32_t) function clSetKernelArg(kernel, &
                 arg_index, &
@@ -1175,13 +1181,13 @@ module clfortran
                 arg_value) &
             BIND(C, NAME='clSetKernelArg')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: kernel
             integer(c_int32_t), value :: arg_index
             integer(c_size_t), value :: arg_size
             type(c_ptr), value :: arg_value
-            
+
         end function
 
     ! clGetKernelInfo
@@ -1245,17 +1251,17 @@ module clfortran
     ! -----------------
     ! Event Object APIs
     ! -----------------
-    
+
     ! clWaitForEvents
         integer(c_int32_t) function clWaitForEvents(num_events, &
                 event_list) &
             BIND(C, NAME='clWaitForEvents')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_int32_t), value :: num_events
             type(c_ptr), value :: event_list
-            
+
         end function
 
     ! clGetEventInfo
@@ -1281,31 +1287,31 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clCreateUserEvent')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_int32_t), value :: context
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clRetainEvent
         integer(c_int32_t) function clRetainEvent(event) &
             BIND(C, NAME='clRetainEvent')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: event
-            
+
         end function
 
     ! clReleaseEvent
         integer(c_int32_t) function clReleaseEvent(event) &
             BIND(C, NAME='clReleaseEvent')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: event
-            
+
         end function
 
     ! clSetUserEventStatus
@@ -1313,11 +1319,11 @@ module clfortran
                 execution_status) &
             BIND(C, NAME='clSetUserEventStatus')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: event
             integer(c_int32_t), value :: execution_status
-            
+
         end function
 
     ! clSetEventCallback
@@ -1327,13 +1333,13 @@ module clfortran
                 user_data) &
             BIND(C, NAME='clSetEventCallback')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: event
             integer(c_int32_t), value :: command_exec_callback_type
             type(c_funptr), value :: pfn_notify
             type(c_ptr), value :: user_data
-            
+
         end function
 
     ! --------------
@@ -1381,11 +1387,11 @@ module clfortran
             integer(c_intptr_t), value :: command_queue
 
         end function
-    
+
     ! ----------------------
     ! Enqueued Commands APIs
     ! ----------------------
-    
+
     ! clEnqueueReadBuffer
         integer(c_int32_t) function clEnqueueReadBuffer(command_queue, &
                 buffer, &
@@ -1398,7 +1404,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueReadBuffer')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: buffer
@@ -1409,9 +1415,9 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
-    
+
     ! clEnqueueReadBufferRect
         integer(c_int32_t) function clEnqueueReadBufferRect(command_queue, &
                 buffer, &
@@ -1422,17 +1428,17 @@ module clfortran
                 buffer_row_pitch, &
                 buffer_slice_pitch, &
                 host_row_pitch, &
-                host_slice_pitch, &                      
+                host_slice_pitch, &
                 ptr, &
                 num_events_in_wait_list, &
                 event_wait_list, &
                 event) &
             BIND(C, NAME='clEnqueueReadBufferRect')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
-            
+
             integer(c_intptr_t), value :: buffer
             integer(c_int32_t), value :: blocking_read
             type(c_ptr), value :: buffer_offset
@@ -1446,7 +1452,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueWriteBuffer
@@ -1461,7 +1467,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueWriteBuffer')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: buffer
@@ -1472,7 +1478,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueWriteBufferRect
@@ -1485,14 +1491,14 @@ module clfortran
                 buffer_row_pitch, &
                 buffer_slice_pitch, &
                 host_row_pitch, &
-                host_slice_pitch, &                      
+                host_slice_pitch, &
                 ptr, &
                 num_events_in_wait_list, &
                 event_wait_list, &
                 event) &
             BIND(C, NAME='clEnqueueWriteBufferRect')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: buffer
@@ -1508,7 +1514,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueFillBuffer
@@ -1523,7 +1529,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueFillBuffer')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: buffer
@@ -1534,7 +1540,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueCopyBuffer
@@ -1549,7 +1555,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueCopyBuffer')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: src_buffer
@@ -1560,7 +1566,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueCopyBufferRect
@@ -1579,7 +1585,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueCopyBufferRect')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: src_buffer
@@ -1594,7 +1600,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueReadImage
@@ -1611,7 +1617,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueReadImage')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: image
@@ -1624,7 +1630,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueWriteImage
@@ -1641,7 +1647,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueWriteImage')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: image
@@ -1654,7 +1660,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueFillImage
@@ -1668,7 +1674,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueFillImage')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: image
@@ -1678,7 +1684,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueCopyImage
@@ -1693,7 +1699,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueCopyImage')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: src_image
@@ -1704,7 +1710,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueCopyImageToBuffer
@@ -1719,7 +1725,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueCopyImageToBuffer')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: src_image
@@ -1730,7 +1736,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueCopyBufferToImage
@@ -1745,7 +1751,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueCopyBufferToImage')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: src_buffer
@@ -1756,7 +1762,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueMapBuffer
@@ -1772,7 +1778,7 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clEnqueueMapBuffer')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: buffer
@@ -1784,7 +1790,7 @@ module clfortran
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clEnqueueMapImage
@@ -1802,7 +1808,7 @@ module clfortran
                 errcode_ret) &
             BIND(C, NAME='clEnqueueMapImage')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: image
@@ -1816,7 +1822,7 @@ module clfortran
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
             integer(c_int32_t), intent(out) :: errcode_ret
-            
+
         end function
 
     ! clEnqueueUnmapMemObject
@@ -1828,7 +1834,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueUnmapMemObject')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: memobj
@@ -1836,7 +1842,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueMigrateMemObjects
@@ -1849,7 +1855,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueMigrateMemObjects')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_int32_t), value :: num_mem_objects
@@ -1858,7 +1864,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueNDRangeKernel.
@@ -1873,7 +1879,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueNDRangeKernel')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: kernel
@@ -1884,7 +1890,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueTask
@@ -1895,14 +1901,14 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueTask')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_intptr_t), value :: kernel
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueNativeKernel
@@ -1918,7 +1924,7 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueNativeKernel')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             type(c_funptr), value :: user_func
@@ -1930,7 +1936,7 @@ module clfortran
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueMarkerWithWaitList
@@ -1940,13 +1946,13 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueMarkerWithWaitList')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clEnqueueMarkerWithWaitList
@@ -1956,13 +1962,13 @@ module clfortran
                 event) &
             BIND(C, NAME='clEnqueueBarrierWithWaitList')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: command_queue
             integer(c_int32_t), value :: num_events_in_wait_list
             type(c_ptr), value :: event_wait_list
             type(c_ptr), value :: event
-            
+
         end function
 
     ! clSetPrintfCallback
@@ -1971,14 +1977,14 @@ module clfortran
                 user_data) &
             BIND(C, NAME='clSetPrintfCallback')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: context
             type(c_funptr), value :: pfn_notify
             type(c_ptr), value :: user_data
-            
+
         end function
-    
+
     ! -------------------------
     ! Extension function access
     ! -------------------------
@@ -1986,13 +1992,13 @@ module clfortran
                 func_name) &
             BIND(C, NAME='clGetExtensionFunctionAddressForPlatform')
             USE ISO_C_BINDING
-            
+
             ! Define parameters.
             integer(c_intptr_t), value :: platform
             type(c_ptr), value :: func_name
-            
+
         end function
-!            
+!
 !    !
 !    !end interface
 !    !
