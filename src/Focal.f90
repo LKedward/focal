@@ -847,6 +847,14 @@ module Focal
       character(*), intent(in) :: qualifier
     end subroutine fclDbgCheckKernelArgQualifier
 
+    module subroutine fclDbgWait(event,descrip)
+      !! Wait for an event to complete and check for successful completion.
+      !! Throw runtime error if status is not CL_COMPLETE.
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclEvent), intent(in) :: event              !! Event object to check
+      character(*), intent(in), optional :: descrip    !! Description for debugging
+    end subroutine fclDbgWait
+
   end interface
 
 

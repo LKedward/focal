@@ -170,4 +170,33 @@ submodule (Focal) Focal_Debug
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclDbgWait !(event,descrip)
+    !! Wait for an event to complete and check for successful completion.
+    !! Throw runtime error if status is not CL_COMPLETE.
+
+    integer(c_int32_t) :: eStatus
+
+    call fclWait(event)
+
+    call fclGetEventInfo(event,CL_EVENT_COMMAND_EXECUTION_STATUS,eStatus)
+
+    if (eStatus /= CL_COMPLETE) then
+
+      eStatus = -1 * eStatus
+      write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+      if (present(descrip)) then
+        write(*,*) ' An event ('//descrip//') has terminated abnormally.'
+      else
+        write(*,*) ' An event has terminated abnormally.'
+      end if
+      write(*,*) ' Error code: ',eStatus,' : ',trim(fclGetErrorString(eStatus))
+
+      call fclRuntimeError('fclDbgWait')
+
+    end if
+
+  end procedure fclDbgWait
+  ! ---------------------------------------------------------------------------
+
+
 end submodule Focal_Debug

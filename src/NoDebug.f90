@@ -44,4 +44,9 @@ submodule (Focal) Focal_NoDebug
   end procedure fclDbgCheckKernelArgQualifier
   ! ---------------------------------------------------------------------------
 
+  module procedure fclDbgWait !(event,descrip)
+
+  end procedure fclDbgWait
+  ! ---------------------------------------------------------------------------
+
 end submodule Focal_NoDebug
