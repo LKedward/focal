@@ -104,6 +104,9 @@ submodule (Focal) Focal_Error
 
       case (CL_INVALID_CONTEXT)
         errstr = 'CL_INVALID_CONTEXT'
+		
+      case (CL_INVALID_QUEUE_PROPERTIES)
+        errstr = 'CL_INVALID_QUEUE_PROPERTIES'
 
       case (CL_INVALID_COMMAND_QUEUE)
         errstr = 'CL_INVALID_COMMAND_QUEUE'
