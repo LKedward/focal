@@ -344,8 +344,6 @@ submodule (Focal) Focal_Setup
       localSizePtr = c_loc(kernel%local_work_size)
     end if
 
-    !! @todo Debug (runtime) check number of kernel arguments @endtodo
-
     ! --- Check if command queue was specified ---
     nArg = 0
     i0 = 0

@@ -895,4 +895,16 @@ module Focal
 
   end interface
 
+  interface
+
+    module function strStripNum(linei)
+      !! Return copy of string with numerical characters removed
+      character(len=*),intent(in) :: linei
+        !! Input string
+      character(len=len(linei)) strStripNum
+        !! Converted string output
+    end function strStripNum
+
+  end interface
+  
 end module Focal

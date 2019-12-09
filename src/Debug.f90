@@ -95,6 +95,9 @@ submodule (Focal) Focal_Debug
     character(:), allocatable :: argType
     call fclGetKernelArgInfo(kernel,argNo,CL_KERNEL_ARG_TYPE_NAME,argType)
 
+    ! Use strStripNum to remove vector type information for comparison
+    argType = trim(strStripNum(argType))
+
     if (index(argType,type) == 0 .or. &
           index(argType,'*') /= index(type,'*')) then
 
@@ -173,7 +176,7 @@ submodule (Focal) Focal_Debug
   module procedure fclDbgOptions !(options)
     !! Returns OpenCL compile options as interoperable string for debug mode
 
-    options = '-cl-opt-disable -cl-kernel-arg-info'   ! Required for focaldbg kernel argument checks
+    options = '-cl-kernel-arg-info'   ! Required for focaldbg kernel argument checks
 
   end procedure fclDbgOptions
   ! ---------------------------------------------------------------------------

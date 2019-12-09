@@ -70,6 +70,30 @@ submodule (Focal) Focal_Utils
 
   end procedure upperstr
   ! -----------------------------------------------------------------------------
+  
+
+  module procedure strStripNum
+    !! Return copy of string with numerical characters removed
+
+    integer :: i, n, ic, iOut
+
+    n = len_trim(linei)
+    
+    strStripNum = ' '
+    iOut = 1
+    do i=1,n
+
+      ic = ichar(linei(i:i))
+
+      if (.not.(ic > 47 .and. ic < 58)) then   ! ASCII numbers are 48 to 57 inclusive
+        strStripNum(iOut:iOut) = linei(i:i)
+        iOut = iOut + 1
+      end if
+
+    end do
+
+  end procedure strStripNum
+  ! -----------------------------------------------------------------------------
 
 
   module procedure fclSourceFromFile !(filename,sourceString)
