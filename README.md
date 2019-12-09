@@ -1,11 +1,20 @@
 # Focal
 ## *A modern Fortran abstraction layer for openCL*
 Focal is a module library which wraps calls to the openCL runtime API (using [clfortran](https://github.com/cass-support/clfortran)) with a higher abstraction level appropriate to the Fortran language.
-The guiding principle for this is: __to make simple things simple, and complex things possible__.
 
 __Project status:__ *Beta*
 
 __Documentation__: [lkedward.github.io/focal-docs](https://lkedward.github.io/focal-docs/)
+
+__License__: [MIT](./LICENSE)
+
+__Key features:__
+
+ - Focal removes the need to use c pointers in Fortran to call the OpenCL API;
+ - provides a level of type-safety through the use of typed buffer objects;
+ - decreases the verbosity of OpenCL API calls while still providing the same functionality;
+ - abstracts away low-level details, such as buffer size in bytes, not appropriate to Fortran;
+ - makes it easier to write and debug OpenCL programs with customisable built-in runtime error checking.
 
 ## Getting started
 
@@ -29,7 +38,7 @@ real, parameter :: sumVal = 10.0            ! Target value for array sum
 integer :: i                                ! Counter variable
 character(:), allocatable :: kernelSrc      ! Kernel source string
 type(fclDevice), pointer :: devices(:)      ! List of focal devices
-type(fclProgram) :: prog                    ! Focal program object 
+type(fclProgram) :: prog                    ! Focal program object
 type(fclKernel) :: sumKernel                ! Focal kernel object
 real(c_float) :: array1(Nelem)              ! Host array 1
 real(c_float) :: array2(Nelem)              ! Host array 2

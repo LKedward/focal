@@ -230,7 +230,7 @@ submodule (Focal) Focal_Setup
 
 
   module procedure fclCreateCommandQ_2 !(device,enableProfiling,outOfOrderExec,&
-                                         !blockingWrite,blockingRead) result(cmdq) 
+                                         !blockingWrite,blockingRead) result(cmdq)
     !! Create a command queue with a Focal device object using default context
     cmdq = fclCreateCommandQ_1(fclDefaultCtx,device,enableProfiling,outOfOrderExec, &
                                            blockingWrite,blockingRead)
@@ -329,7 +329,7 @@ submodule (Focal) Focal_Setup
     integer(c_int32_t) :: errcode
     type(fclCommandQ), pointer :: cmdQ
     type(c_ptr) :: localSizePtr
-    integer :: i0
+    integer :: i0, nArg
 
     ! Check global size has been set
     if (sum(abs(kernel%global_work_size)) == 0) then
@@ -347,6 +347,7 @@ submodule (Focal) Focal_Setup
     !! @todo Debug (runtime) check number of kernel arguments @endtodo
 
     ! --- Check if command queue was specified ---
+    nArg = 0
     i0 = 0
     cmdQ => fclDefaultCmdQ
     if (present(a0)) then
@@ -361,6 +362,7 @@ submodule (Focal) Focal_Setup
         !! First arg is not cmdQ: then it is a kernel arg
         call fclSetKernelArg(kernel,0,arg)
         i0 = 1
+        nArg = nArg + 1
 
       end select
     end if
@@ -368,33 +370,48 @@ submodule (Focal) Focal_Setup
     ! --- Set arguments ---
     if (present(a1)) then
       call fclSetKernelArg(kernel,i0+0,a1)
+      nArg = nArg + 1
     end if
     if (present(a2)) then
       call fclSetKernelArg(kernel,i0+1,a2)
+      nArg = nArg + 1
     end if
     if (present(a3)) then
       call fclSetKernelArg(kernel,i0+2,a3)
+      nArg = nArg + 1
     end if
     if (present(a4)) then
       call fclSetKernelArg(kernel,i0+3,a4)
+      nArg = nArg + 1
     end if
     if (present(a5)) then
       call fclSetKernelArg(kernel,i0+4,a5)
+      nArg = nArg + 1
     end if
     if (present(a6)) then
       call fclSetKernelArg(kernel,i0+5,a6)
+      nArg = nArg + 1
     end if
     if (present(a7)) then
       call fclSetKernelArg(kernel,i0+6,a7)
+      nArg = nArg + 1
     end if
     if (present(a8)) then
       call fclSetKernelArg(kernel,i0+7,a8)
+      nArg = nArg + 1
     end if
     if (present(a9)) then
       call fclSetKernelArg(kernel,i0+8,a9)
+      nArg = nArg + 1
     end if
     if (present(a10)) then
       call fclSetKernelArg(kernel,i0+9,a10)
+      nArg = nArg + 1
+    end if
+
+    if (nArg > 0) then
+      ! If any kernel arguments are specified, check that they are all present
+      call fclDbgCheckKernelNArg(kernel,nArg)
     end if
 
     errcode = clEnqueueNDRangeKernel(cmdq%cl_command_queue, &
@@ -432,25 +449,73 @@ submodule (Focal) Focal_Setup
 
     select type(arg => argValue)
 
-      class is (fclDeviceBuffer)
+    class is (fclDeviceBuffer)
         argPtr = c_loc(arg%cl_mem)
         argSize = c_sizeof(arg%cl_mem)
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
+
+      class is (fclDeviceInt32)
+        argPtr = c_loc(arg%cl_mem)
+        argSize = c_sizeof(arg%cl_mem)
+        call fclDbgCheckKernelArgType(kernel,argIndex,'int*')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
+
+      class is (fclDeviceFloat)
+        argPtr = c_loc(arg%cl_mem)
+        argSize = c_sizeof(arg%cl_mem)
+        call fclDbgCheckKernelArgType(kernel,argIndex,'float*')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
+
+      class is (fclDeviceDouble)
+        argPtr = c_loc(arg%cl_mem)
+        argSize = c_sizeof(arg%cl_mem)
+        call fclDbgCheckKernelArgType(kernel,argIndex,'double*')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'global,constant')
+        call fclDbgCheckBufferInit(arg,'fclSetKernelArg')
 
       class is (fclLocalArgument)
         argPtr = C_NULL_PTR
         argSize = arg%nBytes
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'local')
+
+      class is (fclLocalArgInt32)
+        argPtr = C_NULL_PTR
+        argSize = arg%nBytes
+        call fclDbgCheckKernelArgType(kernel,argIndex,'int*')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'local')
+
+      class is (fclLocalArgFloat)
+        argPtr = C_NULL_PTR
+        argSize = arg%nBytes
+        call fclDbgCheckKernelArgType(kernel,argIndex,'float*')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'local')
+
+      class is (fclLocalArgDouble)
+        argPtr = C_NULL_PTR
+        argSize = arg%nBytes
+        call fclDbgCheckKernelArgType(kernel,argIndex,'double*')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'local')
 
       type is (integer(c_int32_t))
         argPtr = c_loc(arg)
         argSize = c_sizeof(int(1,c_int32_t))
+        call fclDbgCheckKernelArgType(kernel,argIndex,'int')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'private')
 
       type is (real(c_float))
         argPtr = c_loc(arg)
         argSize = c_sizeof(real(1.0,c_float))
+        call fclDbgCheckKernelArgType(kernel,argIndex,'float')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'private')
 
       type is (real(c_double))
         argPtr = c_loc(arg)
         argSize = c_sizeof(real(1.0d0,c_double))
+        call fclDbgCheckKernelArgType(kernel,argIndex,'double')
+        call fclDbgCheckKernelArgQualifier(kernel,argIndex,'private')
 
       class default
         write(*,*) 'Kernel name: ',trim(kernel%name)
@@ -551,7 +616,7 @@ submodule (Focal) Focal_Setup
     !! Wait on host for set of events
     integer :: i
     integer(c_int32_t) :: errcode
-    type(c_ptr), target :: cl_eventList(size(eventList,1))
+    integer(c_intptr_t), target :: cl_eventList(size(eventList,1))
 
     ! Populate array of c_ptr
     cl_eventList = [(eventList(i)%cl_event,i=1,size(eventList,1))]

@@ -115,6 +115,8 @@ submodule (Focal) Focal_Memory
 
     integer(c_int32_t) :: errcode
 
+    call fclDbgCheckBufferInit(memObject,'fclMemWriteScalar')
+
     errcode = clEnqueueFillBuffer(memObject%cmdq%cl_command_queue, &
                 memObject%cl_mem, hostBufferPtr, nBytesPattern, &
                 int(0,c_size_t), memObject%nBytes, &
@@ -164,6 +166,9 @@ submodule (Focal) Focal_Memory
 
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_write
+
+    call fclDbgCheckBufferInit(memObject,'fclMemWrite')
+    call fclDbgCheckBufferSize(memObject,nBytes,'fclMemWrite')
 
     if (memObject%cmdq%blockingWrite) then
       blocking_write = CL_TRUE
@@ -223,6 +228,9 @@ submodule (Focal) Focal_Memory
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_read
 
+    call fclDbgCheckBufferInit(memObject,'fclMemRead')
+    call fclDbgCheckBufferSize(memObject,nBytes,'fclMemRead')
+
     if (memObject%cmdq%blockingRead) then
       blocking_read = CL_TRUE
     else
@@ -280,8 +288,6 @@ submodule (Focal) Focal_Memory
 
     integer(c_int32_t) :: errcode
 
-    !! @todo Implement debug check for matching dimensions @endtodo
-
     if (memObject2%nBytes < 0) then
       ! Source object is uninitialised: nothing to copy
 
@@ -298,6 +304,8 @@ submodule (Focal) Focal_Memory
     else
       ! Receiving memory object is initialised
       !  therefore perform a device-to-device copy
+
+      call fclDbgCheckCopyBufferSize(memObject1,memObject2)
 
       errcode = clEnqueueCopyBuffer(memObject1%cmdq%cl_command_queue, &
                 memObject2%cl_mem, memObject1%cl_mem, &
@@ -340,9 +348,13 @@ submodule (Focal) Focal_Memory
 
     integer(c_int32_t) :: errcode
 
-    errcode = clReleaseMemObject(memObject%cl_mem)
+    call fclDbgCheckBufferInit(memObject,'fclFreeBuffer')
 
-    call fclErrorHandler(errcode,'fclBufferFree','clReleaseMemObject')
+    errcode = clReleaseMemObject(memObject%cl_mem)
+    
+    call fclErrorHandler(errcode,'fclFreeBuffer','clReleaseMemObject')
+
+    memObject%nBytes = -1
 
   end procedure fclFreeBuffer
   ! ---------------------------------------------------------------------------

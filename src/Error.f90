@@ -7,20 +7,27 @@ submodule (Focal) Focal_Error
 
   use clfortran
   implicit none
-  
+
   integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
     !! Extension error: No valid ICDs found
-  
+
+  interface
+    !! Interface to c function abort().
+    !!  Used to print backtrace on error.
+    subroutine c_abort() bind(C, name="abort")
+    end subroutine
+  end interface
+
   contains
 
   module procedure fclDefaultErrorHandler
-    
+
     if (errcode /= CL_SUCCESS) then
 
       write(*,*) '(!) Fatal openCl error ',errcode,' : ',trim(fclGetErrorString(errcode))
       write(*,*) '      at ',focalCall,':',oclCall
-      
-      stop 1
+
+      call c_abort()
     end if
 
   end procedure fclDefaultErrorHandler
@@ -39,7 +46,7 @@ submodule (Focal) Focal_Error
 
       write(*,*) '(!) Fatal openCl error while building kernel: ',errcode,' : ',trim(fclGetErrorString(errcode))
 
-      ! Iterate over context devices 
+      ! Iterate over context devices
       do i=1,ctx%platform%numDevice
 
         write(*,'(A,I3)') ' Build log for context device ',i
@@ -53,7 +60,7 @@ submodule (Focal) Focal_Error
         allocate(buildLogBuffer(buffLen))
         buffLen = size(buildLogBuffer,1)
 
-        errcode = clGetProgramBuildInfo(prog%cl_program, ctx%platform%cl_device_ids(1), & 
+        errcode = clGetProgramBuildInfo(prog%cl_program, ctx%platform%cl_device_ids(1), &
           CL_PROGRAM_BUILD_LOG, buffLen, c_loc(buildLogBuffer), int32_ret);
 
         call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
@@ -65,7 +72,7 @@ submodule (Focal) Focal_Error
 
       end do
 
-      stop
+      stop 1
     end if
 
   end procedure fclHandleBuildError
@@ -122,10 +129,10 @@ submodule (Focal) Focal_Error
 
       case (CL_INVALID_PROGRAM)
         errstr = 'CL_INVALID_PROGRAM'
-        
+
       case (CL_INVALID_ARG_INDEX)
         errstr = 'CL_INVALID_ARG_INDEX'
-        
+
       case (CL_INVALID_ARG_VALUE)
         errstr = 'CL_INVALID_ARG_VALUE'
 
@@ -162,7 +169,8 @@ submodule (Focal) Focal_Error
     if (present(descrip)) then
       write(*,*) '      at ',descrip
     end if
-    stop
+
+    call c_abort()
 
   end procedure fclRuntimeError
   ! ---------------------------------------------------------------------------
