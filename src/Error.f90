@@ -11,6 +11,9 @@ submodule (Focal) Focal_Error
   integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
     !! Extension error: No valid ICDs found
 
+  integer, parameter :: NV_ILLEGAL_BUFFER_READ_WRITE = -9999
+    !! Vendor error: Illega read or write to a buffer in NDRangeKernel
+
   interface
     !! Interface to c function abort().
     !!  Used to print backtrace on error.
@@ -94,9 +97,15 @@ submodule (Focal) Focal_Error
       case (CL_MEM_OBJECT_ALLOCATION_FAILURE)
         errstr = 'CL_MEM_OBJECT_ALLOCATION_FAILURE'
 
+      case (CL_OUT_OF_RESOURCES)
+        errstr = 'CL_OUT_OF_RESOURCES'
+
       case (CL_OUT_OF_HOST_MEMORY)
         errstr = 'CL_OUT_OF_HOST_MEMORY'
 
+      case (CL_MEM_COPY_OVERLAP)
+        errstr = 'CL_MEM_COPY_OVERLAP'
+        
       case (CL_BUILD_PROGRAM_FAILURE)
         errstr = 'CL_BUILD_PROGRAM_FAILURE'
 
@@ -153,6 +162,9 @@ submodule (Focal) Focal_Error
 
       case (CL_PLATFORM_NOT_FOUND_KHR)
         errstr = 'CL_PLATFORM_NOT_FOUND_KHR'
+      
+      case (NV_ILLEGAL_BUFFER_READ_WRITE)
+        errstr = 'NVidia: Illegal read or write to a buffer'
 
       case default
         errstr = 'UNKNOWN'
