@@ -10,8 +10,6 @@ module Focal
   use, intrinsic :: iso_c_binding
   implicit none
 
-
-
   ! ---------------------------- CONSTANT PARAMETERS --------------------------
 
   integer, parameter :: errStringLen = 50
@@ -847,11 +845,18 @@ module Focal
       character(*), intent(in) :: qualifier
     end subroutine fclDbgCheckKernelArgQualifier
 
+    module function fclDbgOptions() result(options) !(userOptions,options)
+      !! Returns OpenCL compile options as interoperable string for debug mode
+      !! @note Debug routine: only executed for debug build. @endnote
+      ! character(*), intent(in) :: userOptions
+      character(:), allocatable :: options
+    end function fclDbgOptions
+
     module subroutine fclDbgWait(event,descrip)
       !! Wait for an event to complete and check for successful completion.
       !! Throw runtime error if status is not CL_COMPLETE.
       !! @note Debug routine: only executed for debug build. @endnote
-      type(fclEvent), intent(in) :: event              !! Event object to check
+      type(fclEvent), intent(in), target :: event              !! Event object to check
       character(*), intent(in), optional :: descrip    !! Description for debugging
     end subroutine fclDbgWait
 

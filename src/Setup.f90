@@ -253,6 +253,7 @@ submodule (Focal) Focal_Setup
     integer(c_int32_t) :: errcode
     character(len=1,kind=c_char), target :: c_source(len(source)+1)
     type(c_ptr), target :: c_source_p
+    character(:), allocatable :: options_temp
     character(len=1,kind=c_char), allocatable, target :: c_options(:)
 
     ! Convert to c character array
@@ -268,24 +269,23 @@ submodule (Focal) Focal_Setup
     call fclErrorHandler(errcode,'fclCompileProgram','clCreateProgramWithSource')
 
     if (present(options)) then
-      allocate(c_options(len(options)+1))
-      do i=1,len(options)
-        c_options(i) = options(i:i)
-      end do
-      c_options(len(options)+1) = C_NULL_CHAR
+      options_temp = options//' '//fclDbgOptions()
     else
-      allocate(c_options(1))
-      c_options(1) = C_NULL_CHAR
+      options_temp = fclDbgOptions()
     end if
 
+    allocate(c_options(len(options_temp)+1))
+    do i=1,len(options_temp)
+      c_options(i) = options_temp(i:i)
+    end do
+    c_options(len(options_temp)+1) = C_NULL_CHAR
+ 
     errcode = clBuildProgram(prog%cl_program,0, &
           C_NULL_PTR,C_LOC(c_options),C_NULL_FUNPTR,C_NULL_PTR)
 
     call fclHandleBuildError(errcode,prog,ctx)
 
-    if (allocated(c_options)) then
-      deallocate(c_options)
-    end if
+    deallocate(c_options)
 
   end procedure fclCompileProgram_1
   ! ---------------------------------------------------------------------------

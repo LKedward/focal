@@ -170,28 +170,53 @@ submodule (Focal) Focal_Debug
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclDbgOptions !(options)
+    !! Returns OpenCL compile options as interoperable string for debug mode
+
+    options = '-cl-opt-disable -cl-kernel-arg-info'   ! Required for focaldbg kernel argument checks
+
+  end procedure fclDbgOptions
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclDbgWait !(event,descrip)
     !! Wait for an event to complete and check for successful completion.
     !! Throw runtime error if status is not CL_COMPLETE.
 
-    integer(c_int32_t) :: eStatus
+    integer(c_int32_t) :: errcode
+    integer(c_int32_t), target :: eStatus
+    integer(c_size_t) :: temp_size, size_ret
 
-    call fclWait(event)
+    ! Call clWaitForEvents & clGetEventInfo directly to avoid built-in error handling here
+    errcode = clWaitForEvents ( 1, c_loc(event%cl_event) )
 
-    call fclGetEventInfo(event,CL_EVENT_COMMAND_EXECUTION_STATUS,eStatus)
+    temp_size = c_sizeof(int(1,c_int32_t))
+    errcode = ior(errcode , clGetEventInfo(event%cl_event, CL_EVENT_COMMAND_EXECUTION_STATUS, &
+                temp_size, C_LOC(eStatus), size_ret))
 
-    if (eStatus /= CL_COMPLETE) then
+    ! Catch errors
+    if (errcode /= CL_SUCCESS .or. eStatus /= CL_SUCCESS) then
 
-      eStatus = -1 * eStatus
-      write(*,*) '(!) Focal (debug build) runtime assertion failed.'
-      if (present(descrip)) then
-        write(*,*) ' An event ('//descrip//') has terminated abnormally.'
-      else
-        write(*,*) ' An event has terminated abnormally.'
-      end if
-      write(*,*) ' Error code: ',eStatus,' : ',trim(fclGetErrorString(eStatus))
+        write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+        if (present(descrip)) then
+          write(*,*) ' An event ('//descrip//') has terminated abnormally.'
+        else
+          write(*,*) ' An event has terminated abnormally.'
+        end if
 
-      call fclRuntimeError('fclDbgWait')
+        if (errcode == CL_SUCCESS) then
+
+          ! Error is only in event status
+          eStatus = -1 * eStatus
+          write(*,*) ' Event execution error code: ',eStatus,' : ',trim(fclGetErrorString(eStatus))
+          call fclRuntimeError('fclDbgWait')
+
+        else
+
+          ! Error is in api calls
+          call fclErrorHandler(errcode,'fclDbgWait','clWaitForEvents|clGetEventInfo')
+
+        end if
 
     end if
 
