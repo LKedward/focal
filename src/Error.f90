@@ -47,7 +47,7 @@ submodule (Focal) Focal_Error
     ! Handle compilation error
     if (builderrcode /= CL_SUCCESS) then
 
-      write(*,*) '(!) Fatal openCl error while building kernel: ',errcode,' : ',trim(fclGetErrorString(errcode))
+      write(*,*) '(!) Fatal openCl error while building kernel: ',builderrcode,' : ',trim(fclGetErrorString(errcode))
 
       ! Iterate over context devices
       do i=1,ctx%platform%numDevice
@@ -105,7 +105,7 @@ submodule (Focal) Focal_Error
 
       case (CL_MEM_COPY_OVERLAP)
         errstr = 'CL_MEM_COPY_OVERLAP'
-        
+
       case (CL_BUILD_PROGRAM_FAILURE)
         errstr = 'CL_BUILD_PROGRAM_FAILURE'
 
@@ -150,6 +150,12 @@ submodule (Focal) Focal_Error
 
       case (CL_INVALID_KERNEL_ARGS)
         errstr = 'CL_INVALID_KERNEL_ARGS'
+
+      case (CL_INVALID_WORK_DIMENSION)
+        errstr = 'CL_INVALID_WORK_DIMENSION'
+
+      case (CL_INVALID_WORK_GROUP_SIZE)
+        errstr = 'CL_INVALID_WORK_GROUP_SIZE'
 
       case (CL_INVALID_EVENT_WAIT_LIST)
         errstr = 'CL_INVALID_EVENT_WAIT_LIST'
