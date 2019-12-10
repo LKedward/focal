@@ -668,11 +668,16 @@ module Focal
 
   interface
 
-    module function fclGetProgramKernel(prog,kernelName) result(kern)
+    module function fclGetProgramKernel(prog,kernelName,global_work_size,local_work_size, &
+                                             work_dim,global_work_offset) result(kern)
       !! Extract a kernel object for execution from a compiled program object
-      type(fclProgram), intent(in) :: prog           !! Compiled program object containing kernel
-      character(*), intent(in) :: kernelName         !! Name of kernel to extract for execution
-      type(fclKernel) :: kern                        !! Returns fclKernel object for execution
+      type(fclProgram), intent(in) :: prog                   !! Compiled program object containing kernel
+      character(*), intent(in) :: kernelName                 !! Name of kernel to extract for execution
+      integer, intent(in), optional :: global_work_size(:)   !! Global work group dimensions, default unset (must set prior to launching)
+      integer, intent(in), optional :: local_work_size(:)    !! Local work group dimensions, default zeros (decided by OpenCL runtime)
+      integer, intent(in), optional :: work_dim              !! Number of dimensions for kernel work group, default 1
+      integer, intent(in), optional :: global_work_offset(:) !! Global work group offsets, default zeros
+      type(fclKernel) :: kern                                !! Returns fclKernel object for execution
     end function fclGetProgramKernel
 
     module subroutine fclLaunchKernel(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
@@ -906,5 +911,5 @@ module Focal
     end function strStripNum
 
   end interface
-  
+
 end module Focal

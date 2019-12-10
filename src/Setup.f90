@@ -299,7 +299,8 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclGetProgramKernel !(prog,kernelName) result(kern)
+  module procedure fclGetProgramKernel !(prog,kernelName,global_work_size,local_work_size, &
+                                           ! work_dim,global_work_offset) result(kern)
 
     integer :: i
     integer(c_int32_t) :: errcode
@@ -316,6 +317,39 @@ submodule (Focal) Focal_Setup
 
     allocate(character(len=len(kernelName)) :: kern%name)
     kern%name = kernelName
+
+    if (present(global_work_size)) then
+      if (size(global_work_size,1) > 3) then
+        call fclRuntimeError('fclGetProgramKernel: global work size must have dimension less than or equal to three.')
+      else
+        kern%work_dim = size(global_work_size,1)
+        kern%global_work_size = global_work_size
+      end if
+    end if
+
+    if (present(local_work_size)) then
+      if (size(local_work_size,1) > 3) then
+        call fclRuntimeError('fclGetProgramKernel: local work size must have dimension less than or equal to three.')
+      else
+        kern%local_work_size = local_work_size
+      end if
+    end if
+
+    if (present(work_dim)) then
+      if (work_dim > 3) then
+        call fclRuntimeError('fclGetProgramKernel: kernel work dimensionmust be less than or equal to three.')
+      else
+        kern%work_dim = work_dim
+      end if
+    end if
+
+    if (present(global_work_offset)) then
+      if (size(global_work_offset,1) > 3) then
+        call fclRuntimeError('fclGetProgramKernel: global work offset must have dimension less than or equal to three.')
+      else
+        kern%global_work_offset = global_work_offset
+      end if
+    end if
 
   end procedure fclGetProgramKernel
   ! ---------------------------------------------------------------------------
