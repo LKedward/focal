@@ -323,7 +323,7 @@ submodule (Focal) Focal_Setup
         call fclRuntimeError('fclGetProgramKernel: global work size must have dimension less than or equal to three.')
       else
         kern%work_dim = size(global_work_size,1)
-        kern%global_work_size = global_work_size
+        kern%global_work_size(1:size(global_work_size,1)) = global_work_size
       end if
     end if
 
@@ -331,7 +331,7 @@ submodule (Focal) Focal_Setup
       if (size(local_work_size,1) > 3) then
         call fclRuntimeError('fclGetProgramKernel: local work size must have dimension less than or equal to three.')
       else
-        kern%local_work_size = local_work_size
+        kern%local_work_size(1:size(local_work_size,1)) = local_work_size
       end if
     end if
 
@@ -347,7 +347,7 @@ submodule (Focal) Focal_Setup
       if (size(global_work_offset,1) > 3) then
         call fclRuntimeError('fclGetProgramKernel: global work offset must have dimension less than or equal to three.')
       else
-        kern%global_work_offset = global_work_offset
+        kern%global_work_offset(1:size(global_work_offset,1)) = global_work_offset
       end if
     end if
 
