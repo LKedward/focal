@@ -363,7 +363,7 @@ submodule (Focal) Focal_Setup
     integer(c_int32_t) :: errcode
     type(fclCommandQ), pointer :: cmdQ
     type(c_ptr) :: localSizePtr
-    integer :: i0, nArg
+    integer :: nArg
 
     ! Check global size has been set
     if (sum(abs(kernel%global_work_size)) == 0) then
@@ -377,6 +377,30 @@ submodule (Focal) Focal_Setup
     else
       localSizePtr = c_loc(kernel%local_work_size)
     end if
+
+    ! Set arguments and parse (get number of args and cmdq if specified) 
+    call fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+
+    errcode = clEnqueueNDRangeKernel(cmdq%cl_command_queue, &
+                kernel%cl_kernel, kernel%work_dim, &
+                c_loc(kernel%global_work_offset), &
+                c_loc(kernel%global_work_size), localSizePtr, &
+                cmdq%nDependency, cmdq%dependencyListPtr, &
+                c_loc(cmdQ%lastKernelEvent%cl_event))
+
+    call fclPopDependencies(cmdq)
+    call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
+
+    fclLastKernelEvent = cmdQ%lastKernelEvent
+
+  end procedure fclLaunchKernel
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclProcessKernelArgs !(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+    !! Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments
+
+    integer :: i0
 
     ! --- Check if command queue was specified ---
     nArg = 0
@@ -446,19 +470,19 @@ submodule (Focal) Focal_Setup
       call fclDbgCheckKernelNArg(kernel,nArg)
     end if
 
-    errcode = clEnqueueNDRangeKernel(cmdq%cl_command_queue, &
-                kernel%cl_kernel, kernel%work_dim, &
-                c_loc(kernel%global_work_offset), &
-                c_loc(kernel%global_work_size), localSizePtr, &
-                cmdq%nDependency, cmdq%dependencyListPtr, &
-                c_loc(cmdQ%lastKernelEvent%cl_event))
+  end procedure fclProcessKernelArgs
+  ! ---------------------------------------------------------------------------
 
-    call fclPopDependencies(cmdq)
-    call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
-    fclLastKernelEvent = cmdQ%lastKernelEvent
+  module procedure fclSetKernelArgs !(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+    !! Set all kernel arguments at once without launching kernel.
 
-  end procedure fclLaunchKernel
+    type(fclCommandQ), pointer :: cmdq
+    integer :: nArg
+
+    call fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+
+  end procedure fclSetKernelArgs
   ! ---------------------------------------------------------------------------
 
 

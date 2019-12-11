@@ -100,6 +100,7 @@ module Focal
     integer(c_size_t) :: global_work_size(3) = 0     !! Global work-range dimensions
     integer(c_size_t) :: local_work_size(3) = 0      !! Local work-group dimensions
     contains
+    procedure, pass :: setArgs => fclSetKernelArgs   !! Set kernel arguments without launching
     procedure, pass :: launch => fclLaunchKernel     !! Launch the kernel
   end type fclKernel
 
@@ -694,8 +695,32 @@ module Focal
         !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclLaunchKernel
 
+    module subroutine fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+      !! Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments.
+      !! @note This is helper routine used internally by focal.  If you just want set kernel arguments 
+      !!  without launching a kernel, use `fclSetKernelArgs`. @endnote
+      class(fclKernel), intent(in), target :: kernel   !! Focal kernel object
+      type(fclCommandQ), intent(out), pointer :: cmdq
+        !! Returns a0 if it is cmdq, otherwise returns fclDefaultCommandQ
+      integer, intent(out) :: narg
+        !! Returns the actual number of arguments passed
+      class(*), intent(in), optional, target :: a0
+        !! Focal command queue or first kernel argument
+      class(*), intent(in), optional, target :: a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
+        !! Subsequent kernel arguments.
+        !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
+    end subroutine fclProcessKernelArgs
+
+    module subroutine fclSetKernelArgs(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+      !! Set all kernel arguments at once without launching kernel.
+      class(fclKernel), intent(in), target :: kernel    !! Focal kernel object
+      class(*), intent(in), optional, target :: a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
+        !! Kernel arguments.
+        !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
+    end subroutine fclSetKernelArgs
+
     module subroutine fclSetKernelArg(kernel,argIndex,argValue)
-      !! Set a specific kernel argument
+      !! Set or change a single kernel argument
       type(fclKernel), intent(in) :: kernel          !! Focal kernel object
       integer(c_int32_t), intent(in) :: argIndex     !! Index of kernel argument to set
       class(*), intent(in), target :: argValue
