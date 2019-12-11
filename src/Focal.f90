@@ -74,11 +74,15 @@ module Focal
     integer(c_intptr_t), allocatable :: dependencyList(:)
       !! List of pre-requisite events for next enqueued action.
       !!  All events in this list are used as dependencies for the next enqueued
-      !!   operation. At enqueueing, the list is cleared.
+      !!   operation. At enqueueing, the list is cleared unless holdDependencies is .true.
     type(c_ptr) :: dependencyListPtr = C_NULL_PTR
       !! C pointer to dependency list. C_NULL_PTR when nDependency is zero.
     integer :: nDependency = 0
       !! Number of items in dependency list
+    logical :: holdDependencies = .false.
+      !! Set to true to not automatically clear dependencies after enqueueing.
+      !! Use for applying the same dependencies to multiple commands.
+      !! Use fclClearDependencies to clear and reset.
   end type fclCommandQ
 
   type :: fclProgram
@@ -726,7 +730,7 @@ module Focal
 
     module subroutine fclBarrier_1(cmdq)
       !! Enqueue barrier on all events in command queue
-      type(fclCommandQ), intent(in), target :: cmdq
+      type(fclCommandQ), intent(inout), target :: cmdq
     end subroutine fclBarrier_1
 
     module subroutine fclBarrier_2()
@@ -763,32 +767,52 @@ module Focal
     !! Generic interface to set pre-requisite events for the next enqueued action.
     !!  This does not append to any existing dependencies - it overwrites the dependency list.
 
-    module subroutine fclSetDependencyEvent_1(cmdQ,event)
+    module subroutine fclSetDependencyEvent_1(cmdQ,event,hold)
       !! Interface for specifying a single event dependency on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ
-      type(fclEvent), intent(in) :: event
+      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue 
+      type(fclEvent), intent(in) :: event                  !! Event dependency
+      logical, intent(in), optional :: hold
+        !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
+        !!  Use for applying the same dependency to multiple commands. Default false.
     end subroutine fclSetDependencyEvent_1
 
-    module subroutine fclSetDependencyEvent_2(event)
-      !! Interface for specifying a single event dependency on default cmdq
-      type(fclEvent), intent(in) :: event
+    module subroutine fclSetDependencyEvent_2(event,hold)
+      !! Interface for specifying a single event dependency on __default cmdq__
+      type(fclEvent), intent(in) :: event                  !! Event dependency
+      logical, intent(in), optional :: hold
+        !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
+        !!  Use for applying the same dependency to multiple commands. Default false.
     end subroutine fclSetDependencyEvent_2
 
-    module subroutine fclSetDependencyEventList_1(cmdq,eventList)
+    module subroutine fclSetDependencyEventList_1(cmdq,eventList,hold)
       !! Interface for specifying a list of dependent events on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ
-      type(fclEvent), intent(in) :: eventList(:)
+      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue 
+      type(fclEvent), intent(in) :: eventList(:)           !! List of event dependencies
+      logical, intent(in), optional :: hold
+        !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
+        !!  Use for applying the same dependency to multiple commands. Default false.
     end subroutine fclSetDependencyEventList_1
 
-    module subroutine fclSetDependencyEventList_2(eventList)
-      !! Interface for specifying a list of dependent events on default cmdq
-      type(fclEvent), intent(in) :: eventList(:)
+    module subroutine fclSetDependencyEventList_2(eventList,hold)
+      !! Interface for specifying a list of dependent events on __default cmdq__
+      type(fclEvent), intent(in) :: eventList(:)           !! List of event dependencies
+      logical, intent(in), optional :: hold                !! Event dependency
+        !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
+        !!  Use for applying the same dependency to multiple commands. Default false.
     end subroutine fclSetDependencyEventList_2
 
   end interface fclSetDependency
+  
+  interface
+    module subroutine fclPopDependencies(cmdq)
+      !! Called after every enqueue operation:
+      !! Clear dependencies unless dependency hold is .true.
+      type(fclCommandQ), intent(inout) :: cmdq
+    end subroutine fclPopDependencies
+  end interface
 
   interface fclClearDependencies
-    !! Generic interface to reset dependency list
+    !! Generic interface to clear dependency list and reset dependency hold to .false.
 
     module subroutine fclClearDependencies_1(cmdq)
       !! Interface for specific command queue

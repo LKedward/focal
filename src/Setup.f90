@@ -453,7 +453,7 @@ submodule (Focal) Focal_Setup
                 cmdq%nDependency, cmdq%dependencyListPtr, &
                 c_loc(cmdQ%lastKernelEvent%cl_event))
 
-    call fclClearDependencies()
+    call fclPopDependencies(cmdq)
     call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
     fclLastKernelEvent = cmdQ%lastKernelEvent
@@ -596,6 +596,7 @@ submodule (Focal) Focal_Setup
                   cmdq%nDependency, cmdq%dependencyListPtr , &
                   c_loc(cmdq%lastBarrierEvent%cl_event))
 
+    call fclPopDependencies(cmdq)
     call fclErrorHandler(errcode,'fclBarrierAll','clEnqueueBarrierWithWaitList')
 
     fclLastBarrierEvent = cmdq%lastBarrierEvent
@@ -661,7 +662,7 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclSetDependencyEvent_1 !(cmdq,event)
+  module procedure fclSetDependencyEvent_1 !(cmdq,event,hold)
     !! Specify a single event dependency on specific cmdq
     if (.not.allocated(cmdq%dependencyList)) then
 
@@ -673,19 +674,23 @@ submodule (Focal) Focal_Setup
     cmdq%nDependency = 1
     cmdq%dependencyListPtr = c_loc(cmdq%dependencyList)
 
+    if (present(hold)) then
+      cmdq%holdDependencies = hold
+    end if
+
   end procedure fclSetDependencyEvent_1
    ! ---------------------------------------------------------------------------
 
 
-  module procedure fclSetDependencyEvent_2 !(event)
+  module procedure fclSetDependencyEvent_2 !(event,hold)
     !! Specify a single event dependency on default cmdq
-    call fclSetDependencyEvent_1(fclDefaultCmdQ,event)
+    call fclSetDependencyEvent_1(fclDefaultCmdQ,event,hold)
 
   end procedure fclSetDependencyEvent_2
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclSetDependencyEventList_1 !(cmdq,eventList)
+  module procedure fclSetDependencyEventList_1 !(cmdq,eventList,hold)
     !! Specify a list of dependent events on specific cmdq
     integer :: i, nEvent, nAlloc
 
@@ -707,16 +712,32 @@ submodule (Focal) Focal_Setup
     cmdq%nDependency = nEvent
     cmdq%dependencyListPtr = c_loc(cmdq%dependencyList)
 
+    if (present(hold)) then
+      cmdq%holdDependencies = hold
+    end if
+
   end procedure fclSetDependencyEventList_1
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclSetDependencyEventList_2 !(eventList)
+  module procedure fclSetDependencyEventList_2 !(eventList,hold)
     !! Specify a list of dependent events on the default cmdq
 
-    call fclSetDependencyEventList_1(fclDefaultCmdQ,eventList)
+    call fclSetDependencyEventList_1(fclDefaultCmdQ,eventList,hold)
 
   end procedure fclSetDependencyEventList_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclPopDependencies !(cmdq)
+    !! Called after every enqueue operation:
+    !! Clear dependencies unless dependency hold is .true.
+
+    if (.not.cmdq%holdDependencies) then
+      call fclClearDependencies(cmdq)
+    end if
+
+  end procedure fclPopDependencies
   ! ---------------------------------------------------------------------------
 
 
@@ -724,6 +745,7 @@ submodule (Focal) Focal_Setup
     !! Reset dependency list
     cmdq%nDependency = 0
     cmdq%dependencyListPtr = C_NULL_PTR
+    cmdq%holdDependencies = .false.
 
   end procedure fclClearDependencies_1
   ! ---------------------------------------------------------------------------
@@ -735,4 +757,6 @@ submodule (Focal) Focal_Setup
 
   end procedure fclClearDependencies_2
   ! ---------------------------------------------------------------------------
+
+
 end submodule Focal_Setup
