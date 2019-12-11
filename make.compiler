@@ -18,7 +18,7 @@ else
 endif
 
 ifeq ($(PLATFORM)-$(BUILD), gnu-debug)
-	FFLAGS += -g -Og -C -Wall -fbounds-check -fbacktrace -fno-realloc-lhs -ffpe-trap=invalid,zero,overflow
+	FFLAGS += -g -Og -C -Wall -fbounds-check -fbacktrace -ffpe-trap=invalid,zero,overflow
 
 else ifeq ($(PLATFORM)-$(BUILD), gnu-release)
 	FFLAGS += -O3 
