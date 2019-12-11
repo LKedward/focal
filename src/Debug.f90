@@ -53,7 +53,7 @@ submodule (Focal) Focal_Debug
 
       write(*,*) '(!) Focal (debug build) runtime assertion failed.'
       write(*,*) ' Mismatch in size between source buffer and destination buffer'//&
-                  '  while attempting to copy device buffers. (fclMemCopy)'
+                  '  while attempting to copy or swap device buffers. (fclMemCopy)'
       write(*,*) ' Source buffer size: ',memObject2%nBytes
       write(*,*) ' Destination buffer size: ',memObject1%nBytes
       write(*,*)

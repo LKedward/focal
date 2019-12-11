@@ -10,6 +10,31 @@ submodule (Focal) Focal_Memory
 
   contains
 
+
+  module procedure fclBufferSwap !(memObject1, memObject2)
+    !! Helper routine for swapping device buffer pointers
+
+    integer(c_intptr_t) :: tempPtr
+    type(fclCommandQ), pointer :: tempCmdQ
+
+    call fclDbgCheckBufferInit(memObject1,'fclBufferSwap:memObject1')
+    call fclDbgCheckBufferInit(memObject2,'fclBufferSwap:memObject2')
+    call fclDbgCheckCopyBufferSize(memObject1,memObject2)
+
+    ! Swap OpenCL pointers
+    tempPtr = memObject2%cl_mem
+    memObject2%cl_mem = memObject1%cl_mem
+    memObject1%cl_mem = tempPtr
+
+    ! Swap command queue pointers
+    tempCmdQ => memObject2%cmdq
+    memObject2%cmdQ => memObject1%cmdQ
+    memObject1%cmdQ => tempCmdQ
+    
+  end procedure fclBufferSwap
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclBufferDouble_1 !(cmdq,dim,read,write) result(mem)
 
     integer(c_size_t) :: nBytes

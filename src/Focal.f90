@@ -231,6 +231,17 @@ module Focal
     procedure :: fclMemCopyFloat
     procedure :: fclMemCopyDouble
   end interface
+  
+  interface
+    module subroutine fclBufferSwap(memObject1, memObject2)
+      !! Helper routine for swapping device buffer pointers.
+      !! Also swaps the command queue pointers associated with each buffer if different.
+      !! @note The debug build will throw an error if either buffer is uninitialised
+      !!        or if the buffers do not match in size. @endnote
+      class(fclDeviceBuffer), intent(inout) :: memObject1, memObject2
+        !! Buffer objects with which to swap pointers
+    end subroutine fclBufferSwap
+  end interface
 
   ! --------- Buffer Creation ---------
 
