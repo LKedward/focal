@@ -354,11 +354,46 @@ submodule (Focal) Focal_Setup
   end procedure fclGetProgramKernel
   ! ---------------------------------------------------------------------------
 
+  
+  module procedure fclLaunchKernelAfterEvent_1 !(kernel,cmdQ,event)
+    !! Specific interface for a single event dependency on a specific command queue
+
+    call fclSetDependency(cmdQ,event)
+    call fclLaunchKernel(kernel,cmdQ)
+
+  end procedure fclLaunchKernelAfterEvent_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclLaunchKernelAfterEvent_2 !(kernel,event)
+    !! Specific interface a single event dependency on the __default command queue__
+
+    call fclLaunchKernelAfterEvent_1(kernel,fclDefaultCmdQ,event)
+
+  end procedure fclLaunchKernelAfterEvent_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclLaunchKernelAfterEventList_1 !(kernel,cmdQ,eventList)
+    !! Specific interface for a multiple event dependencies on a specific command queue
+
+    call fclSetDependency(cmdQ,eventList)
+    call fclLaunchKernel(kernel,cmdQ)
+
+  end procedure fclLaunchKernelAfterEventList_1
+  ! ---------------------------------------------------------------------------
+  
+
+  module procedure fclLaunchKernelAfterEventList_2 !(kernel,eventList)
+    !! Specific interface for a multiple event dependencies on the __default command queue__
+
+    call fclLaunchKernelAfterEventList_1(kernel,fclDefaultCmdQ,eventList)
+
+  end procedure fclLaunchKernelAfterEventList_2
+  ! ---------------------------------------------------------------------------
+
 
   module procedure fclLaunchKernel !(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
-
-    !! @warning Updates to this implementation need to be mirrored
-    !!  in the corresponding fclLaunchKernel_2 procedure @endwarning
 
     integer(c_int32_t) :: errcode
     type(fclCommandQ), pointer :: cmdQ

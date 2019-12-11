@@ -100,8 +100,15 @@ module Focal
     integer(c_size_t) :: global_work_size(3) = 0     !! Global work-range dimensions
     integer(c_size_t) :: local_work_size(3) = 0      !! Local work-group dimensions
     contains
-    procedure, pass :: setArgs => fclSetKernelArgs   !! Set kernel arguments without launching
-    procedure, pass :: launch => fclLaunchKernel     !! Launch the kernel
+    procedure, pass :: setArgs => fclSetKernelArgs         !! Set kernel arguments without launching
+    procedure, pass :: launch => fclLaunchKernel           !! Launch the kernel
+    procedure, pass, private :: launchKernelAfterEvent_1 => fclLaunchKernelAfterEvent_1
+    procedure, pass, private :: launchKernelAfterEvent_2 => fclLaunchKernelAfterEvent_2
+    procedure, pass, private :: launchKernelAfterEventList_1 => fclLaunchKernelAfterEventList_1
+    procedure, pass, private :: launchKernelAfterEventList_2 => fclLaunchKernelAfterEventList_2
+    generic :: launchAfter => launchKernelAfterEvent_1, launchKernelAfterEvent_2, &
+           launchKernelAfterEventList_1, launchKernelAfterEventList_2
+     !! Launch a kernel with event dependencies
   end type fclKernel
 
   type :: fclDeviceBuffer
@@ -685,6 +692,40 @@ module Focal
       type(fclKernel) :: kern                                !! Returns fclKernel object for execution
     end function fclGetProgramKernel
 
+  end interface
+
+  interface fclLaunchKernelAfter
+    !! Generic interface to launch a kernel with event dependencies
+
+    module subroutine fclLaunchKernelAfterEvent_1(kernel,cmdQ,event)
+      !! Specific interface for a single event dependency on a specific command queue
+      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      type(fclCommandQ), intent(inout) :: cmdQ             !! CmdQ on which to launch kernel
+      type(fclEvent), intent(in) :: event                  !! Event dependency for kernel
+    end subroutine fclLaunchKernelAfterEvent_1
+    
+    module subroutine fclLaunchKernelAfterEvent_2(kernel,event)
+      !! Specific interface a single event dependency on the __default command queue__
+      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      type(fclEvent), intent(in) :: event                  !! Event dependency for kernel
+    end subroutine fclLaunchKernelAfterEvent_2
+
+    module subroutine fclLaunchKernelAfterEventList_1(kernel,cmdQ,eventList)
+      !! Specific interface for a multiple event dependencies on a specific command queue
+      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      type(fclCommandQ), intent(inout) :: cmdQ             !! CmdQ on which to launch kernel
+      type(fclEvent), intent(in) :: eventList(:)           !! Event dependency list for kernel
+    end subroutine fclLaunchKernelAfterEventList_1
+
+    module subroutine fclLaunchKernelAfterEventList_2(kernel,eventList)
+      !! Specific interface for a multiple event dependencies on the __default command queue__
+      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      type(fclEvent), intent(in) :: eventList(:)           !! Event dependency list for kernel
+    end subroutine fclLaunchKernelAfterEventList_2
+
+  end interface fclLaunchKernelAfter
+
+  interface
     module subroutine fclLaunchKernel(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
       !! Enqueue a kernel with command arguments
       class(fclKernel), intent(in), target :: kernel   !! Focal kernel object
