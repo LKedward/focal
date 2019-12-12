@@ -17,7 +17,7 @@ vpath %.f90 external/clfortran
 # Source files
 PROGS =
 BASE = Focal clfortran Quicksort
-SRCS = Error Memory Query Setup Utils
+SRCS = Error Memory Query Setup Utils Profile
 LIBS = focal focaldbg
 
 # --- End Configuration ---

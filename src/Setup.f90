@@ -427,6 +427,7 @@ submodule (Focal) Focal_Setup
     call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
     fclLastKernelEvent = cmdQ%lastKernelEvent
+    call kernel%pushProfileEvent(cmdQ%lastKernelEvent)
 
   end procedure fclLaunchKernel
   ! ---------------------------------------------------------------------------

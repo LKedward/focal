@@ -151,6 +151,8 @@ submodule (Focal) Focal_Memory
     call fclPopDependencies(memObject%cmdq)
     fclLastWriteEvent = memObject%cmdq%lastWriteEvent
 
+    call memObject%pushProfileEvent(memObject%cmdq%lastWriteEvent,1)
+
     call fclErrorHandler(errcode,'fclMemWriteScalar','clEnqueueFillBuffer')
 
   end procedure fclMemWriteScalar
@@ -208,6 +210,8 @@ submodule (Focal) Focal_Memory
 
     call fclPopDependencies(memObject%cmdq)
     fclLastWriteEvent = memObject%cmdq%lastWriteEvent
+    
+    call memObject%pushProfileEvent(memObject%cmdq%lastWriteEvent,1)
 
     call fclErrorHandler(errcode,'fclMemWrite','clEnqueueWriteBuffer')
 
@@ -269,6 +273,8 @@ submodule (Focal) Focal_Memory
 
     call fclPopDependencies(memObject%cmdq)
     fclLastReadEvent = memObject%cmdq%lastReadEvent
+
+    call memObject%pushProfileEvent(memObject%cmdq%lastReadEvent,2)
 
     call fclErrorHandler(errcode,'fclMemRead','clEnqueueReadBuffer')
 
@@ -341,6 +347,8 @@ submodule (Focal) Focal_Memory
 
       call fclPopDependencies(memObject1%cmdq)
       fclLastCopyEvent = memObject1%cmdq%lastCopyEvent
+
+      call memObject1%pushProfileEvent(memObject1%cmdq%lastCopyEvent,3)
 
       call fclErrorHandler(errcode,'fclMemCopy','clEnqueueCopyBuffer')
 
