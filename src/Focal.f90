@@ -972,39 +972,55 @@ module Focal
         !! Type info for buffer objects
     end subroutine fclPushProfileEvent
 
-    ! module subroutine fclDumpProfileData(container,outputUnit)
-    !   !! Dump summary of profile data
-    !   class(fclProfileContainer), intent(in) :: container
-    !     !! Profile container to dump (`fclKernel`,`fclDeviceBuffer`,`fclProfileContainer`)
-    !   integer, intent(in), optional :: outputUnit
-    !     !! Output unit to write summary data.
-    !     !! Default = `output_unit` from `iso_fortran_env` to print to screen.
-    ! end subroutine fclDumpProfileData
-
   end interface
 
   interface fclDumpProfileData
 
-    module subroutine fclDumpKernelProfileData(kernelList,device,outputUnit)
-      !! Dump summary of profile data for list of kernels
+    module subroutine fclDumpKernelProfileData_1(outputUnit,kernelList,device)
+      !! Dump summary of profile data for list of kernels to specific output unit
+      integer, intent(in) :: outputUnit
+        !! Output unit to write summary data
       class(fclKernel), intent(in) :: kernelList(:)
-        !! List of kernels to dump profile data
+        !! List of kernels for which to dump profile data
       type(fclDevice), intent(in) :: device
         !! Device on which the kernels were executed
         !! Needed for kernel work group info.
-      integer, intent(in), optional :: outputUnit
-        !! Output unit to write summary data.
-        !! Default = `output_unit` from `iso_fortran_env` (print to screen).
-    end subroutine fclDumpKernelProfileData
+    end subroutine fclDumpKernelProfileData_1
 
-    module subroutine fclDumpBufferProfileData(bufferList,outputUnit)
-      !! Dump summary of profile data for list of buffers
-      class(fclDeviceBuffer), intent(in) :: bufferList(:)
-        !! List of kernels to dump profile data
-      integer, intent(in), optional :: outputUnit
+    module subroutine fclDumpKernelProfileData_2(kernelList,device)
+      !! Dump summary of profile data for list of kernels to standard output
+      class(fclKernel), intent(in) :: kernelList(:)
+        !! List of kernels for which to dump profile data
+      type(fclDevice), intent(in) :: device
+        !! Device on which the kernels were executed
+        !! Needed for kernel work group info.
+    end subroutine fclDumpKernelProfileData_2
+
+    module subroutine fclDumpBufferProfileData_1(outputUnit,bufferList1,bufferList2,bufferList3)
+      !! Dump summary of profile data for list of buffers to specific output unit.
+      !!
+      !! Three buffer list inputs are provided for different buffer types
+      integer, intent(in) :: outputUnit
         !! Output unit to write summary data.
-        !! Default = `output_unit` from `iso_fortran_env` (print to screen).
-    end subroutine fclDumpBufferProfileData
+      class(fclDeviceBuffer), intent(in), target :: bufferList1(:)
+        !! List of buffers for which to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target :: bufferList2(:)
+        !! List of buffers for which to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target:: bufferList3(:)
+        !! List of buffers for which to dump profile data
+    end subroutine fclDumpBufferProfileData_1
+
+    module subroutine fclDumpBufferProfileData_2(bufferList1,bufferList2,bufferList3)
+      !! Dump summary of profile data for list of buffers to standard output.
+      !!
+      !! !! Three buffer list inputs are provided for different buffer types
+      class(fclDeviceBuffer), intent(in), optional, target:: bufferList1(:)
+        !! List of kernels to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target :: bufferList2(:)
+        !! List of kernels to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target :: bufferList3(:)
+        !! List of kernels to dump profile data
+    end subroutine fclDumpBufferProfileData_2
 
   end interface fclDumpProfileData
 

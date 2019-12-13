@@ -88,11 +88,11 @@ submodule (Focal) Focal_Profile
   ! ---------------------------------------------------------------------------
   
 
-  module procedure fclDumpKernelProfileData !(kernelList,device,outputUnit)
-    !! Dump summary of profile data for list of kernels
-    use iso_fortran_env, only: stdout=>output_unit, sp=>real32
+  module procedure fclDumpKernelProfileData_1 !(outputUnit,kernelList,device)
+    !! Dump summary of profile data for list of kernels to specific output unit
+    use iso_fortran_env, only: sp=>real32
 
-    integer :: k, i, N, outUnit
+    integer :: k, i, N
     integer(c_int32_t) :: errcode
     integer(c_int64_t), target :: startTime, endTime
     integer(c_size_t) :: size_ret
@@ -102,12 +102,6 @@ submodule (Focal) Focal_Profile
 
     logical :: profileSizeWarning
     profileSizeWarning = .false.
-
-    if (present(outputUnit)) then
-      outUnit = outputUnit
-    else
-      outUnit = stdout
-    end if
 
     ! Get allocation size for durations array
     N = 0
@@ -119,15 +113,15 @@ submodule (Focal) Focal_Profile
     allocate(durations(N))
 
     ! Write table header
-    write(outUnit,*) ''
-    write(outUnit,*) ('-',i=1,77)
-    write(outUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A6,A1,A6,A1,A4)') &
+    write(outputUnit,*) ''
+    write(outputUnit,*) ('-',i=1,77)
+    write(outputUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A6,A1,A6,A1,A4)') &
            'Profile name','|','No. of','|','T_avg','|','T_max','|','T_min','|',&
            'Local','|','Private','|','PWGS'
-    write(outUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A6,A1,A6,A1,A4)') &
+    write(outputUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A6,A1,A6,A1,A4)') &
             '(Kernel)','|','events','|', '(ns)','|','(ns)','|','(ns)','|',&
             'Mem.','|','Mem.','|',''
-    write(outUnit,*) ('-',i=1,77)
+    write(outputUnit,*) ('-',i=1,77)
 
     durations = 0
     localMem = 0
@@ -171,13 +165,13 @@ submodule (Focal) Focal_Profile
 
         ! Write to table
         if (kern%nProfileEvent > kern%profileSize) then
-          write(outUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4,A)') &
+          write(outputUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4,A)') &
           kern%profileName,'|', kern%nProfileEvent,'|', sum(durations(1:N))/N, '|',&
           maxval(durations(1:N)),'|', minval(durations(1:N)),'|',&
           localMem,'|',privateMem,'|',preferredWorkGroup,' *'
           profileSizeWarning = .true.
         else
-          write(outUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4)') &
+          write(outputUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4)') &
           kern%profileName,'|', kern%nProfileEvent,'|', sum(durations(1:N))/N, '|', &
           maxval(durations(1:N)),'|', minval(durations(1:N)),'|',&
           localMem,'|',privateMem,'|',preferredWorkGroup
@@ -187,132 +181,178 @@ submodule (Focal) Focal_Profile
     end do
 
     ! Table footer
-    write(outUnit,*) ('-',i=1,77)
+    write(outputUnit,*) ('-',i=1,77)
     if (profileSizeWarning) then
-      write(outUnit,*) ' * - Not all events profiled, increase profileSize'
+      write(outputUnit,*) ' * - Not all events profiled, increase profileSize'
     end if
-    write(outUnit,*) ' ns: nanoseconds,  PWGS: Preferred work group size,  Mem: Memory in bytes.'
-    write(outUnit,*) ('-',i=1,77)
-    write(outUnit,*) ''
+    write(outputUnit,*) ' ns: nanoseconds,  PWGS: Preferred work group size,  Mem: Memory in bytes.'
+    write(outputUnit,*) ('-',i=1,77)
+    write(outputUnit,*) ''
 
     ! Deallocate durations array
     deallocate(durations)
 
-  end procedure fclDumpKernelProfileData
+  end procedure fclDumpKernelProfileData_1
   ! ---------------------------------------------------------------------------
 
-  
-  module procedure fclDumpBufferProfileData !(bufferList,outputUnit)
-    !! Dump summary of profile data for list of buffers
-    use iso_fortran_env, only: stdout=>output_unit, sp=>real32
 
-    integer :: k, i, N, m, outUnit
+  module procedure fclDumpKernelProfileData_2 !(kernelList,device)
+    !! Dump summary of profile data for list of kernels to standard output
+    use iso_fortran_env, only: stdout=>output_unit
+
+    call fclDumpKernelProfileData_1(stdout,kernelList,device)
+
+  end procedure fclDumpKernelProfileData_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDumpBufferProfileData_1 !(outputUnit,bufferList1,bufferList2,bufferList3)
+    !! Dump summary of profile data for list of buffers to specific output unit
+    use iso_fortran_env, only: sp=>real32
+
+    integer :: k, i, N, m, bl
     integer(c_int32_t) :: errcode
     integer(c_int64_t), target :: startTime, endTime
     integer(c_size_t) :: size_ret
     integer(c_int64_t), allocatable :: durations(:)
     real(sp) :: S_avg,S_min, S_max
 
+    class(fclDeviceBuffer), pointer :: bList(:)
+
+    character(5), parameter :: modes(3) = ['WRITE','READ ','COPY ']
+
     logical :: profileSizeWarning
     profileSizeWarning = .false.
 
-    if (present(outputUnit)) then
-      outUnit = outputUnit
-    else
-      outUnit = stdout
-    end if
-
     ! Get allocation size for durations array
     N = 0
-    do k=1,size(bufferList,1)
-      N = max(N,bufferList(k)%profileSize)
+    do k=1,size(bufferList1,1)
+      N = max(N,bufferList1(k)%profileSize)
     end do
+    if (present(bufferList2)) then
+      do k=1,size(bufferList2,1)
+        N = max(N,bufferList2(k)%profileSize)
+      end do
+    end if
+    if (present(bufferList3)) then
+      do k=1,size(bufferList3,1)
+        N = max(N,bufferList3(k)%profileSize)
+      end do
+    end if
 
     ! Allocate durations array
     allocate(durations(N))
 
     ! Write table header
-    write(outUnit,*) ''
-    write(outUnit,*) ('-',i=1,77)
-    write(outUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8)') &
-           'Profile name','|','Size','|','Mode','|','No. of','|','S_avg','|','S_max','|','S_min'
-    write(outUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8)') &
-            '(Buffer)','|','(KBytes)','|', '','|','events','|','(GB/S)','|','(GB/S)','|','(GB/S)'
-    write(outUnit,*) ('-',i=1,77)
+    write(outputUnit,*) ''
+    write(outputUnit,*) ('-',i=1,77)
+    write(outputUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8)') &
+           'Profile name','|','No. of','|','Size','|','Transfer','|','S_avg','|','S_max','|','S_min'
+    write(outputUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8)') &
+            '(Buffer)','|','events','|','(KBytes)','|','mode','|','(GB/S)','|','(GB/S)','|','(GB/S)'
+    write(outputUnit,*) ('-',i=1,77)
 
     durations = 0
 
     ! Iterate over list of buffers
-    do k=1,size(bufferList,1)
-      associate(buff=>bufferList(k))
+    do bl=1,3
 
-        if (.not.buff%profilingEnabled) then
-          cycle
+      if (bl == 1) then
+        bList(1:size(bufferList1,1)) => bufferList1(1:size(bufferList1,1))
+      else if (bl == 2) then
+        if (.not.present(bufferList2)) then
+          exit
+        else
+          bList(1:size(bufferList2,1)) => bufferList2(1:size(bufferList2,1))
         end if
+      elseif (bl == 3) then
+        if (.not.present(bufferList3)) then
+          exit
+        else
+          bList(1:size(bufferList3,1)) => bufferList3(1:size(bufferList3,1))
+        end if
+      end if
 
-        N = min(buff%profileSize,buff%nProfileEvent)
+      do k=1,size(bList,1)
+        associate(buff=>bList(k))
 
-        ! Iterate over buffer profile events
-        do i=1,N
-
-          ! Get event start time
-          errcode = clGetEventProfilingInfo(buff%profileEvents(i)%cl_event, &
-            CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
-          call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-          
-          ! Get event end time
-          errcode = clGetEventProfilingInfo(buff%profileEvents(i)%cl_event, &
-            CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
-          call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-          
-          ! Save duration (nanoseconds)
-          durations(i) = endTime - startTime
-    
-        end do
-
-        ! Write to table, iterate over write,read,copy
-        do i=1,3
-
-          m = count(buff%profileEventType(1:N)==i)
-          if (m > 0) then
-
-            S_avg = real(buff%nBytes,sp)/(real(sum(durations(1:N),mask=buff%profileEventType(1:N)==i),sp)/m)
-            S_max = real(buff%nBytes,sp)/real(minval(durations(1:N),mask=buff%profileEventType(1:N)==i),sp)
-            S_min = real(buff%nBytes,sp)/real(maxval(durations(1:N),mask=buff%profileEventType(1:N)==i),sp)
-
-            if (buff%nProfileEvent > buff%profileSize) then
-              write(outUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,F8.4,A1,F8.4,A1,F8.4,A)') &
-              buff%profileName,'|', buff%nBytes/1000,'|', i, '|',buff%nProfileEvent,'|',&
-              S_avg,'|', S_max,'|',S_min,' *'
-              profileSizeWarning = .true.
-            else
-              write(outUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,F8.4,A1,F8.4,A1,F8.4)') &
-              buff%profileName,'|', buff%nBytes/1000,'|', i, '|',buff%nProfileEvent,'|',&
-              S_avg,'|', S_max,'|',S_min
-            end if
-
+          if (.not.buff%profilingEnabled) then
+            cycle
           end if
 
-        end do
+          N = min(buff%profileSize,buff%nProfileEvent)
 
-      end associate
+          ! Iterate over buffer profile events
+          do i=1,N
+
+            ! Get event start time
+            errcode = clGetEventProfilingInfo(buff%profileEvents(i)%cl_event, &
+              CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
+            call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
+            
+            ! Get event end time
+            errcode = clGetEventProfilingInfo(buff%profileEvents(i)%cl_event, &
+              CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
+            call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
+            
+            ! Save duration (nanoseconds)
+            durations(i) = endTime - startTime
+      
+          end do
+
+          ! Write to table, iterate over write,read,copy
+          do i=1,3
+
+            m = count(buff%profileEventType(1:N)==i)
+            if (m > 0) then
+
+              S_avg = real(buff%nBytes,sp)/(real(sum(durations(1:N),mask=buff%profileEventType(1:N)==i),sp)/m)
+              S_max = real(buff%nBytes,sp)/real(minval(durations(1:N),mask=buff%profileEventType(1:N)==i),sp)
+              S_min = real(buff%nBytes,sp)/real(maxval(durations(1:N),mask=buff%profileEventType(1:N)==i),sp)
+
+              if (buff%nProfileEvent > buff%profileSize) then
+                write(outputUnit,'(A20,A1,I8,A1,I8,A1,A8,A1,F8.4,A1,F8.4,A1,F8.4,A)') &
+                buff%profileName,'|',buff%nProfileEvent,'|', buff%nBytes/1000,'|', modes(i), '|',&
+                S_avg,'|', S_max,'|',S_min,' *'
+                profileSizeWarning = .true.
+              else
+                write(outputUnit,'(A20,A1,I8,A1,I8,A1,A8,A1,F8.4,A1,F8.4,A1,F8.4)') &
+                buff%profileName,'|',buff%nProfileEvent,'|', buff%nBytes/1000,'|', modes(i), '|',&
+                S_avg,'|', S_max,'|',S_min
+              end if
+
+            end if
+
+          end do
+
+        end associate
+      end do
     end do
 
     ! Table footer
-    write(outUnit,*) ('-',i=1,77)
+    write(outputUnit,*) ('-',i=1,77)
     if (profileSizeWarning) then
-      write(outUnit,*) ' * - Not all events profiled, increase profileSize'
+      write(outputUnit,*) ' * - Not all events profiled, increase profileSize'
+      write(outputUnit,*) ('-',i=1,77)
     end if
-    write(outUnit,*) ' 1: Write to device,  2: Read from device,  3: Copy on device.'
-    write(outUnit,*) ('-',i=1,77)
-    write(outUnit,*) ''
+    
+    write(outputUnit,*) ''
 
     ! Deallocate durations array
     deallocate(durations)
 
-  end procedure fclDumpBufferProfileData
+  end procedure fclDumpBufferProfileData_1
   ! ---------------------------------------------------------------------------
 
+
+  module procedure fclDumpBufferProfileData_2 !(bufferList1,bufferList2,bufferList3)
+    !! Dump summary of profile data for list of buffers to standard output
+    use iso_fortran_env, only: stdout=>output_unit
+
+    call fclDumpBufferProfileData_1(stdout,bufferList1,bufferList2,bufferList3)
+
+  end procedure fclDumpBufferProfileData_2
+  ! ---------------------------------------------------------------------------
 
   ! module procedure fclDumpProfileData !(container,outputUnit)
   !   use iso_fortran_env, only: stdout=>output_unit, sp=>real32
