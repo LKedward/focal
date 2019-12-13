@@ -422,11 +422,13 @@ submodule (Focal) Focal_Setup
                 c_loc(kernel%global_work_size), localSizePtr, &
                 cmdq%nDependency, cmdq%dependencyListPtr, &
                 c_loc(cmdQ%lastKernelEvent%cl_event))
-
+    
+    call fclDbgWait(cmdQ%lastKernelEvent)
     call fclPopDependencies(cmdq)
     call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
     fclLastKernelEvent = cmdQ%lastKernelEvent
+    
     call kernel%pushProfileEvent(cmdQ%lastKernelEvent)
 
   end procedure fclLaunchKernel
