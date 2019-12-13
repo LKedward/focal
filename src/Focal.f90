@@ -724,7 +724,7 @@ module Focal
   interface
 
     module function fclGetProgramKernel(prog,kernelName,global_work_size,local_work_size, &
-                                             work_dim,global_work_offset) result(kern)
+                                             work_dim,global_work_offset,profileSize) result(kern)
       !! Extract a kernel object for execution from a compiled program object
       type(fclProgram), intent(in) :: prog                   !! Compiled program object containing kernel
       character(*), intent(in) :: kernelName                 !! Name of kernel to extract for execution
@@ -732,6 +732,7 @@ module Focal
       integer, intent(in), optional :: local_work_size(:)    !! Local work group dimensions, default zeros (decided by OpenCL runtime)
       integer, intent(in), optional :: work_dim              !! Number of dimensions for kernel work group, default 1
       integer, intent(in), optional :: global_work_offset(:) !! Global work group offsets, default zeros
+      integer, intent(in), optional :: profileSize           !! No. of events to profile, default zero (no profiling), set >0 to enable
       type(fclKernel) :: kern                                !! Returns fclKernel object for execution
     end function fclGetProgramKernel
 
