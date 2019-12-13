@@ -28,7 +28,7 @@ module Focal
     character(:), allocatable :: vendor              !! Platform vendor
     character(:), allocatable :: extensions          !! Platform extensions
     integer :: numDevice                             !! No. of devices
-    type(fclDevice), pointer :: devices(:)           !! Focal device objects
+    type(fclDevice), allocatable :: devices(:)           !! Focal device objects
     integer(c_intptr_t), allocatable :: cl_device_ids(:) !! openCL device pointers
   end type fclPlatform
 
@@ -605,7 +605,7 @@ module Focal
 
     module function fclGetPlatforms() result(platforms)
       !! Return pointer to array of available fclPlatforms
-      type(fclPlatform), pointer :: platforms(:)
+      type(fclPlatform), allocatable :: platforms(:)
     end function fclGetPlatforms
 
     module function fclGetPlatform(platform_id) result(platform)
@@ -617,7 +617,7 @@ module Focal
     module function fclGetPlatformDevices(platform_id) result(devices)
       !! Return pointer to array of fclDevices on platform id
       integer(c_intptr_t), intent(in) :: platform_id !! OpenCL platform id
-      type(fclDevice), pointer :: devices(:)
+      type(fclDevice), allocatable :: devices(:)
     end function fclGetPlatformDevices
 
     module function fclGetDevice(device_id) result(device)
@@ -663,14 +663,14 @@ module Focal
       character(*), intent(in), optional :: type
       character(*), intent(in), optional :: nameLike
       character(*), intent(in), optional :: sortBy
-      type(fclDevice), pointer :: deviceList(:)
+      type(fclDevice), allocatable :: deviceList(:)
     end function fclFindDevices_1
 
     module function fclFindDevices_2(type,nameLike,sortBy) result(deviceList)
       character(*), intent(in), optional :: type
       character(*), intent(in), optional :: nameLike
       character(*), intent(in), optional :: sortBy
-      type(fclDevice), pointer :: deviceList(:)
+      type(fclDevice), allocatable :: deviceList(:)
     end function fclFindDevices_2
 
   end interface fclFindDevices

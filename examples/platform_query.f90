@@ -7,9 +7,9 @@ use clfortran, only: CL_DEVICE_TYPE_CPU, CL_DEVICE_TYPE_GPU
 implicit none
 
 integer :: i, j
-type(fclPlatform), pointer :: platforms(:)
+type(fclPlatform), allocatable :: platforms(:)
 
-platforms => fclGetPlatforms();
+platforms = fclGetPlatforms();
 
 do i=1,size(platforms,1)
 

@@ -41,11 +41,11 @@ submodule (Focal) Focal_Setup
     integer :: i
     logical :: vendorFound
 
-    type(fclPlatform), pointer :: platforms(:)
+    type(fclPlatform), allocatable :: platforms(:)
     type(fclPlatform) :: chosenPlatform
 
     ! Get platforms
-    platforms => fclGetPlatforms();
+    platforms = fclGetPlatforms();
 
     vendorFound = .FALSE.
     do i=1,size(platforms,1)
@@ -185,7 +185,7 @@ submodule (Focal) Focal_Setup
 
   module procedure fclFindDevices_2 !(type,nameLike,sortBy) result(deviceList)
 
-    deviceList => fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
+    deviceList = fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
 
   end procedure fclFindDevices_2
   ! ---------------------------------------------------------------------------
