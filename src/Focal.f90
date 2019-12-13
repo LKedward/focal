@@ -266,20 +266,24 @@ module Focal
   interface fclBufferDouble
     !! Generic interface to initialise double array on device
 
-    module function fclBufferDouble_1(cmdq,dim,read,write) result(mem)
+    module function fclBufferDouble_1(cmdq,dim,read,write,profileSize,profileName) result(mem)
       !! Interface for user-specified command queue
       type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceDouble) :: mem                   !! Returns focal memory object
     end function fclBufferDouble_1
 
-    module function fclBufferDouble_2(dim,read,write) result(mem)
+    module function fclBufferDouble_2(dim,read,write,profileSize,profileName) result(mem)
       !! Interface to use the default command queue
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceDouble) :: mem                   !! Returns focal memory object
     end function fclBufferDouble_2
 
@@ -288,20 +292,24 @@ module Focal
   interface fclBufferFloat
     !! Generic interface to initialise float array on device
 
-    module function fclBufferFloat_1(cmdq,dim,read,write) result(mem)
+    module function fclBufferFloat_1(cmdq,dim,read,write,profileSize,profileName) result(mem)
       !! Interface for user-specified command queue
       type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceFloat) :: mem                    !! Returns focal memory object
     end function fclBufferFloat_1
 
-    module function fclBufferFloat_2(dim,read,write) result(mem)
+    module function fclBufferFloat_2(dim,read,write,profileSize,profileName) result(mem)
       !! Interface to use the default command queue
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceFloat) :: mem                    !! Returns focal memory object
     end function fclBufferFloat_2
 
@@ -311,20 +319,24 @@ module Focal
   interface fclBufferInt32
     !! Generic interface to initialise int32 array on device
 
-    module function fclBufferInt32_1(cmdq,dim,read,write) result(mem)
+    module function fclBufferInt32_1(cmdq,dim,read,write,profileSize,profileName) result(mem)
       !! Interface for user-specified command queue
       type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceInt32) :: mem                    !! Returns focal memory object
     end function fclBufferInt32_1
 
-    module function fclBufferInt32_2(dim,read,write) result(mem)
+    module function fclBufferInt32_2(dim,read,write,profileSize,profileName) result(mem)
       !! Interface to use the default command queue
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceInt32) :: mem                    !! Returns focal memory object
     end function fclBufferInt32_2
 
