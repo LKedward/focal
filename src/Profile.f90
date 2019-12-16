@@ -164,17 +164,19 @@ submodule (Focal) Focal_Profile
         end do
 
         ! Write to table
-        if (kern%nProfileEvent > kern%profileSize) then
-          write(outputUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4,A)') &
-          kern%profileName,'|', kern%nProfileEvent,'|', sum(durations(1:N))/N, '|',&
-          maxval(durations(1:N)),'|', minval(durations(1:N)),'|',&
-          localMem,'|',privateMem,'|',preferredWorkGroup,' *'
-          profileSizeWarning = .true.
-        else
-          write(outputUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4)') &
-          kern%profileName,'|', kern%nProfileEvent,'|', sum(durations(1:N))/N, '|', &
-          maxval(durations(1:N)),'|', minval(durations(1:N)),'|',&
-          localMem,'|',privateMem,'|',preferredWorkGroup
+        if (N>0) then
+          if (kern%nProfileEvent > kern%profileSize) then
+            write(outputUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4,A)') &
+            kern%profileName,'|', kern%nProfileEvent,'|', sum(durations(1:N))/N, '|',&
+            maxval(durations(1:N)),'|', minval(durations(1:N)),'|',&
+            localMem,'|',privateMem,'|',preferredWorkGroup,' *'
+            profileSizeWarning = .true.
+          else
+            write(outputUnit,'(A20,A1,I8,A1,I8,A1,I8,A1,I8,A1,I6,A1,I6,A1,I4)') &
+            kern%profileName,'|', kern%nProfileEvent,'|', sum(durations(1:N))/N, '|', &
+            maxval(durations(1:N)),'|', minval(durations(1:N)),'|',&
+            localMem,'|',privateMem,'|',preferredWorkGroup
+          end if
         end if
 
       end associate
