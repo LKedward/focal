@@ -733,6 +733,23 @@ module Focal
 
   end interface fclCompileProgram
 
+  interface fclDumpBuildLog
+
+    module subroutine fclDumpBuildLog_1(ctx,prog,device,outputUnit)
+      type(fclContext), intent(in) :: ctx
+      type(fclProgram), intent(in) :: prog
+      type(fclDevice), intent(in) :: device
+      integer, intent(in), optional :: outputUnit
+    end subroutine fclDumpBuildLog_1
+
+    module subroutine fclDumpBuildLog_2(prog,device,outputUnit)
+      type(fclProgram), intent(in) :: prog
+      type(fclDevice), intent(in) :: device
+      integer, intent(in), optional :: outputUnit
+    end subroutine fclDumpBuildLog_2
+
+  end interface fclDumpBuildLog
+    
   interface
 
     module function fclGetProgramKernel(prog,kernelName,global_work_size,local_work_size, &
