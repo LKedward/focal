@@ -40,14 +40,11 @@ submodule (Focal) Focal_Error
   module procedure fclHandleBuildError !(builderrcode,prog,ctx)
 
     integer :: i
-    integer(c_int32_t) :: errcode
-    integer(c_size_t), target :: buffLen, int32_ret
-    character(len=1,kind=c_char), allocatable, target :: buildLogBuffer(:)
 
     ! Handle compilation error
     if (builderrcode /= CL_SUCCESS) then
 
-      write(*,*) '(!) Fatal openCl error while building kernel: ',builderrcode,' : ',trim(fclGetErrorString(errcode))
+      write(*,*) '(!) Fatal openCl error while building kernel: ',builderrcode,' : ',trim(fclGetErrorString(builderrcode))
 
       ! Iterate over context devices
       do i=1,ctx%platform%numDevice
