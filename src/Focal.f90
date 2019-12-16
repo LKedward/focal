@@ -990,6 +990,15 @@ module Focal
     end subroutine fclPushProfileEvent
 
   end interface
+  
+  interface 
+
+    module function fclGetEventDurations(eventList) result(durations)
+      type(fclEvent), intent(in) :: eventList(:)
+      integer(c_int64_t) :: durations(size(eventList,1))
+    end function fclGetEventDurations
+    
+  end interface
 
   interface fclDumpProfileData
 

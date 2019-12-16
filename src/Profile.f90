@@ -88,14 +88,42 @@ submodule (Focal) Focal_Profile
   ! ---------------------------------------------------------------------------
   
 
+  module procedure fclGetEventDurations !(eventList) result(durations)
+
+    integer :: i, N
+    integer(c_int32_t) :: errcode
+    integer(c_int64_t), target :: startTime, endTime
+    integer(c_size_t) :: size_ret
+
+    N = size(eventList,1)
+
+    ! Iterate over kernel profile events
+    do i=1,N
+
+      ! Get event start time
+      errcode = clGetEventProfilingInfo(eventList(i)%cl_event, &
+        CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
+      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+      
+      ! Get event end time
+      errcode = clGetEventProfilingInfo(eventList(i)%cl_event, &
+        CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
+      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+      
+      ! Save duration (nanoseconds)
+      durations(i) = endTime - startTime
+
+    end do
+
+  end procedure fclGetEventDurations
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclDumpKernelProfileData_1 !(outputUnit,kernelList,device)
     !! Dump summary of profile data for list of kernels to specific output unit
     use iso_fortran_env, only: sp=>real32
 
     integer :: k, i, N
-    integer(c_int32_t) :: errcode
-    integer(c_int64_t), target :: startTime, endTime
-    integer(c_size_t) :: size_ret
     integer(c_int64_t), allocatable :: durations(:)
 
     integer(c_int64_t) :: localMem, privateMem, preferredWorkGroup
@@ -144,24 +172,7 @@ submodule (Focal) Focal_Profile
                                     preferredWorkGroup)
 
         N = min(kern%profileSize,kern%nProfileEvent)
-
-        ! Iterate over kernel profile events
-        do i=1,N
-
-          ! Get event start time
-          errcode = clGetEventProfilingInfo(kern%profileEvents(i)%cl_event, &
-            CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
-          call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-          
-          ! Get event end time
-          errcode = clGetEventProfilingInfo(kern%profileEvents(i)%cl_event, &
-            CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
-          call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-          
-          ! Save duration (nanoseconds)
-          durations(i) = endTime - startTime
-    
-        end do
+        durations(1:N) = fclGetEventDurations(kern%profileEvents(1:N))
 
         ! Write to table
         if (N>0) then
@@ -213,9 +224,6 @@ submodule (Focal) Focal_Profile
     use iso_fortran_env, only: sp=>real32
 
     integer :: k, i, N, m, bl
-    integer(c_int32_t) :: errcode
-    integer(c_int64_t), target :: startTime, endTime
-    integer(c_size_t) :: size_ret
     integer(c_int64_t), allocatable :: durations(:)
     real(sp) :: S_avg,S_min, S_max
 
@@ -283,24 +291,7 @@ submodule (Focal) Focal_Profile
           end if
 
           N = min(buff%profileSize,buff%nProfileEvent)
-
-          ! Iterate over buffer profile events
-          do i=1,N
-
-            ! Get event start time
-            errcode = clGetEventProfilingInfo(buff%profileEvents(i)%cl_event, &
-              CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
-            call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-            
-            ! Get event end time
-            errcode = clGetEventProfilingInfo(buff%profileEvents(i)%cl_event, &
-              CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
-            call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-            
-            ! Save duration (nanoseconds)
-            durations(i) = endTime - startTime
-      
-          end do
+          durations(1:N) = fclGetEventDurations(buff%profileEvents(1:N))
 
           ! Write to table, iterate over write,read,copy
           do i=1,3
