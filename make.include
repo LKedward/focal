@@ -1,0 +1,64 @@
+# ######### Non-recursive sub-makefile for Focal #########
+#
+# To use:
+#  1. Include into your main makefile
+#  2. Define 'FOCAL_DIR' as path to focal root directory
+#  3. Create a dependency on '$(FOCAL_LIB_OBJS)'
+#  4. Optionally define compiler 'FC' and compiler flags 'FFLAGS'
+#
+#  (!) Do NOT define any variables in your parent makefile that 
+#      begin with the prefix 'FOCAL_' except 'FOCAL_DIR'
+
+
+# Directories
+FOCAL_DIR ?= ./focal
+FOCAL_OBJDIR = $(FOCAL_DIR)/obj/
+FOCAL_LIBDIR = $(FOCAL_DIR)/lib/
+
+# Source directories
+vpath %.f90 $(FOCAL_DIR)/src
+vpath %.f90 $(FOCAL_DIR)/external
+vpath %.f90 $(FOCAL_DIR)/external/clfortran
+
+# Source files
+FOCAL_BASE = Focal clfortran Quicksort
+FOCAL_SRCS = Error Memory Query Setup Utils Profile
+FOCAL_LIBS = focal focaldbg
+
+# Objects
+FOCAL_BASE_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_BASE)) )
+FOCAL_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_SRCS) ) )
+FOCAL_LIB_OBJS = $(addprefix $(FOCAL_LIBDIR)lib, $(addsuffix .a, $(FOCAL_LIBS)) )
+FOCAL_DIRS = $(FOCAL_OBJDIR) $(FOCAL_LIBDIR)
+
+# --- Recipes ---
+focal: $(FOCAL_DIRS) $(FOCAL_LIB_OBJS) 
+
+focal_clean:
+	rm -f $(FOCAL_OBJDIR)*.o
+	rm -f $(FOCAL_LIBDIR)*.a
+
+# Generate release library
+$(FOCAL_LIBDIR)libfocal.a: $(FOCAL_BASE_OBJS) $(FOCAL_OBJS) $(FOCAL_OBJDIR)NoDebug.o
+	rm -f $@
+	$(AR) -cq $@ $^
+
+# Generate debug library
+$(FOCAL_LIBDIR)libfocaldbg.a: $(FOCAL_BASE_OBJS) $(FOCAL_OBJS) $(FOCAL_OBJDIR)Debug.o
+	rm -f $@
+	$(AR) -cq $@ $^
+
+# Compile fortran objects
+$(FOCAL_OBJDIR)%.o: %.f90
+	$(FC) $(FFLAGS) -c $< -o $@
+	
+# Library objects depend on code modules
+$(FOCAL_LIB_OBJS): $(FOCAL_OBJS)
+
+# Code modules depend on base modules
+$(FOCAL_OBJS):  $(FOCAL_BASE_OBJS)
+
+$(FOCAL_DIRS):
+	mkdir $@
+
+.PHONY: focal focal_clean
