@@ -109,6 +109,21 @@ submodule (Focal) Focal_Query
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclGetKernelWorkGroupInfoInt64 !(kernel,device,key,value)
+    !! Query kernel work group information for 64bit integer.
+    ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html
+
+    integer(c_int32_t) :: errcode
+    integer(c_size_t) :: temp_size, size_ret
+
+    temp_size = c_sizeof(int(1,c_int64_t))
+    errcode = clGetKernelWorkGroupInfo(kernel%cl_kernel, device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
+    call fclErrorHandler(errcode,'fclGetKernelWorkGroupInfoInt64','clGetKernelWorkGroupInfo')
+
+  end procedure fclGetKernelWorkGroupInfoInt64
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclGetKernelArgInfoString !(kernel,key,value)
     !! Query kernel argument information for string info.
     ! https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetKernelArgInfo.html

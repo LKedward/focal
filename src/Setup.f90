@@ -41,11 +41,11 @@ submodule (Focal) Focal_Setup
     integer :: i
     logical :: vendorFound
 
-    type(fclPlatform), pointer :: platforms(:)
+    type(fclPlatform), allocatable :: platforms(:)
     type(fclPlatform) :: chosenPlatform
 
     ! Get platforms
-    platforms => fclGetPlatforms();
+    platforms = fclGetPlatforms();
 
     vendorFound = .FALSE.
     do i=1,size(platforms,1)
@@ -185,7 +185,7 @@ submodule (Focal) Focal_Setup
 
   module procedure fclFindDevices_2 !(type,nameLike,sortBy) result(deviceList)
 
-    deviceList => fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
+    deviceList = fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
 
   end procedure fclFindDevices_2
   ! ---------------------------------------------------------------------------
@@ -299,6 +299,51 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
+  module procedure  fclDumpBuildLog_1 !(ctx,prog,device,outputUnit)
+    use iso_fortran_env, only: stdout => output_unit
+
+    integer(c_int32_t) :: errcode
+    integer :: out
+    integer(c_size_t) :: buffLen, int32_ret
+    character(len=1), allocatable, target :: buildLogBuffer(:)
+
+    if (present(outputUnit)) then
+      out = outputUnit
+    else
+      out = stdout
+    end if
+  
+    errcode = clGetProgramBuildInfo(prog%cl_program, device%cl_device_id, &
+          CL_PROGRAM_BUILD_LOG, int(0,c_size_t), C_NULL_PTR, buffLen)
+
+    call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
+
+    allocate(buildLogBuffer(buffLen))
+    buffLen = size(buildLogBuffer,1)
+
+    errcode = clGetProgramBuildInfo(prog%cl_program, device%cl_device_id, &
+      CL_PROGRAM_BUILD_LOG, buffLen, c_loc(buildLogBuffer), int32_ret)
+
+    call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
+
+    write(*,*) ' fclDumpBuildLog: Build log for context device: ',device%name
+    write(out,*) buildLogBuffer
+    write(out,*)
+
+    deallocate(buildLogBuffer)
+
+  end procedure fclDumpBuildLog_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDumpBuildLog_2 !(prog,device,outputUnit)
+
+    call fclDumpBuildLog_1(fclDefaultCtx,prog,device,outputUnit)
+
+  end procedure fclDumpBuildLog_2
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclGetProgramKernel !(prog,kernelName,global_work_size,local_work_size, &
                                            ! work_dim,global_work_offset) result(kern)
 
@@ -349,6 +394,10 @@ submodule (Focal) Focal_Setup
       else
         kern%global_work_offset(1:size(global_work_offset,1)) = global_work_offset
       end if
+    end if
+
+    if (present(profileSize)) then
+      call fclEnableProfiling(kern,profileSize)
     end if
 
   end procedure fclGetProgramKernel
@@ -422,11 +471,14 @@ submodule (Focal) Focal_Setup
                 c_loc(kernel%global_work_size), localSizePtr, &
                 cmdq%nDependency, cmdq%dependencyListPtr, &
                 c_loc(cmdQ%lastKernelEvent%cl_event))
-
+    
+    call fclDbgWait(cmdQ%lastKernelEvent)
     call fclPopDependencies(cmdq)
     call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
     fclLastKernelEvent = cmdQ%lastKernelEvent
+    
+    call kernel%pushProfileEvent(cmdQ%lastKernelEvent)
 
   end procedure fclLaunchKernel
   ! ---------------------------------------------------------------------------

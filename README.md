@@ -37,7 +37,7 @@ real, parameter :: sumVal = 10.0            ! Target value for array sum
 
 integer :: i                                ! Counter variable
 character(:), allocatable :: kernelSrc      ! Kernel source string
-type(fclDevice), pointer :: devices(:)      ! List of focal devices
+type(fclDevice), allocatable :: devices(:)  ! List of focal devices
 type(fclProgram) :: prog                    ! Focal program object
 type(fclKernel) :: sumKernel                ! Focal kernel object
 real(c_float) :: array1(Nelem)              ! Host array 1
@@ -49,7 +49,7 @@ type(fclDeviceFloat) :: array2_d            ! Device array 2
 call fclSetDefaultContext(fclCreateContext(vendor='nvidia'))
 
 ! Select device with most cores and create command queue
-devices => fclFindDevices(sortBy='cores')
+devices = fclFindDevices(sortBy='cores')
 call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1),enableProfiling=.true.))
 
 ! Load kernel from file and compile

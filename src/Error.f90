@@ -40,38 +40,16 @@ submodule (Focal) Focal_Error
   module procedure fclHandleBuildError !(builderrcode,prog,ctx)
 
     integer :: i
-    integer(c_int32_t) :: errcode
-    integer(c_size_t), target :: buffLen, int32_ret
-    character(len=1,kind=c_char), allocatable, target :: buildLogBuffer(:)
 
     ! Handle compilation error
     if (builderrcode /= CL_SUCCESS) then
 
-      write(*,*) '(!) Fatal openCl error while building kernel: ',builderrcode,' : ',trim(fclGetErrorString(errcode))
+      write(*,*) '(!) Fatal openCl error while building kernel: ',builderrcode,' : ',trim(fclGetErrorString(builderrcode))
 
       ! Iterate over context devices
       do i=1,ctx%platform%numDevice
 
-        write(*,'(A,I3)') ' Build log for context device ',i
-        write(*,*) ' (',ctx%platform%devices(i)%name,'):'
-
-        errcode = clGetProgramBuildInfo(prog%cl_program, ctx%platform%cl_device_ids(1), &
-          CL_PROGRAM_BUILD_LOG, int(0,c_size_t), C_NULL_PTR, buffLen);
-
-        call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
-
-        allocate(buildLogBuffer(buffLen))
-        buffLen = size(buildLogBuffer,1)
-
-        errcode = clGetProgramBuildInfo(prog%cl_program, ctx%platform%cl_device_ids(1), &
-          CL_PROGRAM_BUILD_LOG, buffLen, c_loc(buildLogBuffer), int32_ret);
-
-        call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
-
-        write(*,*) buildLogBuffer
-        write(*,*)
-
-        deallocate(buildLogBuffer)
+        call  fclDumpBuildLog(ctx,prog,ctx%platform%devices(i))
 
       end do
 

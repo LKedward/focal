@@ -28,7 +28,7 @@ module Focal
     character(:), allocatable :: vendor              !! Platform vendor
     character(:), allocatable :: extensions          !! Platform extensions
     integer :: numDevice                             !! No. of devices
-    type(fclDevice), pointer :: devices(:)           !! Focal device objects
+    type(fclDevice), allocatable :: devices(:)           !! Focal device objects
     integer(c_intptr_t), allocatable :: cl_device_ids(:) !! openCL device pointers
   end type fclPlatform
 
@@ -90,8 +90,25 @@ module Focal
     integer(c_intptr_t) :: cl_program                !! openCL program pointer
   end type fclProgram
 
+  type :: fclProfileContainer
+    !! Base container type for event profiling
+    character(:), allocatable :: profileName
+      !! Descriptive name for output of profiling information
+    logical :: profilingEnabled = .false.
+      !! Switch to enable saving of events for profiling
+    type(fclEvent), allocatable :: profileEvents(:)
+      !! Array of events for profiling
+    integer :: profileSize = 0
+      !! Allocation size of profileEvents(:) array
+    integer :: nProfileEvent = 0
+      !! Number of events saved to profileEvents(:) array
+    contains
+      procedure, pass :: enableProfiling => fclEnableProfiling
+      procedure, pass :: pushProfileEvent => fclPushProfileEvent
+      ! procedure, pass :: dumpProfileData => fclDumpProfileData
+  end type fclProfileContainer
 
-  type :: fclKernel
+  type, extends(fclProfileContainer) :: fclKernel
     !! Type wrapper for openCL kernel objects
     integer(c_intptr_t) :: cl_kernel                 !! openCL kernel pointer
     character(:), allocatable :: name                !! Kernel name
@@ -111,11 +128,12 @@ module Focal
      !! Launch a kernel with event dependencies
   end type fclKernel
 
-  type :: fclDeviceBuffer
+  type, extends(fclProfileContainer) :: fclDeviceBuffer
     !! Type wrapper for openCL memory objects
     integer(c_intptr_t) :: cl_mem                    !! openCL memory pointer
     type(fclCommandQ), pointer :: cmdq               !! Focal commandQ object
     integer(c_size_t) :: nBytes = -1                 !! Size of buffer in bytes
+    integer, allocatable :: profileEventType(:)      !! Integer for indicating type of buffer event
   end type fclDeviceBuffer
 
   type, extends(fclDeviceBuffer) :: fclDeviceInt32
@@ -248,20 +266,24 @@ module Focal
   interface fclBufferDouble
     !! Generic interface to initialise double array on device
 
-    module function fclBufferDouble_1(cmdq,dim,read,write) result(mem)
+    module function fclBufferDouble_1(cmdq,dim,read,write,profileSize,profileName) result(mem)
       !! Interface for user-specified command queue
       type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceDouble) :: mem                   !! Returns focal memory object
     end function fclBufferDouble_1
 
-    module function fclBufferDouble_2(dim,read,write) result(mem)
+    module function fclBufferDouble_2(dim,read,write,profileSize,profileName) result(mem)
       !! Interface to use the default command queue
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceDouble) :: mem                   !! Returns focal memory object
     end function fclBufferDouble_2
 
@@ -270,20 +292,24 @@ module Focal
   interface fclBufferFloat
     !! Generic interface to initialise float array on device
 
-    module function fclBufferFloat_1(cmdq,dim,read,write) result(mem)
+    module function fclBufferFloat_1(cmdq,dim,read,write,profileSize,profileName) result(mem)
       !! Interface for user-specified command queue
       type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceFloat) :: mem                    !! Returns focal memory object
     end function fclBufferFloat_1
 
-    module function fclBufferFloat_2(dim,read,write) result(mem)
+    module function fclBufferFloat_2(dim,read,write,profileSize,profileName) result(mem)
       !! Interface to use the default command queue
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceFloat) :: mem                    !! Returns focal memory object
     end function fclBufferFloat_2
 
@@ -293,20 +319,24 @@ module Focal
   interface fclBufferInt32
     !! Generic interface to initialise int32 array on device
 
-    module function fclBufferInt32_1(cmdq,dim,read,write) result(mem)
+    module function fclBufferInt32_1(cmdq,dim,read,write,profileSize,profileName) result(mem)
       !! Interface for user-specified command queue
       type(fclCommandQ), intent(in), target :: cmdq  !! Queue with which to associate new buffer
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceInt32) :: mem                    !! Returns focal memory object
     end function fclBufferInt32_1
 
-    module function fclBufferInt32_2(dim,read,write) result(mem)
+    module function fclBufferInt32_2(dim,read,write,profileSize,profileName) result(mem)
       !! Interface to use the default command queue
       integer, intent(in) :: dim                     !! Dimension of new buffer
       logical, intent(in) :: read                    !! Read access of device kernels
       logical, intent(in) :: write                   !! Write access of device kernels
+      integer, intent(in), optional :: profileSize   !! No. of events to profile, default zero (no profiling), set >0 to enable
+      character(*), intent(in), optional :: profileName !! Descriptive name for profiling output
       type(fclDeviceInt32) :: mem                    !! Returns focal memory object
     end function fclBufferInt32_2
 
@@ -387,7 +417,7 @@ module Focal
     module subroutine fclMemRead(hostBufferPtr,memObject,nBytes)
       !! Transfer device buffer to host buffer
       type(c_ptr), intent(in) :: hostBufferPtr             !! C pointer to host buffer (target)
-      class(fclDeviceBuffer), intent(in), target :: memObject      !! Focal memory object (source)
+      class(fclDeviceBuffer), intent(inout), target :: memObject      !! Focal memory object (source)
       integer(c_size_t), intent(in) :: nBytes              !! Size of buffers in bytes
     end subroutine fclMemRead
 
@@ -395,21 +425,21 @@ module Focal
       !! Transfer device integer array to host integer array
       !!  Called by operator-overloading of assignment(=)
       integer(c_int32_t), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceInt32), intent(in) :: memObject       !! Focal memory object (source)
+      class(fclDeviceInt32), intent(inout) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadInt32
 
     module subroutine fclMemReadFloat(hostBuffer,memObject)
       !! Transfer device float array to host float array
       !!  Called by operator-overloading of assignment(=)
       real(c_float), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceFloat), intent(in) :: memObject       !! Focal memory object (source)
+      class(fclDeviceFloat), intent(inout) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadFloat
 
     module subroutine fclMemReadDouble(hostBuffer,memObject)
       !! Transfer device double array to host double array
       !!  Called by operator-overloading of assignment(=)
       real(c_double), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceDouble), intent(in) :: memObject      !! Focal memory object (source)
+      class(fclDeviceDouble), intent(inout) :: memObject      !! Focal memory object (source)
     end subroutine fclMemReadDouble
 
     ! --------- Copy device array to device array ---------
@@ -517,6 +547,20 @@ module Focal
 
   end interface fclGetKernelInfo
 
+  interface fclGetKernelWorkGroupInfo
+
+    module subroutine fclGetKernelWorkGroupInfoInt64(kernel,device,key,value)
+      !! Query kernel work group information for 64bit integer.
+      !! See [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+      !!  for values of 'key' argument containined in clfortran module.
+      type(fclKernel), intent(in) :: kernel
+      type(fclDevice), intent(in) :: device
+      integer(c_int32_t), intent(in) :: key
+      integer(c_int64_t), intent(out), target :: value
+    end subroutine fclGetKernelWorkGroupInfoInt64
+
+  end interface fclGetKernelWorkGroupInfo
+  
   interface fclGetKernelArgInfo
     !! Generic interface to query kernel argument information.
     !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
@@ -561,7 +605,7 @@ module Focal
 
     module function fclGetPlatforms() result(platforms)
       !! Return pointer to array of available fclPlatforms
-      type(fclPlatform), pointer :: platforms(:)
+      type(fclPlatform), allocatable :: platforms(:)
     end function fclGetPlatforms
 
     module function fclGetPlatform(platform_id) result(platform)
@@ -573,7 +617,7 @@ module Focal
     module function fclGetPlatformDevices(platform_id) result(devices)
       !! Return pointer to array of fclDevices on platform id
       integer(c_intptr_t), intent(in) :: platform_id !! OpenCL platform id
-      type(fclDevice), pointer :: devices(:)
+      type(fclDevice), allocatable :: devices(:)
     end function fclGetPlatformDevices
 
     module function fclGetDevice(device_id) result(device)
@@ -619,14 +663,14 @@ module Focal
       character(*), intent(in), optional :: type
       character(*), intent(in), optional :: nameLike
       character(*), intent(in), optional :: sortBy
-      type(fclDevice), pointer :: deviceList(:)
+      type(fclDevice), allocatable :: deviceList(:)
     end function fclFindDevices_1
 
     module function fclFindDevices_2(type,nameLike,sortBy) result(deviceList)
       character(*), intent(in), optional :: type
       character(*), intent(in), optional :: nameLike
       character(*), intent(in), optional :: sortBy
-      type(fclDevice), pointer :: deviceList(:)
+      type(fclDevice), allocatable :: deviceList(:)
     end function fclFindDevices_2
 
   end interface fclFindDevices
@@ -689,10 +733,27 @@ module Focal
 
   end interface fclCompileProgram
 
+  interface fclDumpBuildLog
+
+    module subroutine fclDumpBuildLog_1(ctx,prog,device,outputUnit)
+      type(fclContext), intent(in) :: ctx
+      type(fclProgram), intent(in) :: prog
+      type(fclDevice), intent(in) :: device
+      integer, intent(in), optional :: outputUnit
+    end subroutine fclDumpBuildLog_1
+
+    module subroutine fclDumpBuildLog_2(prog,device,outputUnit)
+      type(fclProgram), intent(in) :: prog
+      type(fclDevice), intent(in) :: device
+      integer, intent(in), optional :: outputUnit
+    end subroutine fclDumpBuildLog_2
+
+  end interface fclDumpBuildLog
+    
   interface
 
     module function fclGetProgramKernel(prog,kernelName,global_work_size,local_work_size, &
-                                             work_dim,global_work_offset) result(kern)
+                                             work_dim,global_work_offset,profileSize) result(kern)
       !! Extract a kernel object for execution from a compiled program object
       type(fclProgram), intent(in) :: prog                   !! Compiled program object containing kernel
       character(*), intent(in) :: kernelName                 !! Name of kernel to extract for execution
@@ -700,6 +761,7 @@ module Focal
       integer, intent(in), optional :: local_work_size(:)    !! Local work group dimensions, default zeros (decided by OpenCL runtime)
       integer, intent(in), optional :: work_dim              !! Number of dimensions for kernel work group, default 1
       integer, intent(in), optional :: global_work_offset(:) !! Global work group offsets, default zeros
+      integer, intent(in), optional :: profileSize           !! No. of events to profile, default zero (no profiling), set >0 to enable
       type(fclKernel) :: kern                                !! Returns fclKernel object for execution
     end function fclGetProgramKernel
 
@@ -710,27 +772,27 @@ module Focal
 
     module subroutine fclLaunchKernelAfterEvent_1(kernel,cmdQ,event)
       !! Specific interface for a single event dependency on a specific command queue
-      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      class(fclKernel), intent(inout) :: kernel                !! Focal kernel object to launch
       type(fclCommandQ), intent(inout) :: cmdQ             !! CmdQ on which to launch kernel
       type(fclEvent), intent(in) :: event                  !! Event dependency for kernel
     end subroutine fclLaunchKernelAfterEvent_1
     
     module subroutine fclLaunchKernelAfterEvent_2(kernel,event)
       !! Specific interface a single event dependency on the __default command queue__
-      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      class(fclKernel), intent(inout) :: kernel                !! Focal kernel object to launch
       type(fclEvent), intent(in) :: event                  !! Event dependency for kernel
     end subroutine fclLaunchKernelAfterEvent_2
 
     module subroutine fclLaunchKernelAfterEventList_1(kernel,cmdQ,eventList)
       !! Specific interface for a multiple event dependencies on a specific command queue
-      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      class(fclKernel), intent(inout) :: kernel                !! Focal kernel object to launch
       type(fclCommandQ), intent(inout) :: cmdQ             !! CmdQ on which to launch kernel
       type(fclEvent), intent(in) :: eventList(:)           !! Event dependency list for kernel
     end subroutine fclLaunchKernelAfterEventList_1
 
     module subroutine fclLaunchKernelAfterEventList_2(kernel,eventList)
       !! Specific interface for a multiple event dependencies on the __default command queue__
-      class(fclKernel), intent(in) :: kernel                !! Focal kernel object to launch
+      class(fclKernel), intent(inout) :: kernel                !! Focal kernel object to launch
       type(fclEvent), intent(in) :: eventList(:)           !! Event dependency list for kernel
     end subroutine fclLaunchKernelAfterEventList_2
 
@@ -739,7 +801,7 @@ module Focal
   interface
     module subroutine fclLaunchKernel(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
       !! Enqueue a kernel with command arguments
-      class(fclKernel), intent(in), target :: kernel   !! Focal kernel object
+      class(fclKernel), intent(inout), target :: kernel   !! Focal kernel object
       class(*), intent(in), optional, target :: a0
         !! Focal command queue or first kernel argument
       class(*), intent(in), optional, target :: a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
@@ -901,6 +963,92 @@ module Focal
     end subroutine fclClearDependencies_2
 
   end interface fclClearDependencies
+
+  ! ------------------------- PROFILING  ROUTINES -----------------------------
+
+  interface 
+
+    module subroutine fclEnableProfiling(container,profileSize,profileName)
+      !! Enable profiling on a specific container by allocating space to save events
+      class(fclProfileContainer), intent(inout) :: container
+        !! Container on which to enable profiling. This can be one of:
+        !! `fclKernel`,`fclDeviceBuffer`,`fclProfileContainer`.
+      integer, intent(in) :: profileSize
+        !! Number of events to allocate space for
+      character(*), intent(in), optional :: profileName
+        !! Descriptive text for output of profiling information
+    end subroutine fclEnableProfiling
+
+    module subroutine fclPushProfileEvent(container,event,type)
+      !! If profiling is enabled for the container, save an event to it
+      class(fclProfileContainer), intent(inout) :: container
+        !! Profiling container (`fclKernel`,`fclDeviceBuffer`,`fclProfileContainer`)
+      type(fclEvent), intent(in) :: event
+        !! Event to push to container
+      integer, intent(in), optional :: type
+        !! Type info for buffer objects
+    end subroutine fclPushProfileEvent
+
+  end interface
+  
+  interface 
+
+    module function fclGetEventDurations(eventList) result(durations)
+      type(fclEvent), intent(in) :: eventList(:)
+      integer(c_int64_t) :: durations(size(eventList,1))
+    end function fclGetEventDurations
+    
+  end interface
+
+  interface fclDumpProfileData
+
+    module subroutine fclDumpKernelProfileData_1(outputUnit,kernelList,device)
+      !! Dump summary of profile data for list of kernels to specific output unit
+      integer, intent(in) :: outputUnit
+        !! Output unit to write summary data
+      class(fclKernel), intent(in) :: kernelList(:)
+        !! List of kernels for which to dump profile data
+      type(fclDevice), intent(in) :: device
+        !! Device on which the kernels were executed
+        !! Needed for kernel work group info.
+    end subroutine fclDumpKernelProfileData_1
+
+    module subroutine fclDumpKernelProfileData_2(kernelList,device)
+      !! Dump summary of profile data for list of kernels to standard output
+      class(fclKernel), intent(in) :: kernelList(:)
+        !! List of kernels for which to dump profile data
+      type(fclDevice), intent(in) :: device
+        !! Device on which the kernels were executed
+        !! Needed for kernel work group info.
+    end subroutine fclDumpKernelProfileData_2
+
+    module subroutine fclDumpBufferProfileData_1(outputUnit,bufferList1,bufferList2,bufferList3)
+      !! Dump summary of profile data for list of buffers to specific output unit.
+      !!
+      !! Three buffer list inputs are provided for different buffer types
+      integer, intent(in) :: outputUnit
+        !! Output unit to write summary data.
+      class(fclDeviceBuffer), intent(in), target :: bufferList1(:)
+        !! List of buffers for which to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target :: bufferList2(:)
+        !! List of buffers for which to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target:: bufferList3(:)
+        !! List of buffers for which to dump profile data
+    end subroutine fclDumpBufferProfileData_1
+
+    module subroutine fclDumpBufferProfileData_2(bufferList1,bufferList2,bufferList3)
+      !! Dump summary of profile data for list of buffers to standard output.
+      !!
+      !! !! Three buffer list inputs are provided for different buffer types
+      class(fclDeviceBuffer), intent(in), optional, target:: bufferList1(:)
+        !! List of kernels to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target :: bufferList2(:)
+        !! List of kernels to dump profile data
+      class(fclDeviceBuffer), intent(in), optional, target :: bufferList3(:)
+        !! List of kernels to dump profile data
+    end subroutine fclDumpBufferProfileData_2
+
+  end interface fclDumpProfileData
 
 
   ! ---------------------------- DEBUG ROUTINES -------------------------------
