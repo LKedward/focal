@@ -3,7 +3,7 @@
 # To use:
 #  1. Include into your main makefile
 #  2. Define 'FOCAL_DIR' as path to focal root directory
-#  3. Create a dependency on '$(FOCAL_LIB_OBJS)'
+#  3. Create a dependency for the executable on '$(FOCAL_LIB_OBJS)'
 #  4. Optionally define compiler 'FC' and compiler flags 'FFLAGS'
 #
 #  (!) Do NOT define any variables in your parent makefile that 
@@ -29,10 +29,10 @@ FOCAL_LIBS = focal focaldbg
 FOCAL_BASE_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_BASE)) )
 FOCAL_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_SRCS) ) )
 FOCAL_LIB_OBJS = $(addprefix $(FOCAL_LIBDIR)lib, $(addsuffix .a, $(FOCAL_LIBS)) )
-FOCAL_DIRS = $(FOCAL_OBJDIR) $(FOCAL_LIBDIR)
+FOCAL_BUILDDIRS = $(FOCAL_OBJDIR) $(FOCAL_LIBDIR)
 
 # --- Recipes ---
-focal: $(FOCAL_DIRS) $(FOCAL_LIB_OBJS) 
+focal:  $(FOCAL_LIB_OBJS) 
 
 focal_clean:
 	rm -f $(FOCAL_OBJDIR)*.o
@@ -56,9 +56,12 @@ $(FOCAL_OBJDIR)%.o: %.f90
 $(FOCAL_LIB_OBJS): $(FOCAL_OBJS)
 
 # Code modules depend on base modules
-$(FOCAL_OBJS):  $(FOCAL_BASE_OBJS)
+$(FOCAL_OBJS): $(FOCAL_BASE_OBJS)
 
-$(FOCAL_DIRS):
+# All objects need build directories to exist (order-only dependency here)
+$(FOCAL_BASE_OBJS): | $(FOCAL_BUILDDIRS)
+
+$(FOCAL_BUILDDIRS):
 	mkdir $@
 
 .PHONY: focal focal_clean
