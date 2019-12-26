@@ -1,10 +1,10 @@
 # ######### Non-recursive sub-makefile for Focal #########
 #
 # To use:
-#  1. Include into your main makefile
+#  1. Include this sub makefile into your main makefile
 #  2. Define 'FOCAL_DIR' as path to focal root directory
 #  3. Create a dependency for the executable on '$(FOCAL_LIB_OBJS)'
-#  4. Optionally define compiler 'FC' and compiler flags 'FFLAGS'
+#  4. Add FFLAGS+=-I$(FOCAL_MODDIR) to be able to 'use' Focal library
 #
 #  (!) Do NOT define any variables in your parent makefile that
 #      begin with the prefix 'FOCAL_' except 'FOCAL_DIR'
@@ -14,6 +14,7 @@
 FOCAL_DIR ?= ./focal
 FOCAL_OBJDIR = $(FOCAL_DIR)/obj/
 FOCAL_LIBDIR = $(FOCAL_DIR)/lib/
+FOCAL_MODDIR = $(FOCAL_DIR)/mod/
 
 # Source directories
 vpath %.f90 $(FOCAL_DIR)/src
@@ -29,7 +30,10 @@ FOCAL_LIBS = focal focaldbg
 FOCAL_BASE_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_BASE)) )
 FOCAL_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_SRCS) ) )
 FOCAL_LIB_OBJS = $(addprefix $(FOCAL_LIBDIR)lib, $(addsuffix .a, $(FOCAL_LIBS)) )
-FOCAL_BUILDDIRS = $(FOCAL_OBJDIR) $(FOCAL_LIBDIR)
+FOCAL_BUILDDIRS = $(FOCAL_MODDIR) $(FOCAL_OBJDIR) $(FOCAL_LIBDIR) 
+
+# --- Compiler flags ---
+include $(FOCAL_DIR)/make.compiler
 
 # --- Recipes ---
 focal:  $(FOCAL_LIB_OBJS)
@@ -37,6 +41,8 @@ focal:  $(FOCAL_LIB_OBJS)
 focal_clean:
 	rm -f $(FOCAL_OBJDIR)*.o
 	rm -f $(FOCAL_LIBDIR)*.a
+	rm -f $(FOCAL_MODDIR)*.mod
+	rm -f $(FOCAL_MODDIR)*.smod
 
 # Generate release library
 $(FOCAL_LIBDIR)libfocal.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)Debug.o, $(FOCAL_OBJS))
@@ -50,7 +56,7 @@ $(FOCAL_LIBDIR)libfocaldbg.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)NoD
 
 # Compile fortran objects
 $(FOCAL_OBJDIR)%.o: %.f90
-	$(FC) $(FFLAGS) -c $< -o $@
+	$(FC) $(FOCAL_FFLAGS) -c $< -o $@
 
 # Code modules depend on base modules
 $(FOCAL_OBJS): $(FOCAL_BASE_OBJS)
