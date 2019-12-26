@@ -17,7 +17,7 @@ vpath %.f90 external/clfortran
 # Source files
 PROGS =
 BASE = Focal clfortran Quicksort
-SRCS = Error Memory Query Setup Utils Profile
+SRCS = Error Memory Query Setup Utils Profile Debug NoDebug
 LIBS = focal focaldbg
 
 # --- End Configuration ---
@@ -74,14 +74,14 @@ $(BINDIR)%: $(addprefix $(OBJDIR), %.o)
 	$(FC) $^ $(LFLAGS) -o $@
 
 # Generate release library
-$(LIBDIR)libfocal.a: $(BASE_OBJS) $(OBJS) $(OBJDIR)NoDebug.o
+$(LIBDIR)libfocal.a: $(BASE_OBJS) $(filter-out $(OBJDIR)Debug.o, $(OBJS))
 	rm -f $@
 	$(AR) -cq $@ $^
 
 # Generate debug library
-$(LIBDIR)libfocaldbg.a: $(BASE_OBJS) $(OBJS) $(OBJDIR)Debug.o
-		rm -f $@
-		$(AR) -cq $@ $^
+$(LIBDIR)libfocaldbg.a: $(BASE_OBJS) $(filter-out $(OBJDIR)NoDebug.o, $(OBJS))
+	rm -f $@
+	$(AR) -cq $@ $^
 
 # Compile fortran objects
 $(OBJDIR)%.o: %.f90
@@ -90,11 +90,9 @@ $(OBJDIR)%.o: %.f90
 # Program objects depend on libraries
 $(PROG_OBJS): $(LIB_OBJS)
 
-# Library objects depend on code modules
-$(LIB_OBJS): $(OBJS)
-
 # Code modules depend on base modules
 $(OBJS): $(BASE_OBJS)
+
 
 $(DOCDIR)index.html: $(addsuffix .f90, $(OBJS) )
 	ford ford.md
