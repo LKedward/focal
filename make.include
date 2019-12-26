@@ -6,7 +6,7 @@
 #  3. Create a dependency for the executable on '$(FOCAL_LIB_OBJS)'
 #  4. Optionally define compiler 'FC' and compiler flags 'FFLAGS'
 #
-#  (!) Do NOT define any variables in your parent makefile that 
+#  (!) Do NOT define any variables in your parent makefile that
 #      begin with the prefix 'FOCAL_' except 'FOCAL_DIR'
 
 
@@ -22,7 +22,7 @@ vpath %.f90 $(FOCAL_DIR)/external/clfortran
 
 # Source files
 FOCAL_BASE = Focal clfortran Quicksort
-FOCAL_SRCS = Error Memory Query Setup Utils Profile
+FOCAL_SRCS = Error Memory Query Setup Utils Profile Debug NoDebug
 FOCAL_LIBS = focal focaldbg
 
 # Objects
@@ -32,28 +32,25 @@ FOCAL_LIB_OBJS = $(addprefix $(FOCAL_LIBDIR)lib, $(addsuffix .a, $(FOCAL_LIBS)) 
 FOCAL_BUILDDIRS = $(FOCAL_OBJDIR) $(FOCAL_LIBDIR)
 
 # --- Recipes ---
-focal:  $(FOCAL_LIB_OBJS) 
+focal:  $(FOCAL_LIB_OBJS)
 
 focal_clean:
 	rm -f $(FOCAL_OBJDIR)*.o
 	rm -f $(FOCAL_LIBDIR)*.a
 
 # Generate release library
-$(FOCAL_LIBDIR)libfocal.a: $(FOCAL_BASE_OBJS) $(FOCAL_OBJS) $(FOCAL_OBJDIR)NoDebug.o
+$(FOCAL_LIBDIR)libfocal.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)Debug.o, $(FOCAL_OBJS))
 	rm -f $@
 	$(AR) -cq $@ $^
 
 # Generate debug library
-$(FOCAL_LIBDIR)libfocaldbg.a: $(FOCAL_BASE_OBJS) $(FOCAL_OBJS) $(FOCAL_OBJDIR)Debug.o
+$(FOCAL_LIBDIR)libfocaldbg.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)NoDebug.o, $(FOCAL_OBJS))
 	rm -f $@
 	$(AR) -cq $@ $^
 
 # Compile fortran objects
 $(FOCAL_OBJDIR)%.o: %.f90
 	$(FC) $(FFLAGS) -c $< -o $@
-	
-# Library objects depend on code modules
-$(FOCAL_LIB_OBJS): $(FOCAL_OBJS)
 
 # Code modules depend on base modules
 $(FOCAL_OBJS): $(FOCAL_BASE_OBJS)
