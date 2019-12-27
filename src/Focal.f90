@@ -199,6 +199,11 @@ module Focal
   type(fclEvent), target :: fclLastBarrierEvent
     !! Focal event object for the most recent barrier event to be enqueued
 
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_start") :: i0
+    !! c interoperable character for start of fclKernels binary resource
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: i1
+    !! c interoperable character for sendtart of fclKernels binary resource
+
   procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
     !! Procedure pointer for custom OpenCL runtime error handler
 
@@ -417,7 +422,7 @@ module Focal
     module subroutine fclMemRead(hostBufferPtr,memObject,nBytes)
       !! Transfer device buffer to host buffer
       type(c_ptr), intent(in) :: hostBufferPtr             !! C pointer to host buffer (target)
-      class(fclDeviceBuffer), intent(inout), target :: memObject      !! Focal memory object (source)
+      class(fclDeviceBuffer), target :: memObject      !! Focal memory object (source)
       integer(c_size_t), intent(in) :: nBytes              !! Size of buffers in bytes
     end subroutine fclMemRead
 
@@ -425,21 +430,21 @@ module Focal
       !! Transfer device integer array to host integer array
       !!  Called by operator-overloading of assignment(=)
       integer(c_int32_t), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceInt32), intent(inout) :: memObject       !! Focal memory object (source)
+      class(fclDeviceInt32) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadInt32
 
     module subroutine fclMemReadFloat(hostBuffer,memObject)
       !! Transfer device float array to host float array
       !!  Called by operator-overloading of assignment(=)
       real(c_float), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceFloat), intent(inout) :: memObject       !! Focal memory object (source)
+      class(fclDeviceFloat) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadFloat
 
     module subroutine fclMemReadDouble(hostBuffer,memObject)
       !! Transfer device double array to host double array
       !!  Called by operator-overloading of assignment(=)
       real(c_double), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceDouble), intent(inout) :: memObject      !! Focal memory object (source)
+      class(fclDeviceDouble) :: memObject      !! Focal memory object (source)
     end subroutine fclMemReadDouble
 
     ! --------- Copy device array to device array ---------
@@ -757,11 +762,14 @@ module Focal
       !! Extract a kernel object for execution from a compiled program object
       type(fclProgram), intent(in) :: prog                   !! Compiled program object containing kernel
       character(*), intent(in) :: kernelName                 !! Name of kernel to extract for execution
-      integer, intent(in), optional :: global_work_size(:)   !! Global work group dimensions, default unset (must set prior to launching)
-      integer, intent(in), optional :: local_work_size(:)    !! Local work group dimensions, default zeros (decided by OpenCL runtime)
+      integer, intent(in), optional :: global_work_size(:)
+        !! Global work group dimensions, default unset (must set prior to launching)
+      integer, intent(in), optional :: local_work_size(:)
+        !! Local work group dimensions, default zeros (decided by OpenCL runtime)
       integer, intent(in), optional :: work_dim              !! Number of dimensions for kernel work group, default 1
       integer, intent(in), optional :: global_work_offset(:) !! Global work group offsets, default zeros
-      integer, intent(in), optional :: profileSize           !! No. of events to profile, default zero (no profiling), set >0 to enable
+      integer, intent(in), optional :: profileSize
+        !! No. of events to profile, default zero (no profiling), set >0 to enable
       type(fclKernel) :: kern                                !! Returns fclKernel object for execution
     end function fclGetProgramKernel
 

@@ -7,11 +7,6 @@ submodule (Focal) Focal_Utils
 
   implicit none
 
-  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_start") :: i0
-    !! c interoperable character for start of fclKernels binary resource
-  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: i1
-    !! c interoperable character for sendtart of fclKernels binary resource
-
   contains
 
   

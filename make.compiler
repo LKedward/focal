@@ -3,8 +3,8 @@
 PLATFORM ?= gnu
 BUILD ?= release
 ifeq ($(PLATFORM), gnu)
-	FC?=gfortran
-	AR?=gcc-ar
+	FC=gfortran
+	AR=gcc-ar
 	FOCAL_FFLAGS += -std=f2008 -fimplicit-none -J$(FOCAL_MODDIR)
 	FOCAL_FFLAGS_LEGACY = -fimplicit-none -J$(FOCAL_MODDIR)
 
@@ -25,7 +25,7 @@ else ifeq ($(PLATFORM)-$(BUILD), gnu-release)
 	#-flto
 
 else ifeq ($(PLATFORM)-$(BUILD), intel-debug)
-	FOCAL_FFLAGS += -g -O0 -check all -debug all -traceback -fpe0
+	FOCAL_FFLAGS += -O0 -check all -debug all -traceback -fpe0
 
 else ifeq ($(PLATFORM)-$(BUILD), intel-release)
 	FOCAL_FFLAGS += -fast
