@@ -11,6 +11,7 @@ submodule (Focal) Focal_Utils
 
   
   module procedure fclGetKernelResource !(kernelString)
+    use Focal, only: fclKernelStart, fclKernelEnd
 
     integer(c_intptr_t) :: a0, a1
     integer(c_intptr_t) :: i, length
@@ -18,10 +19,10 @@ submodule (Focal) Focal_Utils
     
     type(c_ptr) :: aa
     
-    aa = c_loc(i0)
+    aa = c_loc(fclKernelStart)
 
-    a0 = transfer(c_loc(i0),a0)
-    a1 = transfer(c_loc(i1),a1)
+    a0 = transfer(c_loc(fclKernelStart),a0)
+    a1 = transfer(c_loc(fclKernelEnd),a1)
     length = a1 - a0
     
     call c_f_pointer(aa,text,shape=[length])

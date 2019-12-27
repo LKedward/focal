@@ -199,9 +199,9 @@ module Focal
   type(fclEvent), target :: fclLastBarrierEvent
     !! Focal event object for the most recent barrier event to be enqueued
 
-  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_start") :: i0
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_start") :: fclKernelStart
     !! c interoperable character for start of fclKernels binary resource
-  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: i1
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: fclKernelEnd
     !! c interoperable character for sendtart of fclKernels binary resource
 
   procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
