@@ -81,6 +81,9 @@ submodule (Focal) Focal_Error
       case (CL_OUT_OF_HOST_MEMORY)
         errstr = 'CL_OUT_OF_HOST_MEMORY'
 
+      case (CL_PROFILING_INFO_NOT_AVAILABLE)
+        errstr = 'CL_PROFILING_INFO_NOT_AVAILABLE'
+        
       case (CL_MEM_COPY_OVERLAP)
         errstr = 'CL_MEM_COPY_OVERLAP'
 
@@ -98,7 +101,7 @@ submodule (Focal) Focal_Error
 
       case (CL_INVALID_CONTEXT)
         errstr = 'CL_INVALID_CONTEXT'
-		
+    
       case (CL_INVALID_QUEUE_PROPERTIES)
         errstr = 'CL_INVALID_QUEUE_PROPERTIES'
 
