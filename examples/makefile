@@ -1,6 +1,7 @@
+# --- Source names ---
 PROGS = platform_query sum
-KERNELS = sum.cl
-# --- Directories ---
+
+# --- Output Directories ---
 FOCAL_DIR ?= ..
 OPENCL_DIR ?= /usr/lib/
 BINDIR = $(FOCAL_DIR)/bin/
@@ -8,12 +9,18 @@ OBJDIR = $(FOCAL_DIR)/obj/
 MODDIR = $(FOCAL_DIR)/mod/
 
 # --- Targets ---
-FOCAL_LIB = $(addprefix $(FOCAL_DIR)/lib/, libfocal.a libfocaldbg.a)
+PROGOBJS =$(addprefix $(OBJDIR), $(addsuffix .o, $(PROGS)))
+KERNELOBJS = $(addprefix $(OBJDIR), $(addsuffix .cl.o, $(PROGS)) )
 EXEC = $(addprefix $(BINDIR), $(PROGS))
-DIRS = $(MODDIR) $(BINDIR) $(OBJDIR)
+
+
+# --- Main build target ---
+all: $(EXEC)
+
+include $(FOCAL_DIR)/make.include
 
 # --- Compiler Flags ---
-include $(FOCAL_DIR)/make.compiler
+FFLAGS=$(FOCAL_FFLAGS)
 
 # --- Link Flags ---
 ifeq ($(BUILD), release)
@@ -23,33 +30,32 @@ else ifeq ($(BUILD), debug)
 else
     $(error unrecognized build.)
 endif
-OPENCL_LFLAGS ?= -g -L$(OPENCL_DIR) -lOpenCL 
+OPENCL_LFLAGS ?= -g -L$(OPENCL_DIR) -lOpenCL
 LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS)
 
-# --- Recipes ---
-all: $(DIRS) $(EXEC)
 
+# --- Cleanup (reset) ---
 clean:
+	rm -f $(PROGOBJS)
+	rm -f $(KERNELOBJS)
 	rm -f $(EXEC)
 
-# Executables are dependent on focal libs
-#$(EXEC): $(FOCAL_LIB)
+# Programs depend on modules
+$(PROGOBJS): $(FOCAL_LIB_OBJS)
 
-# Link executables
-$(BINDIR)%: $(addprefix $(OBJDIR), %.o) fclKernels.o 
+# Recipe to link executables
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o)
 	$(FC) $^ $(LFLAGS) -o $@
 
-# Compile fortran objects
-$(OBJDIR)%.o: %.f90 $(FOCAL_LIB)
+# Recipe to compile fortran objects
+$(OBJDIR)%.o: %.f90
 	$(FC) $(FFLAGS) -c $< -o $@
 
-# Compile kernel binary resource
-fclKernels.o: fclKernels.cl
+# Recipe to 'compile' kernel source into a binary object
+$(OBJDIR)%.cl.o: %.cl
+	cp $< fclKernels.cl
 	ld -r -b binary fclKernels.cl -o $@
+	rm fclKernels.cl
 	nm $@
 
-# Concatenate kernel files
-fclKernels.cl: $(KERNELS)
-	cat $^ > fclKernels.cl
-$(DIRS):
-	mkdir $@
+
