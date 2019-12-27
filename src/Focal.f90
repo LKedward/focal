@@ -1058,6 +1058,13 @@ module Focal
 
   end interface fclDumpProfileData
 
+  interface
+    module subroutine fclDumpTracingData(fh,profileContainer)
+      integer, intent(in) :: fh
+      class(fclProfileContainer), intent(in) :: profileContainer
+    end subroutine fclDumpTracingData
+  end interface
+
 
   ! ---------------------------- DEBUG ROUTINES -------------------------------
   interface

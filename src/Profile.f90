@@ -141,7 +141,6 @@ submodule (Focal) Focal_Profile
     allocate(durations(N))
 
     ! Write table header
-    write(outputUnit,*) ''
     write(outputUnit,*) ('-',i=1,77)
     write(outputUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A6,A1,A6,A1,A4)') &
            'Profile name','|','No. of','|','T_avg','|','T_max','|','T_min','|',&
@@ -254,7 +253,6 @@ submodule (Focal) Focal_Profile
     allocate(durations(N))
 
     ! Write table header
-    write(outputUnit,*) ''
     write(outputUnit,*) ('-',i=1,77)
     write(outputUnit,'(A20,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8,A1,A8)') &
            'Profile name','|','No. of','|','Size','|','Transfer','|','S_avg','|','S_max','|','S_min'
@@ -346,6 +344,57 @@ submodule (Focal) Focal_Profile
 
   end procedure fclDumpBufferProfileData_2
   ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDumpTracingData !(fh,profileContainer)
+
+    integer :: i, N
+    integer(c_int32_t) :: errcode
+    integer(c_int64_t), target :: startTime, endTime
+    integer(c_size_t) :: size_ret
+
+    N = min(profileContainer%profileSize,profileContainer%nProfileEvent)
+
+    ! Iterate over kernel profile events
+    do i=1,N
+
+      ! Get event start time
+      errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
+        CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
+      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+      
+      ! Get event end time
+      errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
+        CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
+      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+      
+      write(fh,*) '{'
+      write(fh,*) '"cat": "Focal",'
+      write(fh,*) '"pid": 1, "tid": 1,'
+      write(fh,*) '"ts": ',startTime,','
+      write(fh,*) '"ph": "B",'
+      write(fh,*) '"name": "',profileContainer%profileName,'"'
+      write(fh,*) '},'
+
+      write(fh,*) '{'
+      write(fh,*) '"cat": "Focal",'
+      write(fh,*) '"pid": 1, "tid": 1,'
+      write(fh,*) '"ts": ',endTime,','
+      write(fh,*) '"ph": "E",'
+      write(fh,*) '"name": "',profileContainer%profileName,'"'
+      
+
+      if (i/=N) then
+        write(fh,*) '},'
+      else
+        write(fh,*) '}'
+      end if
+
+    end do
+
+  end procedure fclDumpTracingData
+  ! ---------------------------------------------------------------------------
+
 
   ! module procedure fclDumpProfileData !(container,outputUnit)
   !   use iso_fortran_env, only: stdout=>output_unit, sp=>real32
