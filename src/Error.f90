@@ -8,12 +8,6 @@ submodule (Focal) Focal_Error
   use clfortran
   implicit none
 
-  integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
-    !! Extension error: No valid ICDs found
-
-  integer, parameter :: NV_ILLEGAL_BUFFER_READ_WRITE = -9999
-    !! Vendor error: Illega read or write to a buffer in NDRangeKernel
-
   interface
     !! Interface to c function abort().
     !!  Used to print backtrace on error.
@@ -83,7 +77,7 @@ submodule (Focal) Focal_Error
 
       case (CL_PROFILING_INFO_NOT_AVAILABLE)
         errstr = 'CL_PROFILING_INFO_NOT_AVAILABLE'
-        
+
       case (CL_MEM_COPY_OVERLAP)
         errstr = 'CL_MEM_COPY_OVERLAP'
 
@@ -101,7 +95,7 @@ submodule (Focal) Focal_Error
 
       case (CL_INVALID_CONTEXT)
         errstr = 'CL_INVALID_CONTEXT'
-    
+
       case (CL_INVALID_QUEUE_PROPERTIES)
         errstr = 'CL_INVALID_QUEUE_PROPERTIES'
 
@@ -149,7 +143,7 @@ submodule (Focal) Focal_Error
 
       case (CL_PLATFORM_NOT_FOUND_KHR)
         errstr = 'CL_PLATFORM_NOT_FOUND_KHR'
-      
+
       case (NV_ILLEGAL_BUFFER_READ_WRITE)
         errstr = 'NVidia: Illegal read or write to a buffer'
 

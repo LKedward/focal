@@ -18,6 +18,12 @@ module Focal
   integer, parameter :: dependencyListAllocation = 10
     !! Default allocation increment for dependency lists
 
+  integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
+    !! Extension error: No valid ICDs found
+
+  integer, parameter :: NV_ILLEGAL_BUFFER_READ_WRITE = -9999
+    !! Vendor error: Illega read or write to a buffer in NDRangeKernel
+
   ! ---------------------------- FOCAL TYPES ----------------------------------
   type :: fclPlatform
     !! Type wrapper for openCL platform objects
@@ -254,7 +260,7 @@ module Focal
     procedure :: fclMemCopyFloat
     procedure :: fclMemCopyDouble
   end interface
-  
+
   interface
     module subroutine fclBufferSwap(memObject1, memObject2)
       !! Helper routine for swapping device buffer pointers.
@@ -565,7 +571,7 @@ module Focal
     end subroutine fclGetKernelWorkGroupInfoInt64
 
   end interface fclGetKernelWorkGroupInfo
-  
+
   interface fclGetKernelArgInfo
     !! Generic interface to query kernel argument information.
     !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
@@ -754,7 +760,7 @@ module Focal
     end subroutine fclDumpBuildLog_2
 
   end interface fclDumpBuildLog
-    
+
   interface
 
     module function fclGetProgramKernel(prog,kernelName,global_work_size,local_work_size, &
@@ -784,7 +790,7 @@ module Focal
       type(fclCommandQ), intent(inout) :: cmdQ             !! CmdQ on which to launch kernel
       type(fclEvent), intent(in) :: event                  !! Event dependency for kernel
     end subroutine fclLaunchKernelAfterEvent_1
-    
+
     module subroutine fclLaunchKernelAfterEvent_2(kernel,event)
       !! Specific interface a single event dependency on the __default command queue__
       class(fclKernel), intent(inout) :: kernel                !! Focal kernel object to launch
@@ -819,7 +825,7 @@ module Focal
 
     module subroutine fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
       !! Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments.
-      !! @note This is helper routine used internally by focal.  If you just want set kernel arguments 
+      !! @note This is helper routine used internally by focal.  If you just want set kernel arguments
       !!  without launching a kernel, use `fclSetKernelArgs`. @endnote
       class(fclKernel), intent(in), target :: kernel   !! Focal kernel object
       type(fclCommandQ), intent(out), pointer :: cmdq
@@ -916,7 +922,7 @@ module Focal
 
     module subroutine fclSetDependencyEvent_1(cmdQ,event,hold)
       !! Interface for specifying a single event dependency on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue 
+      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue
       type(fclEvent), intent(in) :: event                  !! Event dependency
       logical, intent(in), optional :: hold
         !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
@@ -933,7 +939,7 @@ module Focal
 
     module subroutine fclSetDependencyEventList_1(cmdq,eventList,hold)
       !! Interface for specifying a list of dependent events on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue 
+      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue
       type(fclEvent), intent(in) :: eventList(:)           !! List of event dependencies
       logical, intent(in), optional :: hold
         !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
@@ -949,7 +955,7 @@ module Focal
     end subroutine fclSetDependencyEventList_2
 
   end interface fclSetDependency
-  
+
   interface
     module subroutine fclPopDependencies(cmdq)
       !! Called after every enqueue operation:
@@ -974,7 +980,7 @@ module Focal
 
   ! ------------------------- PROFILING  ROUTINES -----------------------------
 
-  interface 
+  interface
 
     module subroutine fclEnableProfiling(container,profileSize,profileName)
       !! Enable profiling on a specific container by allocating space to save events
@@ -998,14 +1004,14 @@ module Focal
     end subroutine fclPushProfileEvent
 
   end interface
-  
-  interface 
+
+  interface
 
     module function fclGetEventDurations(eventList) result(durations)
       type(fclEvent), intent(in) :: eventList(:)
       integer(c_int64_t) :: durations(size(eventList,1))
     end function fclGetEventDurations
-    
+
   end interface
 
   interface fclDumpProfileData
