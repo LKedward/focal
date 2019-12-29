@@ -79,11 +79,11 @@ $(REPORT): $(TESTOUT)
 	@echo "          Focal library test suite results" >> $@
 	@echo "------------------------------------------------------" >> $@
 	@echo "TEST_SUCCESS: $$(cat $^ | grep -c TEST_SUCCESS)" >> $@
-	@echo "TEST_FAILED: $$(cat $^ | grep -c TEST_FAILED)" >> $@
+	@echo "TEST_FAILED: $$(cat $^ | grep -c "EXIT_\|TEST_FAILED")" >> $@
 	@echo "TEST_NOT_RUN: $$(cat $^ | grep -c TEST_NOT_RUN)" >> $@
 	@echo "" >> $@
 	@echo "*** Failed tests ***" >> $@
-	@grep -l TEST_FAILED $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
+	@grep -l "EXIT_\|TEST_FAILED" $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "" >> $@
 	@echo "*** Tests not run ***" >> $@
 	@grep -l TEST_NOT_RUN $^ | sed 's/.out//g' >> $@
