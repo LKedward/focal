@@ -1,6 +1,6 @@
 # --- Source names ---
 MODULES = Focal_Test_Utils
-PROGS = testExample testExample2
+PROGS = testExample testMemoryTransfer
 REPORT = testSummary
 
 # --- Output Directories ---
@@ -25,6 +25,7 @@ EC_CMD = $(shell awk -F : '/^[^\#]/ {gsub("\"","");print "s/" $$1 "/" $$2 "/g"}'
 all: $(EXEC) $(REPORT)
 	@head -n 6 $(REPORT)
 
+BUILD:=debug
 include $(FOCAL_DIR)/make.include
 
 # --- Compiler Flags ---
