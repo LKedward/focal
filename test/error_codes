@@ -1,0 +1,13 @@
+# List of string substitutions for defining test error codes
+#
+# See Focal_Test_Utils module for definitions
+#
+#  Format: "oldString":"newString"
+#
+#  NB: No spaces around the colon!
+#
+
+
+"EXIT_1":"TEST_NOT_RUN"
+"EXIT_2":"TEST_FAILED"
+"EXIT_0":"TEST_SUCCESS"
