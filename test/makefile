@@ -23,7 +23,8 @@ EC_CMD = $(shell awk -F : '/^[^\#]/ {gsub("\"","");print "s/" $$1 "/" $$2 "/g"}'
 
 # --- Main build target ---
 all: $(EXEC) $(REPORT)
-	@head -n 6 $(REPORT)
+	@sed '/Test outputs/q' $(REPORT)
+	@echo  \(Open file: $(REPORT) to see full test outputs\)
 
 BUILD:=debug
 include $(FOCAL_DIR)/make.include
