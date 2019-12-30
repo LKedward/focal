@@ -22,8 +22,9 @@ integer :: fclTestResult
 ! --------- Interfaces ---------
 interface fclTestAssertEqual
   module procedure fclTestAssertEqualReal32
-    module procedure fclTestAssertEqualReal64
+  module procedure fclTestAssertEqualReal64
   module procedure fclTestAssertEqualInt32
+  module procedure fclTestAssertEqualCChar
 end interface fclTestAssertEqual
 
 contains
@@ -115,7 +116,7 @@ contains
   ! ---------------------------------------------------------------------------
 
   subroutine fclTestAssertEqualReal64(a1,a2,descrip,tol)
-    !! Check if two real32 arrays are equal (to tolerance)
+    !! Check if two real64 arrays are equal (to tolerance)
     real(dp), intent(in) :: a1(:)
     real(dp), intent(in) :: a2(size(a1,1))
     character(*), intent(in) :: descrip
@@ -148,7 +149,7 @@ contains
 
 
   subroutine fclTestAssertEqualInt32(a1,a2,descrip)
-    !! Check if two real32 arrays are equal (to tolerance)
+    !! Check if two int32 arrays are equal
     integer(int32), intent(in) :: a1(:)
     integer(int32), intent(in) :: a2(size(a1,1))
     character(*), intent(in) :: descrip
@@ -169,6 +170,31 @@ contains
     end if
 
   end subroutine fclTestAssertEqualInt32
+  ! ---------------------------------------------------------------------------
+
+
+  subroutine fclTestAssertEqualCChar(a1,a2,descrip)
+    !! Check if two c character arrays are equal
+    character(len=1), intent(in) :: a1(:)
+    character(len=1), intent(in) :: a2(size(a1,1))
+    character(*), intent(in) :: descrip
+
+    integer :: i
+    logical :: failed
+
+    failed = .false.
+    do i=1,size(a1,1)
+      if (a1(i) /= a2(i)) then
+        failed = .true.
+        exit
+      end if
+    end do
+
+    if (failed) then
+      call fclTestAssertFailed(descrip)
+    end if
+
+  end subroutine fclTestAssertEqualCChar
   ! ---------------------------------------------------------------------------
 
 
