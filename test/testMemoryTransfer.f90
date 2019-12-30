@@ -1,8 +1,8 @@
 program testMemoryTransfer
 !! Focal test program
 !!
-!! Tests host-to-device, device-to-device and device-to-host transfers
-!!  for all Focal abstracted data types
+!! Tests scalar-fill, host-to-device, device-to-device and device-to-host transfers
+!!  for all Focal abstracted data types as well as un-typed general deviceBuffers
 !! 
 
 use Focal
@@ -60,28 +60,49 @@ end do
 deviceReal32_1 = hostReal32_1
 deviceReal64_1 = hostReal64_1
 deviceInt32_1 = hostInt32_1
-
 call fclMemWrite(deviceBuffer_1,c_loc(hostChar_1),deviceBuffer_1%nBytes)
 
 ! --- Perform device-to-device transfer ---
 deviceReal32_2 = deviceReal32_1
 deviceReal64_2 = deviceReal64_1
 deviceInt32_2 = deviceInt32_1
-
 call fclMemCopy(deviceBuffer_2,deviceBuffer_1)
 
 ! --- Perform device-to-host transfer ---
 hostReal32_2 = deviceReal32_2
 hostReal64_2 = deviceReal64_2
 hostInt32_2 = deviceInt32_2
-
 call fclMemRead(c_loc(hostChar_2),deviceBuffer_2,deviceBuffer_2%nBytes)
 
 ! --- Check arrays ---
-call fclTestAssertEqual(hostReal32_1,hostReal32_2,'hostReal32_1 == hostReal32_2')
-call fclTestAssertEqual(hostReal64_1,hostReal64_2,'hostReal64_1 == hostReal64_2')
-call fclTestAssertEqual(hostInt32_1,hostInt32_2,'hostInt32_1 == hostInt32_2')
-call fclTestAssertEqual(hostChar_1,hostChar_2,'hostChar_1 == hostChar_2')
+call fclTestAssertEqual(hostReal32_1,hostReal32_2,'hostReal32_1 == hostReal32_2 (1)')
+call fclTestAssertEqual(hostReal64_1,hostReal64_2,'hostReal64_1 == hostReal64_2 (1)')
+call fclTestAssertEqual(hostInt32_1,hostInt32_2,'hostInt32_1 == hostInt32_2 (1)')
+call fclTestAssertEqual(hostChar_1,hostChar_2,'hostChar_1 == hostChar_2 (1)')
+
+! --- Fill host arrays with scalars for comparison ---
+hostReal32_2(:) = 10.0
+hostReal64_2(:) = 20.0d0
+hostInt32_2(:) = 30
+hostChar_2(:) = test_string(1:1)
+
+! --- Perform scalar write to device ---
+deviceReal32_1 = 10.0
+deviceReal64_1 = 20.0d0
+deviceInt32_1 = 30
+call fclMemWriteScalar(deviceBuffer_1,c_loc(hostChar_1),c_sizeof(hostChar_1(1)))
+
+! --- Perform device-to-host transfer ---
+hostReal32_1 = deviceReal32_1
+hostReal64_1 = deviceReal64_1
+hostInt32_1 = deviceInt32_1
+call fclMemRead(c_loc(hostChar_1),deviceBuffer_1,deviceBuffer_1%nBytes)
+
+! --- Check arrays ---
+call fclTestAssertEqual(hostReal32_1,hostReal32_2,'hostReal32_1 == hostReal32_2 (2)')
+call fclTestAssertEqual(hostReal64_1,hostReal64_2,'hostReal64_1 == hostReal64_2 (2)')
+call fclTestAssertEqual(hostInt32_1,hostInt32_2,'hostInt32_1 == hostInt32_2 (2)')
+call fclTestAssertEqual(hostChar_1,hostChar_2,'hostChar_1 == hostChar_2 (2)')
 
 call fclTestFinish()
 
