@@ -19,6 +19,17 @@ module Focal
     !! Default allocation increment for dependency lists
 
   ! ---------------------------- FOCAL TYPES ----------------------------------
+  type :: fclDevice
+    !! Type wrapper for openCL device objects
+    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
+    integer(c_int64_t) :: cl_device_type             !! Device type
+    character(:), allocatable :: name                !! Device name
+    integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
+    integer(c_int64_t) :: global_memory              !! Total global memory, bytes
+    integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
+    character(:), allocatable :: version             !! OpenCL version
+  end type fclDevice
+
   type :: fclPlatform
     !! Type wrapper for openCL platform objects
     integer(c_intptr_t) :: cl_platform_id            !! OpenCL platform pointer
@@ -38,18 +49,7 @@ module Focal
     type(fclPlatform) :: platform                    !! Focal platform object
   end type fclContext
 
-  type :: fclDevice
-    !! Type wrapper for openCL device objects
-    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
-    integer(c_int64_t) :: cl_device_type             !! Device type
-    character(:), allocatable :: name                !! Device name
-    integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
-    integer(c_int64_t) :: global_memory              !! Total global memory, bytes
-    integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
-    character(:), allocatable :: version             !! OpenCL version
-  end type fclDevice
-
-  type :: fclEvent
+    type :: fclEvent
     !! Type wrapper for OpenCL event pointers
     integer(c_intptr_t) :: cl_event                          !! OpenCL event pointer
   end type fclEvent
