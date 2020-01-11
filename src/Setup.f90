@@ -6,7 +6,7 @@ submodule (Focal) Focal_Setup
   !!  corresponding header module file. See header module file (Focal.f90) for interface definitions. @endnote
 
   use clfortran
-  use M_strings, only: upperStr=>upper
+  use M_strings, only: upperStr=>upper, splitStr=>split
   implicit none
 
   contains
@@ -39,30 +39,38 @@ submodule (Focal) Focal_Setup
 
   module procedure fclCreateContextWithVendor !(vendor) result(ctx)
 
-    integer :: i
+    integer :: vi, i
     logical :: vendorFound
 
     type(fclPlatform), allocatable :: platforms(:)
     type(fclPlatform) :: chosenPlatform
+    character(:), allocatable :: vendors(:)
 
     ! Get platforms
     platforms = fclGetPlatforms();
 
+    ! Check for multiple vendors
+    call splitStr(vendor,vendors,delimiters=',')
+
     vendorFound = .FALSE.
-    do i=1,size(platforms,1)
+    vendorLoop: do vi=1,size(vendors,1)
 
-      if (index( upperstr(platforms(i)%vendor) , upperstr(vendor) ) > 0) then
-        chosenPlatform = platforms(i)
-        vendorFound = .TRUE.
-        exit
-      end if
+      do i=1,size(platforms,1)
 
-    end do
+        if (index( upperstr(platforms(i)%vendor) , upperstr(trim(vendors(vi))) ) > 0) then
+          chosenPlatform = platforms(i)
+          vendorFound = .TRUE.
+          exit vendorLoop
+        end if
+
+      end do
+
+    end do vendorLoop
 
     if (vendorFound) then
       ctx = fclCreateContextWithPlatform(chosenPlatform)
     else
-      call fclRuntimeError('fclCreateContextWithVendor: vendor "'//trim(vendor)//'" was not found.')
+      call fclRuntimeError('fclCreateContextWithVendor: vendor(s) "'//trim(vendor)//'" was not found.')
     end if
 
   end procedure fclCreateContextWithVendor

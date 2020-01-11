@@ -10,7 +10,7 @@ real, parameter :: sumVal = 10.0            ! Target value for array sum
 integer :: i                                ! Counter variable
 character(:), allocatable :: kernelSrc      ! Kernel source string
 type(fclDevice), allocatable :: devices(:)      ! List of focal devices
-type(fclProgram) :: prog                    ! Focal program object 
+type(fclProgram) :: prog                    ! Focal program object
 type(fclKernel) :: sumKernel                ! Focal kernel object
 real(c_float) :: array1(Nelem)              ! Host array 1
 real(c_float) :: array2(Nelem)              ! Host array 2
@@ -18,10 +18,11 @@ type(fclDeviceFloat) :: array1_d            ! Device array 1
 type(fclDeviceFloat) :: array2_d            ! Device array 2
 
 ! Create context with nvidia platform
-call fclSetDefaultContext(fclCreateContext(vendor='nvidia'))
+call fclSetDefaultContext(fclCreateContext(vendor='nvidia,amd,intel'))
 
 ! Select device with most cores and create command queue
 devices = fclFindDevices(sortBy='cores') !,type='cpu')
+write(*,*) 'Using device: ',devices(1)%name
 call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1),enableProfiling=.true.))
 
 ! Load kernel from file and compile

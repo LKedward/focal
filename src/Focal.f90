@@ -647,7 +647,17 @@ module Focal
     module function fclCreateContextWithVendor(vendor) result(ctx)
       !! Create a context with the first platform where the vendor property
       !!  contains a specified string (case-insensitive).
-      character(*), intent(in) :: vendor             !! String with which to match platform vendor
+      character(*), intent(in) :: vendor
+        !! String with which to match platform vendor. Separate multiple vendors
+        !!  with commas. First matching vendor in list is used.
+        !!  Matching is case-insensitive substring.
+        !!
+        !!  *e.g.* `vendor='i'` matches 'nvidia' and 'intel' platforms
+        !!
+        !!  *e.g.* `vendor='nvidia,intel'` matches nvidia platform if available,
+        !!  then intel platform if available, then fails fatally if neither
+        !!  are available.
+        !!
       type(fclContext), target :: ctx
     end function fclCreateContextWithVendor
 
