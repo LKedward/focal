@@ -6,6 +6,7 @@ submodule (Focal) Focal_Setup
   !!  corresponding header module file. See header module file (Focal.f90) for interface definitions. @endnote
 
   use clfortran
+  use M_strings, only: upperStr=>upper
   implicit none
 
   contains
@@ -279,7 +280,7 @@ submodule (Focal) Focal_Setup
       c_options(i) = options_temp(i:i)
     end do
     c_options(len(options_temp)+1) = C_NULL_CHAR
- 
+
     errcode = clBuildProgram(prog%cl_program,0, &
           C_NULL_PTR,C_LOC(c_options),C_NULL_FUNPTR,C_NULL_PTR)
 
@@ -312,7 +313,7 @@ submodule (Focal) Focal_Setup
     else
       out = stdout
     end if
-  
+
     errcode = clGetProgramBuildInfo(prog%cl_program, device%cl_device_id, &
           CL_PROGRAM_BUILD_LOG, int(0,c_size_t), C_NULL_PTR, buffLen)
 
@@ -403,7 +404,7 @@ submodule (Focal) Focal_Setup
   end procedure fclGetProgramKernel
   ! ---------------------------------------------------------------------------
 
-  
+
   module procedure fclLaunchKernelAfterEvent_1 !(kernel,cmdQ,event)
     !! Specific interface for a single event dependency on a specific command queue
 
@@ -431,7 +432,7 @@ submodule (Focal) Focal_Setup
 
   end procedure fclLaunchKernelAfterEventList_1
   ! ---------------------------------------------------------------------------
-  
+
 
   module procedure fclLaunchKernelAfterEventList_2 !(kernel,eventList)
     !! Specific interface for a multiple event dependencies on the __default command queue__
@@ -462,7 +463,7 @@ submodule (Focal) Focal_Setup
       localSizePtr = c_loc(kernel%local_work_size)
     end if
 
-    ! Set arguments and parse (get number of args and cmdq if specified) 
+    ! Set arguments and parse (get number of args and cmdq if specified)
     call fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
 
     errcode = clEnqueueNDRangeKernel(cmdq%cl_command_queue, &
@@ -471,13 +472,13 @@ submodule (Focal) Focal_Setup
                 c_loc(kernel%global_work_size), localSizePtr, &
                 cmdq%nDependency, cmdq%dependencyListPtr, &
                 c_loc(cmdQ%lastKernelEvent%cl_event))
-    
+
     call fclDbgWait(cmdQ%lastKernelEvent)
     call fclPopDependencies(cmdq)
     call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
     fclLastKernelEvent = cmdQ%lastKernelEvent
-    
+
     call kernel%pushProfileEvent(cmdQ%lastKernelEvent)
 
   end procedure fclLaunchKernel

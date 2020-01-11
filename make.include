@@ -20,9 +20,10 @@ FOCAL_MODDIR = $(FOCAL_DIR)/mod/
 vpath %.f90 $(FOCAL_DIR)/src
 vpath %.f90 $(FOCAL_DIR)/external
 vpath %.f90 $(FOCAL_DIR)/external/clfortran
+vpath %.f90 $(FOCAL_DIR)/external/M_strings
 
 # Source files
-FOCAL_BASE = Focal clfortran Quicksort
+FOCAL_BASE = Focal clfortran Quicksort M_strings
 FOCAL_SRCS = Error Memory Query Setup Utils Profile Debug NoDebug
 FOCAL_LIBS = focal focaldbg
 
@@ -30,7 +31,7 @@ FOCAL_LIBS = focal focaldbg
 FOCAL_BASE_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_BASE)) )
 FOCAL_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_SRCS) ) )
 FOCAL_LIB_OBJS = $(addprefix $(FOCAL_LIBDIR)lib, $(addsuffix .a, $(FOCAL_LIBS)) )
-FOCAL_BUILDDIRS = $(FOCAL_MODDIR) $(FOCAL_OBJDIR) $(FOCAL_LIBDIR) 
+FOCAL_BUILDDIRS = $(FOCAL_MODDIR) $(FOCAL_OBJDIR) $(FOCAL_LIBDIR)
 
 # --- Compiler flags ---
 include $(FOCAL_DIR)/make.compiler
