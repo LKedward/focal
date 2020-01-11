@@ -41,7 +41,7 @@ contains
     fclErrorHandler => fclTestErrorHandler
 
     ! Create context with first platform
-    call fclSetDefaultContext(fclCreateContext(vendor=''))
+    call fclSetDefaultContext(fclCreateContext(vendor='nvidia,amd,intel'))
 
     ! Select device with most cores and create command queue
     devices = fclFindDevices(sortBy='cores')
