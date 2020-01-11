@@ -1,6 +1,6 @@
 # --- Source names ---
 MODULES = Focal_Test_Utils
-PROGS = testExample testMemoryTransfer
+PROGS = testExample testMemoryTransfer testKernelSetup
 REPORT = testSummary
 
 # --- Output Directories ---
@@ -77,6 +77,7 @@ $(OUTDIR)/%.out: $(BINDIR)% | $(OUTDIR)
 
 
 $(REPORT): $(TESTOUT)
+	@echo Generating report...
 	@echo "------------------------------------------------------" > $@
 	@echo "          Focal library test suite results" >> $@
 	@echo "------------------------------------------------------" >> $@
