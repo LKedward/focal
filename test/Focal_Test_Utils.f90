@@ -8,8 +8,8 @@ implicit none
 
 ! --------- Global constants ---------
 integer, parameter :: FCL_TEST_SUCCESS = 0
-integer, parameter :: FCL_TEST_NOT_RUN = 1
-integer, parameter :: FCL_TEST_FAILED = 2
+integer, parameter :: FCL_TEST_NOT_RUN = 101
+integer, parameter :: FCL_TEST_FAILED = 102
 
 integer, parameter :: FCL_TEST_SIZE = 100    !! Size of test arrays
 
