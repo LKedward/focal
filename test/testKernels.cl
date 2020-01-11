@@ -26,3 +26,12 @@ __kernel void setDoubleTest(int N, global double * deviceDouble){
   }
 
 }
+
+__kernel void setCharTest(int N, global char * deviceChar){
+
+  int i = get_global_id(0);
+  if (i < N) {
+    deviceChar[i] = 'a';
+  }
+
+}
