@@ -17,7 +17,7 @@ integer, parameter :: N = 5000 !3E5                 ! No. of bodies
 integer, parameter :: blockSize = 256               ! Local work group size
 real, parameter :: dt = 1                           ! Global time-step
 integer, parameter :: Niter = 1000                  ! Number of iterations to perform
-character(*), parameter :: cl_vendor = 'nvidia'     ! Vendor for which to create OpenCL context
+character(*), parameter :: cl_vendor = 'nvidia,amd,intel'     ! Vendors for which to create OpenCL context in order of preference
 
 ! ---------Program variables  ---------
 integer :: i, nBlock

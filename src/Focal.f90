@@ -25,6 +25,17 @@ module Focal
     !! Vendor error: Illega read or write to a buffer in NDRangeKernel
 
   ! ---------------------------- FOCAL TYPES ----------------------------------
+  type :: fclDevice
+    !! Type wrapper for openCL device objects
+    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
+    integer(c_int64_t) :: cl_device_type             !! Device type
+    character(:), allocatable :: name                !! Device name
+    integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
+    integer(c_int64_t) :: global_memory              !! Total global memory, bytes
+    integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
+    character(:), allocatable :: version             !! OpenCL version
+  end type fclDevice
+
   type :: fclPlatform
     !! Type wrapper for openCL platform objects
     integer(c_intptr_t) :: cl_platform_id            !! OpenCL platform pointer
@@ -44,18 +55,7 @@ module Focal
     type(fclPlatform) :: platform                    !! Focal platform object
   end type fclContext
 
-  type :: fclDevice
-    !! Type wrapper for openCL device objects
-    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
-    integer(c_int64_t) :: cl_device_type             !! Device type
-    character(:), allocatable :: name                !! Device name
-    integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
-    integer(c_int64_t) :: global_memory              !! Total global memory, bytes
-    integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
-    character(:), allocatable :: version             !! OpenCL version
-  end type fclDevice
-
-  type :: fclEvent
+    type :: fclEvent
     !! Type wrapper for OpenCL event pointers
     integer(c_intptr_t) :: cl_event                          !! OpenCL event pointer
   end type fclEvent
@@ -653,7 +653,17 @@ module Focal
     module function fclCreateContextWithVendor(vendor) result(ctx)
       !! Create a context with the first platform where the vendor property
       !!  contains a specified string (case-insensitive).
-      character(*), intent(in) :: vendor             !! String with which to match platform vendor
+      character(*), intent(in) :: vendor
+        !! String with which to match platform vendor. Separate multiple vendors
+        !!  with commas. First matching vendor in list is used.
+        !!  Matching is case-insensitive substring.
+        !!
+        !!  *e.g.* `vendor='i'` matches 'nvidia' and 'intel' platforms
+        !!
+        !!  *e.g.* `vendor='nvidia,intel'` matches nvidia platform if available,
+        !!  then intel platform if available, then fails fatally if neither
+        !!  are available.
+        !!
       type(fclContext), target :: ctx
     end function fclCreateContextWithVendor
 
@@ -1145,15 +1155,6 @@ module Focal
       character(:), allocatable, intent(out) :: kernelString
         !! Kernel source as fortran character string
     end subroutine fclGetKernelResource
-
-    module function upperstr(linei)
-      !! Return copy of string converted to uppercase
-      !! Used for case-insensitive string comparison
-      character(len=*),intent(in) :: linei
-        !! Input string to convert to uppercase
-      character(len=len(linei)) upperstr
-        !! Converted string output
-    end function upperstr
 
     module subroutine fclSourceFromFile(filename,sourceString)
       !! Allocate and fill character string from file
