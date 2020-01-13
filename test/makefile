@@ -18,9 +18,6 @@ TESTOUT = $(addprefix $(OUTDIR)/, $(addsuffix .out, $(PROGS)))
 KERNELOBJS = $(addprefix $(OBJDIR), $(addsuffix .cl.o, $(PROGS)) )
 EXEC = $(addprefix $(BINDIR), $(PROGS))
 
-# Error code substitution command
-EC_CMD = $(shell awk -F : '/^[^\#]/ {gsub("\"","");print "s/" $$1 "/" $$2 "/g"}' ORS=";" error_codes)
-
 # --- Main build target ---
 all: $(EXEC) $(REPORT)
 	@sed '/Test outputs/q' $(REPORT)
@@ -56,7 +53,7 @@ clean:
 $(PROGOBJS): $(FOCAL_LIB_OBJS) $(MODOBJS)
 
 # Recipe to link executables
-$(BINDIR)%: $(addprefix $(OBJDIR), %.o testKernels.cl.o) $(MODOBJS)
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS)
 	$(FC) $^ $(LFLAGS) -o $@
 
 # Recipe to compile fortran objects
@@ -65,15 +62,14 @@ $(OBJDIR)%.o: %.f90
 
 # Recipe to 'compile' kernel source into a binary object
 $(OBJDIR)%.cl.o: %.cl
-	cp $< fclKernels.cl
-	ld -r -b binary fclKernels.cl -o $@
-	rm fclKernels.cl
-	nm $@
+	-mkdir build_$*_cl
+	cp $< build_$*_cl/fclKernels.cl
+	cd build_$*_cl; ld -r -b binary fclKernels.cl -o ../$@; rm fclKernels.cl
+	rm -rf build_$*_cl
 
 $(OUTDIR)/%.out: $(BINDIR)% | $(OUTDIR)
 	@echo Running test: $*
 	@-$< > $@ 2>&1 ; echo "$* : EXIT_$$?" >> $@ || true
-	@sed '$(EC_CMD)' -i $@
 
 
 $(REPORT): $(TESTOUT)
@@ -81,15 +77,15 @@ $(REPORT): $(TESTOUT)
 	@echo "------------------------------------------------------" > $@
 	@echo "          Focal library test suite results" >> $@
 	@echo "------------------------------------------------------" >> $@
-	@echo "TEST_SUCCESS: $$(cat $^ | grep -c TEST_SUCCESS)" >> $@
-	@echo "TEST_FAILED: $$(cat $^ | grep -c "EXIT_\|TEST_FAILED")" >> $@
-	@echo "TEST_NOT_RUN: $$(cat $^ | grep -c TEST_NOT_RUN)" >> $@
+	@echo "TEST_SUCCESS: $$(cat $^ | grep -c EXIT_0)" >> $@
+	@echo "TEST_FAILED: $$(cat $^ | grep "EXIT_" | grep -c -v "EXIT_0\|EXIT_101")" >> $@
+	@echo "TEST_NOT_RUN: $$(cat $^ | grep -c EXIT_101)" >> $@
 	@echo "" >> $@
 	@echo "*** Failed tests ***" >> $@
-	@grep -l "EXIT_\|TEST_FAILED" $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
+	@grep -L "EXIT_0\|EXIT_101" $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "" >> $@
 	@echo "*** Tests not run ***" >> $@
-	@grep -l TEST_NOT_RUN $^ | sed 's/.out//g' >> $@
+	@grep -l EXIT_101 $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "" >> $@
 	@echo "*** Test outputs ***" >> $@
 	@grep -T . $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
@@ -99,4 +95,4 @@ $(OUTDIR):
 	mkdir $(OUTDIR)
 
 # Don't cleanup kernels object
-.SECONDARY: $(OBJDIR)testKernels.cl.o
+.SECONDARY: $(KERNELOBJS)

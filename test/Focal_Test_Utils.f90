@@ -64,6 +64,7 @@ contains
       write(stderr,*) 'CL_PLATFORM_NOT_FOUND_KHR'
       write(stderr,*) 'No OpenCL platform was found: not running tests.'
 
+      write(stderr,*) 'TEST_NOT_RUN'
       stop FCL_TEST_NOT_RUN
 
     elseif (errcode == CL_COMPILER_NOT_AVAILABLE) then
@@ -71,6 +72,7 @@ contains
       write(stderr,*) 'CL_COMPILER_NOT_AVAILABLE'
       write(stderr,*) 'No compiler was available on the OpenCL platform: not running tests.'
 
+      write(stderr,*) 'TEST_NOT_RUN'
       stop FCL_TEST_NOT_RUN
 
     else
@@ -210,12 +212,18 @@ contains
   subroutine fclTestFinish
 
     if (fclTestResult == FCL_TEST_SUCCESS) then
+
+      write(stderr,*) 'TEST_SUCCESS'
       stop FCL_TEST_SUCCESS
 
     elseif (fclTestResult == FCL_TEST_NOT_RUN) then
+
+      write(stderr,*) 'TEST_NOT_RUN'
       stop FCL_TEST_NOT_RUN
 
     else
+
+      write(stderr,*) 'TEST_FAILED'
       stop FCL_TEST_FAILED
 
     end if
