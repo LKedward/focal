@@ -85,6 +85,19 @@ contains
   ! ---------------------------------------------------------------------------
 
 
+  subroutine fclTestAssert(a,descrip)
+    !! Check if a logical condition holds
+    logical, intent(in) :: a
+    character(*), intent(in) :: descrip
+
+    if (.not.a) then
+      call fclTestAssertFailed(descrip)
+    end if
+
+  end subroutine fclTestAssert
+  ! ---------------------------------------------------------------------------
+
+
   subroutine fclTestAssertEqualReal32(a1,a2,descrip,tol)
     !! Check if two real32 arrays are equal (to tolerance)
     real(sp), intent(in) :: a1(:)
@@ -125,7 +138,7 @@ contains
     real(dp), intent(in), optional :: tol
 
     integer :: i
-    real(sp) :: tolerance
+    real(dp) :: tolerance
     logical :: failed
 
     if (present(tol)) then

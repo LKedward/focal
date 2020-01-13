@@ -1,6 +1,6 @@
 # --- Source names ---
 MODULES = Focal_Test_Utils
-PROGS = testExample testMemoryTransfer testKernelSetup
+PROGS = testExample testMemoryTransfer testKernelSetup testLocalMem
 REPORT = testSummary
 
 # --- Output Directories ---
@@ -77,8 +77,9 @@ $(REPORT): $(TESTOUT)
 	@echo "------------------------------------------------------" > $@
 	@echo "          Focal library test suite results" >> $@
 	@echo "------------------------------------------------------" >> $@
+	@echo "NO_OF_TESTS: $$(ls -A test_outputs/* | wc -l)" >> $@
 	@echo "TEST_SUCCESS: $$(cat $^ | grep -c EXIT_0)" >> $@
-	@echo "TEST_FAILED: $$(cat $^ | grep "EXIT_" | grep -c -v "EXIT_0\|EXIT_101")" >> $@
+	@echo "TEST_FAILED: $$(grep "EXIT_" $^ --binary-files=text | grep -c -v "EXIT_0\|EXIT_101")" >> $@
 	@echo "TEST_NOT_RUN: $$(cat $^ | grep -c EXIT_101)" >> $@
 	@echo "" >> $@
 	@echo "*** Failed tests ***" >> $@
