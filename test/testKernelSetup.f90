@@ -29,9 +29,9 @@ integer :: i
 call fclTestInit()
 
 ! --- Initialise typed device buffers ---
-deviceInt32 = fclBufferInt32(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceReal32 = fclBufferFloat(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceReal64 = fclBufferDouble(FCL_TEST_SIZE,read=.true.,write=.false.)
+deviceInt32 = fclBufferInt32(FCL_TEST_SIZE,read=.true.,write=.true.)
+deviceReal32 = fclBufferFloat(FCL_TEST_SIZE,read=.true.,write=.true.)
+deviceReal64 = fclBufferDouble(FCL_TEST_SIZE,read=.true.,write=.true.)
 
 ! --- Manually initialise un-typed buffer objects ---
 deviceBuffer%cmdq => fclDefaultCmdQ
