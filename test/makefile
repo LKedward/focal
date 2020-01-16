@@ -89,7 +89,7 @@ $(REPORT): $(TESTOUT)
 	@grep -l EXIT_101 $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "" >> $@
 	@echo "*** Test outputs ***" >> $@
-	@grep -T . $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
+	@grep -T --binary-files=text . $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "------------------------------------------------------" >> $@
 
 $(OUTDIR):
