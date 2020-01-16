@@ -21,6 +21,7 @@ __Key features:__
 * [Building the Focal Library](https://lkedward.github.io/focal-docs/build)
 * [Using and linking Focal](https://lkedward.github.io/focal-docs/linking/)
 * [Quickstart programming guide](https://lkedward.github.io/focal-docs/quickstart/)
+* [Example programs](./examples)
 
 ## Simple example
 The following fortran program calculates the sum of two large arrays using an openCL kernel.

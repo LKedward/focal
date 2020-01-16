@@ -18,7 +18,24 @@ module Focal
   integer, parameter :: dependencyListAllocation = 10
     !! Default allocation increment for dependency lists
 
+  integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
+    !! Extension error: No valid ICDs found
+
+  integer, parameter :: NV_ILLEGAL_BUFFER_READ_WRITE = -9999
+    !! Vendor error: Illega read or write to a buffer in NDRangeKernel
+
   ! ---------------------------- FOCAL TYPES ----------------------------------
+  type :: fclDevice
+    !! Type wrapper for openCL device objects
+    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
+    integer(c_int64_t) :: cl_device_type             !! Device type
+    character(:), allocatable :: name                !! Device name
+    integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
+    integer(c_int64_t) :: global_memory              !! Total global memory, bytes
+    integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
+    character(:), allocatable :: version             !! OpenCL version
+  end type fclDevice
+
   type :: fclPlatform
     !! Type wrapper for openCL platform objects
     integer(c_intptr_t) :: cl_platform_id            !! OpenCL platform pointer
@@ -38,18 +55,7 @@ module Focal
     type(fclPlatform) :: platform                    !! Focal platform object
   end type fclContext
 
-  type :: fclDevice
-    !! Type wrapper for openCL device objects
-    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
-    integer(c_int64_t) :: cl_device_type             !! Device type
-    character(:), allocatable :: name                !! Device name
-    integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
-    integer(c_int64_t) :: global_memory              !! Total global memory, bytes
-    integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
-    character(:), allocatable :: version             !! OpenCL version
-  end type fclDevice
-
-  type :: fclEvent
+    type :: fclEvent
     !! Type wrapper for OpenCL event pointers
     integer(c_intptr_t) :: cl_event                          !! OpenCL event pointer
   end type fclEvent
@@ -199,9 +205,9 @@ module Focal
   type(fclEvent), target :: fclLastBarrierEvent
     !! Focal event object for the most recent barrier event to be enqueued
 
-  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_start") :: i0
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_start") :: fclKernelStart
     !! c interoperable character for start of fclKernels binary resource
-  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: i1
+  character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: fclKernelEnd
     !! c interoperable character for sendtart of fclKernels binary resource
 
   procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
@@ -254,7 +260,7 @@ module Focal
     procedure :: fclMemCopyFloat
     procedure :: fclMemCopyDouble
   end interface
-  
+
   interface
     module subroutine fclBufferSwap(memObject1, memObject2)
       !! Helper routine for swapping device buffer pointers.
@@ -565,7 +571,7 @@ module Focal
     end subroutine fclGetKernelWorkGroupInfoInt64
 
   end interface fclGetKernelWorkGroupInfo
-  
+
   interface fclGetKernelArgInfo
     !! Generic interface to query kernel argument information.
     !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
@@ -647,7 +653,17 @@ module Focal
     module function fclCreateContextWithVendor(vendor) result(ctx)
       !! Create a context with the first platform where the vendor property
       !!  contains a specified string (case-insensitive).
-      character(*), intent(in) :: vendor             !! String with which to match platform vendor
+      character(*), intent(in) :: vendor
+        !! String with which to match platform vendor. Separate multiple vendors
+        !!  with commas. First matching vendor in list is used.
+        !!  Matching is case-insensitive substring.
+        !!
+        !!  *e.g.* `vendor='i'` matches 'nvidia' and 'intel' platforms
+        !!
+        !!  *e.g.* `vendor='nvidia,intel'` matches nvidia platform if available,
+        !!  then intel platform if available, then fails fatally if neither
+        !!  are available.
+        !!
       type(fclContext), target :: ctx
     end function fclCreateContextWithVendor
 
@@ -754,7 +770,7 @@ module Focal
     end subroutine fclDumpBuildLog_2
 
   end interface fclDumpBuildLog
-    
+
   interface
 
     module function fclGetProgramKernel(prog,kernelName,global_work_size,local_work_size, &
@@ -784,7 +800,7 @@ module Focal
       type(fclCommandQ), intent(inout) :: cmdQ             !! CmdQ on which to launch kernel
       type(fclEvent), intent(in) :: event                  !! Event dependency for kernel
     end subroutine fclLaunchKernelAfterEvent_1
-    
+
     module subroutine fclLaunchKernelAfterEvent_2(kernel,event)
       !! Specific interface a single event dependency on the __default command queue__
       class(fclKernel), intent(inout) :: kernel                !! Focal kernel object to launch
@@ -819,7 +835,7 @@ module Focal
 
     module subroutine fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
       !! Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments.
-      !! @note This is helper routine used internally by focal.  If you just want set kernel arguments 
+      !! @note This is helper routine used internally by focal.  If you just want set kernel arguments
       !!  without launching a kernel, use `fclSetKernelArgs`. @endnote
       class(fclKernel), intent(in), target :: kernel   !! Focal kernel object
       type(fclCommandQ), intent(out), pointer :: cmdq
@@ -916,7 +932,7 @@ module Focal
 
     module subroutine fclSetDependencyEvent_1(cmdQ,event,hold)
       !! Interface for specifying a single event dependency on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue 
+      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue
       type(fclEvent), intent(in) :: event                  !! Event dependency
       logical, intent(in), optional :: hold
         !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
@@ -933,7 +949,7 @@ module Focal
 
     module subroutine fclSetDependencyEventList_1(cmdq,eventList,hold)
       !! Interface for specifying a list of dependent events on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue 
+      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue
       type(fclEvent), intent(in) :: eventList(:)           !! List of event dependencies
       logical, intent(in), optional :: hold
         !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
@@ -949,7 +965,7 @@ module Focal
     end subroutine fclSetDependencyEventList_2
 
   end interface fclSetDependency
-  
+
   interface
     module subroutine fclPopDependencies(cmdq)
       !! Called after every enqueue operation:
@@ -974,7 +990,7 @@ module Focal
 
   ! ------------------------- PROFILING  ROUTINES -----------------------------
 
-  interface 
+  interface
 
     module subroutine fclEnableProfiling(container,profileSize,profileName)
       !! Enable profiling on a specific container by allocating space to save events
@@ -998,14 +1014,14 @@ module Focal
     end subroutine fclPushProfileEvent
 
   end interface
-  
-  interface 
+
+  interface
 
     module function fclGetEventDurations(eventList) result(durations)
       type(fclEvent), intent(in) :: eventList(:)
       integer(c_int64_t) :: durations(size(eventList,1))
     end function fclGetEventDurations
-    
+
   end interface
 
   interface fclDumpProfileData
@@ -1146,15 +1162,6 @@ module Focal
       character(:), allocatable, intent(out) :: kernelString
         !! Kernel source as fortran character string
     end subroutine fclGetKernelResource
-
-    module function upperstr(linei)
-      !! Return copy of string converted to uppercase
-      !! Used for case-insensitive string comparison
-      character(len=*),intent(in) :: linei
-        !! Input string to convert to uppercase
-      character(len=len(linei)) upperstr
-        !! Converted string output
-    end function upperstr
 
     module subroutine fclSourceFromFile(filename,sourceString)
       !! Allocate and fill character string from file

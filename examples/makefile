@@ -1,5 +1,5 @@
 # --- Source names ---
-PROGS = platform_query sum
+PROGS = platform_query sum nbody
 
 # --- Output Directories ---
 FOCAL_DIR ?= ..
