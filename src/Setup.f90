@@ -786,7 +786,7 @@ submodule (Focal) Focal_Setup
     !! Specify a single event dependency on specific cmdq
     if (.not.allocated(cmdq%dependencyList)) then
 
-     allocate(cmdq%dependencyList(dependencyListAllocation))
+     allocate(cmdq%dependencyList(fclAllocationSize))
 
     end if
 
@@ -815,7 +815,7 @@ submodule (Focal) Focal_Setup
     integer :: i, nEvent, nAlloc
 
     nEvent = size(eventList,1)
-    nAlloc = max(dependencyListAllocation,nEvent)
+    nAlloc = max(fclAllocationSize,nEvent)
 
     if (.not.allocated(cmdq%dependencyList)) then
      !! Allocate for first time

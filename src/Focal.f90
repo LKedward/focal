@@ -15,8 +15,8 @@ module Focal
   integer, parameter :: errStringLen = 50
     !! Max length of OpenCL error code strings
 
-  integer, parameter :: dependencyListAllocation = 10
-    !! Default allocation increment for dependency lists
+  integer, parameter :: fclAllocationSize = 10
+    !! Default allocation increment for dynamically growing lists
 
   integer, parameter :: CL_PLATFORM_NOT_FOUND_KHR = -1001
     !! Extension error: No valid ICDs found
@@ -96,6 +96,31 @@ module Focal
     integer(c_intptr_t) :: cl_program                !! openCL program pointer
   end type fclProgram
 
+  type :: fclProfiler
+    !! Helper type to collect objects (kernels and buffers) that
+    !!  are profiled to simply user code.
+    type(fclDevice) :: device
+      !! Device for which to dump profile data
+    type(fclKernelPointer), allocatable :: kernels(:)
+      !! List of pointers to kernels to be profiled
+    integer :: nKernels = 0
+      !! Number of kernels in kernels array
+    type(fclBufferPointer), allocatable :: buffers(:)
+      !! List of pointers to buffers to be profiled
+    integer :: nBuffers = 0
+      !! Number of buffers in buffers array
+  end type fclProfiler
+
+  type :: fclKernelPointer
+    !! Wrapper type for implementing an array of pointers to kernel objects
+    class(fclKernel), pointer :: target
+  end type fclKernelPointer
+
+  type :: fclBufferPointer
+    !! Wrapper type for implementing an array of pointers to buffer objects
+    class(fclDeviceBuffer), pointer :: target
+  end type fclBufferPointer
+
   type :: fclProfileContainer
     !! Base container type for event profiling
     character(:), allocatable :: profileName
@@ -109,7 +134,7 @@ module Focal
     integer :: nProfileEvent = 0
       !! Number of events saved to profileEvents(:) array
     contains
-      procedure, pass :: enableProfiling => fclEnableProfiling
+      procedure, pass :: enableProfiling => fclEnableProfiling_2
       procedure, pass :: pushProfileEvent => fclPushProfileEvent
       ! procedure, pass :: dumpProfileData => fclDumpProfileData
   end type fclProfileContainer
@@ -990,9 +1015,21 @@ module Focal
 
   ! ------------------------- PROFILING  ROUTINES -----------------------------
 
-  interface
+  interface fclEnableProfiling
 
-    module subroutine fclEnableProfiling(container,profileSize,profileName)
+    module subroutine fclEnableProfiling_1(profiler,container,profileSize,profileName)
+      !! Enable profiling for container (kernel/buffer) and add to profiler collection
+      type(fclProfiler), intent(inout) :: profiler
+        !! Profiler - collection of objects to profile
+      class(fclProfileContainer), intent(inout), target :: container
+        !! Object (kernel/buffer) for which to enable profiling
+      integer, intent(in) :: profileSize
+        !! Number of events to save for profiling (allocation size)
+      character(*), intent(in), optional :: profileName
+        !! Descriptive name for output of profiling information
+    end subroutine fclEnableProfiling_1
+
+    module subroutine fclEnableProfiling_2(container,profileSize,profileName)
       !! Enable profiling on a specific container by allocating space to save events
       class(fclProfileContainer), intent(inout) :: container
         !! Container on which to enable profiling. This can be one of:
@@ -1001,7 +1038,11 @@ module Focal
         !! Number of events to allocate space for
       character(*), intent(in), optional :: profileName
         !! Descriptive text for output of profiling information
-    end subroutine fclEnableProfiling
+    end subroutine fclEnableProfiling_2
+
+  end interface fclEnableProfiling
+
+  interface
 
     module subroutine fclPushProfileEvent(container,event,type)
       !! If profiling is enabled for the container, save an event to it
@@ -1026,7 +1067,25 @@ module Focal
 
   interface fclDumpProfileData
 
-    module subroutine fclDumpKernelProfileData_1(outputUnit,kernelList,device)
+    module subroutine fclDumpProfilerData_1(outputUnit,profiler)
+      !! Dump summary of profiler data for list of kernels to specific output unit
+      integer, intent(in) :: outputUnit
+        !! Output unit to write summary data
+      class(fclProfiler), intent(in) :: profiler
+        !! Profiler object containing collection of kernels & buffers to profile
+    end subroutine fclDumpProfilerData_1
+
+    module subroutine fclDumpProfilerData_2(profiler)
+      !! Dump summary of profiler data for list of kernels to standard output
+      class(fclProfiler), intent(in) :: profiler
+        !! Profiler object containing collection of kernels & buffers to profile
+    end subroutine fclDumpProfilerData_2
+
+  end interface fclDumpProfileData
+  
+  interface 
+
+    module subroutine fclDumpKernelProfileData(outputUnit,kernelList,device)
       !! Dump summary of profile data for list of kernels to specific output unit
       integer, intent(in) :: outputUnit
         !! Output unit to write summary data
@@ -1035,18 +1094,9 @@ module Focal
       type(fclDevice), intent(in) :: device
         !! Device on which the kernels were executed
         !! Needed for kernel work group info.
-    end subroutine fclDumpKernelProfileData_1
+    end subroutine fclDumpKernelProfileData
 
-    module subroutine fclDumpKernelProfileData_2(kernelList,device)
-      !! Dump summary of profile data for list of kernels to standard output
-      class(fclKernel), intent(in) :: kernelList(:)
-        !! List of kernels for which to dump profile data
-      type(fclDevice), intent(in) :: device
-        !! Device on which the kernels were executed
-        !! Needed for kernel work group info.
-    end subroutine fclDumpKernelProfileData_2
-
-    module subroutine fclDumpBufferProfileData_1(outputUnit,bufferList1,bufferList2,bufferList3)
+    module subroutine fclDumpBufferProfileData(outputUnit,bufferList1,bufferList2,bufferList3)
       !! Dump summary of profile data for list of buffers to specific output unit.
       !!
       !! Three buffer list inputs are provided for different buffer types
@@ -1058,23 +1108,8 @@ module Focal
         !! List of buffers for which to dump profile data
       class(fclDeviceBuffer), intent(in), optional, target:: bufferList3(:)
         !! List of buffers for which to dump profile data
-    end subroutine fclDumpBufferProfileData_1
+    end subroutine fclDumpBufferProfileData
 
-    module subroutine fclDumpBufferProfileData_2(bufferList1,bufferList2,bufferList3)
-      !! Dump summary of profile data for list of buffers to standard output.
-      !!
-      !! !! Three buffer list inputs are provided for different buffer types
-      class(fclDeviceBuffer), intent(in), optional, target:: bufferList1(:)
-        !! List of kernels to dump profile data
-      class(fclDeviceBuffer), intent(in), optional, target :: bufferList2(:)
-        !! List of kernels to dump profile data
-      class(fclDeviceBuffer), intent(in), optional, target :: bufferList3(:)
-        !! List of kernels to dump profile data
-    end subroutine fclDumpBufferProfileData_2
-
-  end interface fclDumpProfileData
-
-  interface
     module subroutine fclDumpTracingData(fh,profileContainer)
       integer, intent(in) :: fh
       class(fclProfileContainer), intent(in) :: profileContainer

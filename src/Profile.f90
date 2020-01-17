@@ -9,8 +9,66 @@ submodule (Focal) Focal_Profile
   implicit none
 
   contains
+  
+  module procedure fclEnableProfiling_1 !(profiler,container,profileSize,profileName)
+    !! Enable profiling for container (kernel/buffer) and add to profiler collection
+    
+    type(fclKernelPointer), allocatable :: kernelsTemp(:)
+    type(fclBufferPointer), allocatable :: buffersTemp(:)
 
-  module procedure fclEnableProfiling !(container,profileSize,profileName)
+    call fclEnableProfiling_2(container,profileSize,profileName)
+
+    select type(c=>container)
+
+      type is(fclKernel)
+        ! ------ Kernels ------
+        profiler%nKernels = profiler%nKernels + 1
+
+        if (.not.allocated(profiler%kernels)) then
+          ! --- Allocate for first time ---
+          allocate(profiler%kernels(fclAllocationSize))
+        else
+          if (profiler%nKernels > size(profiler%kernels,1)) then
+            ! --- Need to reallocate ---
+            kernelsTemp = profiler%kernels
+            deallocate(profiler%kernels)
+            allocate(profiler%kernels(profiler%nKernels + fclAllocationSize))
+            profiler%kernels(1:size(kernelsTemp,1)) = kernelsTemp
+            deallocate(kernelsTemp)
+          end if
+        end if
+
+        profiler%kernels(profiler%nKernels)%target => c
+
+      class is(fclDeviceBuffer)
+        ! ------ Buffers ------
+        profiler%nBuffers = profiler%nBuffers + 1
+
+        if (.not.allocated(profiler%buffers)) then
+          ! --- Allocate for first time ---
+          allocate(profiler%buffers(fclAllocationSize))
+        else
+          if (profiler%nBuffers > size(profiler%buffers,1)) then
+            ! --- Need to reallocate ---
+            buffersTemp = profiler%buffers
+            deallocate(profiler%buffers)
+            allocate(profiler%buffers(profiler%nBuffers + fclAllocationSize))
+            profiler%buffers(1:size(buffersTemp,1)) = buffersTemp
+            deallocate(buffersTemp)
+          end if
+        end if
+
+        profiler%buffers(profiler%nBuffers)%target => c
+
+      class default
+
+    end select
+
+  end procedure fclEnableProfiling_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclEnableProfiling_2 !(container,profileSize,profileName)
     !! Enable profiling on a specific container by allocating space to save events
 
     ! character(10) :: tempStr
@@ -54,7 +112,7 @@ submodule (Focal) Focal_Profile
       allocate(b%profileEventType(profileSize))
     end select
 
-  end procedure fclEnableProfiling
+  end procedure fclEnableProfiling_2
   ! ---------------------------------------------------------------------------
   
 
@@ -119,7 +177,55 @@ submodule (Focal) Focal_Profile
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclDumpKernelProfileData_1 !(outputUnit,kernelList,device)
+  module procedure fclDumpProfilerData_1 !(outputUnit,profiler)
+    !! Dump summary of profiler data for list of kernels to specific output unit
+
+    integer :: i
+    
+    type(fclKernel), allocatable :: kernels(:)
+    type(fclDeviceBuffer), allocatable :: buffers(:)
+
+    if (profiler%nKernels > 0) then
+
+      allocate(kernels(profiler%nKernels))
+      do i=1,profiler%nKernels
+        kernels(i) = profiler%kernels(i)%target
+      end do
+
+      call fclDumpKernelProfileData(outputUnit,kernels,profiler%device)
+
+      deallocate(kernels)
+
+    end if
+
+    if (profiler%nBuffers > 0) then
+
+      allocate(buffers(profiler%nBuffers))
+      do i=1,profiler%nBuffers
+        buffers(i) = profiler%buffers(i)%target
+      end do
+
+      call fclDumpBufferProfileData(outputUnit,buffers)
+
+      deallocate(buffers)
+
+    end if
+
+  end procedure fclDumpProfilerData_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDumpProfilerData_2 !(profiler)
+    !! Dump summary of profiler data for list of kernels to standard output
+    use iso_fortran_env, only: stdout=>output_unit
+
+    call fclDumpProfilerData_1(stdout,profiler)
+
+  end procedure fclDumpProfilerData_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDumpKernelProfileData !(outputUnit,kernelList,device)
     !! Dump summary of profile data for list of kernels to specific output unit
     use iso_fortran_env, only: sp=>real32
 
@@ -204,21 +310,11 @@ submodule (Focal) Focal_Profile
     ! Deallocate durations array
     deallocate(durations)
 
-  end procedure fclDumpKernelProfileData_1
+  end procedure fclDumpKernelProfileData
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclDumpKernelProfileData_2 !(kernelList,device)
-    !! Dump summary of profile data for list of kernels to standard output
-    use iso_fortran_env, only: stdout=>output_unit
-
-    call fclDumpKernelProfileData_1(stdout,kernelList,device)
-
-  end procedure fclDumpKernelProfileData_2
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclDumpBufferProfileData_1 !(outputUnit,bufferList1,bufferList2,bufferList3)
+  module procedure fclDumpBufferProfileData !(outputUnit,bufferList1,bufferList2,bufferList3)
     !! Dump summary of profile data for list of buffers to specific output unit
     use iso_fortran_env, only: sp=>real32
 
@@ -332,17 +428,7 @@ submodule (Focal) Focal_Profile
     ! Deallocate durations array
     deallocate(durations)
 
-  end procedure fclDumpBufferProfileData_1
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclDumpBufferProfileData_2 !(bufferList1,bufferList2,bufferList3)
-    !! Dump summary of profile data for list of buffers to standard output
-    use iso_fortran_env, only: stdout=>output_unit
-
-    call fclDumpBufferProfileData_1(stdout,bufferList1,bufferList2,bufferList3)
-
-  end procedure fclDumpBufferProfileData_2
+  end procedure fclDumpBufferProfileData
   ! ---------------------------------------------------------------------------
 
 
@@ -394,83 +480,6 @@ submodule (Focal) Focal_Profile
 
   end procedure fclDumpTracingData
   ! ---------------------------------------------------------------------------
-
-
-  ! module procedure fclDumpProfileData !(container,outputUnit)
-  !   use iso_fortran_env, only: stdout=>output_unit, sp=>real32
-
-  !   integer :: i, N, outUnit
-  !   integer(c_int32_t) :: errcode
-  !   integer(c_int64_t), target :: startTime, endTime
-  !   integer(c_size_t) :: size_ret
-  !   integer(c_int64_t) :: durations(container%profileSize)
-
-  !   if (.not.container%profilingEnabled) then
-  !     return
-  !   end if
-
-  !   if (present(outputUnit)) then
-  !     outUnit = outputUnit
-  !   else
-  !     outUnit = stdout
-  !   end if
-
-  !   N = min(container%profileSize,container%nProfileEvent)
-
-  !   do i=1,N
-
-  !     errcode = clGetEventProfilingInfo(container%profileEvents(i)%cl_event, &
-  !       CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
-
-  !     call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-
-  !     errcode = clGetEventProfilingInfo(container%profileEvents(i)%cl_event, &
-  !       CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
-
-  !     call fclErrorHandler(errcode,'fclDumpProfileData','clGetEventProfilingInfo')
-
-  !     durations(i) = endTime - startTime
-
-  !   end do
-
-   
-  !   if (N > 0) then
-
-  !     select type(c=>container)
-
-  !     class is(fclKernel)
-
-  !       write(outUnit,*) ' Focal Profiling results for kernel: ',c%profileName
-  !       write(*,'(A,I8,A,I8,A,I8,A,I8,A)') '    ',c%nProfileEvent,' events: Duration (avg/min/max)', &
-  !                   sum(durations(1:N))/N,'ns',minval(durations(1:N)),'ns',maxval(durations(1:N)),'ns'
-
-  !     class is(fclDeviceBuffer)
-
-  !       write(outUnit,'(A,A,A,I8,A)') ' Focal Profiling results for buffer: ',c%profileName,' ',c%nBytes/1000,' KBytes'
-  !       write(*,'(A,I8,A,F8.4,A,F8.4,A,F8.4,A)') '    ',c%nProfileEvent,' events: Duration (avg/min/max)', &
-  !                                 sum(real(c%nBytes,sp)/real(durations(1:N),sp))/N,'GB/S', &
-  !                                 minval(real(c%nBytes,sp)/real(durations(1:N),sp)),'GB/S', &
-  !                                 maxval(real(c%nBytes,sp)/real(durations(1:N),sp)),'GB/S'
-
-  !     class default
-
-  !       write(outUnit,*) ' Focal Profiling results for container: ',c%profileName
-  !       write(*,'(A,I8,A,I8,A,I8,A,I8,A)') '    ',c%nProfileEvent,' events: Speed (avg/min/max)', &
-  !                   sum(durations(1:N))/N,'ns',minval(durations(1:N)),'ns',maxval(durations(1:N)),'ns'
-  !     end select
-
-      
-      
-  !   end if
-
-  !   if (container%nProfileEvent > container%profileSize) then
-  !     write(*,'(A,I8,A)') '    (!) Only the last ',container%profileSize,' events were profiled. (Increase profileSize)'
-  !   end if
-
-  !   write(outUnit,*) ''
-
-  ! end procedure fclDumpProfileData
-  ! ! ---------------------------------------------------------------------------
 
 
 end submodule Focal_Profile
