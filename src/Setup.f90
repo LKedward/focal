@@ -405,10 +405,6 @@ submodule (Focal) Focal_Setup
       end if
     end if
 
-    if (present(profileSize)) then
-      call fclEnableProfiling(kern,profileSize)
-    end if
-
   end procedure fclGetProgramKernel
   ! ---------------------------------------------------------------------------
 

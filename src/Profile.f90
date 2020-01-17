@@ -9,93 +9,53 @@ submodule (Focal) Focal_Profile
   implicit none
 
   contains
-  
-  module procedure fclEnableProfiling_1 !(profiler,container,profileSize,profileName)
-    !! Enable profiling for container (kernel/buffer) and add to profiler collection
+
+  module procedure fclProfilerAdd !(profiler,profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+    !! Enable profiling for multiple containers (kernel/buffer) and add to profiler collection
     
-    type(fclKernelPointer), allocatable :: kernelsTemp(:)
-    type(fclBufferPointer), allocatable :: buffersTemp(:)
+    call fclEnableProfiling(c0,profileSize,profiler)
 
-    call fclEnableProfiling_2(container,profileSize,profileName)
+    if (present(c1)) then
+      call fclEnableProfiling(c1,profileSize,profiler)
+    end if
+    if (present(c2)) then
+      call fclEnableProfiling(c2,profileSize,profiler)
+    end if
+    if (present(c3)) then
+      call fclEnableProfiling(c3,profileSize,profiler)
+    end if
+    if (present(c4)) then
+      call fclEnableProfiling(c4,profileSize,profiler)
+    end if
+    if (present(c5)) then
+      call fclEnableProfiling(c5,profileSize,profiler)
+    end if
+    if (present(c6)) then
+      call fclEnableProfiling(c6,profileSize,profiler)
+    end if
+    if (present(c7)) then
+      call fclEnableProfiling(c7,profileSize,profiler)
+    end if
+    if (present(c8)) then
+      call fclEnableProfiling(c8,profileSize,profiler)
+    end if
+    if (present(c9)) then
+      call fclEnableProfiling(c9,profileSize,profiler)
+    end if
 
-    select type(c=>container)
-
-      type is(fclKernel)
-        ! ------ Kernels ------
-        profiler%nKernels = profiler%nKernels + 1
-
-        if (.not.allocated(profiler%kernels)) then
-          ! --- Allocate for first time ---
-          allocate(profiler%kernels(fclAllocationSize))
-        else
-          if (profiler%nKernels > size(profiler%kernels,1)) then
-            ! --- Need to reallocate ---
-            kernelsTemp = profiler%kernels
-            deallocate(profiler%kernels)
-            allocate(profiler%kernels(profiler%nKernels + fclAllocationSize))
-            profiler%kernels(1:size(kernelsTemp,1)) = kernelsTemp
-            deallocate(kernelsTemp)
-          end if
-        end if
-
-        profiler%kernels(profiler%nKernels)%target => c
-
-      class is(fclDeviceBuffer)
-        ! ------ Buffers ------
-        profiler%nBuffers = profiler%nBuffers + 1
-
-        if (.not.allocated(profiler%buffers)) then
-          ! --- Allocate for first time ---
-          allocate(profiler%buffers(fclAllocationSize))
-        else
-          if (profiler%nBuffers > size(profiler%buffers,1)) then
-            ! --- Need to reallocate ---
-            buffersTemp = profiler%buffers
-            deallocate(profiler%buffers)
-            allocate(profiler%buffers(profiler%nBuffers + fclAllocationSize))
-            profiler%buffers(1:size(buffersTemp,1)) = buffersTemp
-            deallocate(buffersTemp)
-          end if
-        end if
-
-        profiler%buffers(profiler%nBuffers)%target => c
-
-      class default
-
-    end select
-
-  end procedure fclEnableProfiling_1
+  end procedure fclProfilerAdd
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclEnableProfiling_2 !(container,profileSize,profileName)
+  module procedure fclEnableProfiling !(container,profileSize,profiler)
     !! Enable profiling on a specific container by allocating space to save events
 
-    ! character(10) :: tempStr
+    type(fclKernelPointer), allocatable :: kernelsTemp(:)
+    type(fclBufferPointer), allocatable :: buffersTemp(:)
 
     container%profilingEnabled = .true.
-    
-    if (allocated(container%profileName)) then
-      deallocate(container%profileName)
-    end if
 
-    if (present(profileName)) then
-      ! allocate(character(len=len(profileName)) :: container%profileName)
-      container%profileName = profileName
-    else
-      select type(c => container)
-
-      class is (fclKernel)
-        ! allocate(character(len=len(c%name)) :: container%profileName)
-        container%profileName = c%name
-
-      class is (fclDeviceBuffer)
-        ! write(tempStr,'(I10)') c%nBytes
-        container%profileName = 'Unnamed' ! ('//trim(tempStr)//'B)'
-
-      end select
-    end if
-
+    ! ------ Allocate space for event objects ------
     if (allocated(container%profileEvents)) then
       deallocate(container%profileEvents)
     end if
@@ -112,7 +72,73 @@ submodule (Focal) Focal_Profile
       allocate(b%profileEventType(profileSize))
     end select
 
-  end procedure fclEnableProfiling_2
+    ! ------ Set profile name, if not specified ------
+    if(.not.allocated(container%profileName)) then
+
+      select type(c => container)
+
+      class is (fclKernel)
+        ! allocate(character(len=len(c%name)) :: container%profileName)
+        container%profileName = c%name
+
+      class is (fclDeviceBuffer)
+        ! write(tempStr,'(I10)') c%nBytes
+        container%profileName = 'Unnamed' ! ('//trim(tempStr)//'B)'
+
+      end select
+
+    end if
+
+    ! ------ Add to profiler collection object, if specified ------
+    if (present(profiler)) then
+      select type(c=>container)
+
+        type is(fclKernel)
+          ! ------ Kernels ------
+          profiler%nKernels = profiler%nKernels + 1
+
+          if (.not.allocated(profiler%kernels)) then
+            ! --- Allocate for first time ---
+            allocate(profiler%kernels(fclAllocationSize))
+          else
+            if (profiler%nKernels > size(profiler%kernels,1)) then
+              ! --- Need to reallocate ---
+              kernelsTemp = profiler%kernels
+              deallocate(profiler%kernels)
+              allocate(profiler%kernels(profiler%nKernels + fclAllocationSize))
+              profiler%kernels(1:size(kernelsTemp,1)) = kernelsTemp
+              deallocate(kernelsTemp)
+            end if
+          end if
+
+          profiler%kernels(profiler%nKernels)%target => c
+
+        class is(fclDeviceBuffer)
+          ! ------ Buffers ------
+          profiler%nBuffers = profiler%nBuffers + 1
+
+          if (.not.allocated(profiler%buffers)) then
+            ! --- Allocate for first time ---
+            allocate(profiler%buffers(fclAllocationSize))
+          else
+            if (profiler%nBuffers > size(profiler%buffers,1)) then
+              ! --- Need to reallocate ---
+              buffersTemp = profiler%buffers
+              deallocate(profiler%buffers)
+              allocate(profiler%buffers(profiler%nBuffers + fclAllocationSize))
+              profiler%buffers(1:size(buffersTemp,1)) = buffersTemp
+              deallocate(buffersTemp)
+            end if
+          end if
+
+          profiler%buffers(profiler%nBuffers)%target => c
+
+        class default
+
+      end select
+    end if
+
+  end procedure fclEnableProfiling
   ! ---------------------------------------------------------------------------
   
 
@@ -177,13 +203,20 @@ submodule (Focal) Focal_Profile
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclDumpProfilerData_1 !(outputUnit,profiler)
+  module procedure fclDumpProfileData !(profiler,outputUnit)
     !! Dump summary of profiler data for list of kernels to specific output unit
+    use iso_fortran_env, only: stdout=>output_unit
 
-    integer :: i
+    integer :: i, unit
     
     type(fclKernel), allocatable :: kernels(:)
     type(fclDeviceBuffer), allocatable :: buffers(:)
+
+    if (.not.present(outputUnit)) then
+      unit = stdout
+    else
+      unit = outputUnit
+    end if
 
     if (profiler%nKernels > 0) then
 
@@ -192,7 +225,7 @@ submodule (Focal) Focal_Profile
         kernels(i) = profiler%kernels(i)%target
       end do
 
-      call fclDumpKernelProfileData(outputUnit,kernels,profiler%device)
+      call fclDumpKernelProfileData(unit,kernels,profiler%device)
 
       deallocate(kernels)
 
@@ -205,23 +238,13 @@ submodule (Focal) Focal_Profile
         buffers(i) = profiler%buffers(i)%target
       end do
 
-      call fclDumpBufferProfileData(outputUnit,buffers)
+      call fclDumpBufferProfileData(unit,buffers)
 
       deallocate(buffers)
 
     end if
 
-  end procedure fclDumpProfilerData_1
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclDumpProfilerData_2 !(profiler)
-    !! Dump summary of profiler data for list of kernels to standard output
-    use iso_fortran_env, only: stdout=>output_unit
-
-    call fclDumpProfilerData_1(stdout,profiler)
-
-  end procedure fclDumpProfilerData_2
+  end procedure fclDumpProfileData
   ! ---------------------------------------------------------------------------
 
 
