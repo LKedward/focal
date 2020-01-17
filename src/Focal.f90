@@ -1044,19 +1044,11 @@ module Focal
         !! Type info for buffer objects
     end subroutine fclPushProfileEvent
 
-  end interface
-
-  interface
-
     module function fclGetEventDurations(eventList) result(durations)
       type(fclEvent), intent(in) :: eventList(:)
       integer(c_int64_t) :: durations(size(eventList,1))
     end function fclGetEventDurations
-
-  end interface
-  
-  interface 
-
+    
     module subroutine fclDumpProfileData(profiler,outputUnit)
       !! Dump summary of profiler data for list of kernels to specific output unit
       class(fclProfiler), intent(in) :: profiler
@@ -1090,10 +1082,14 @@ module Focal
         !! List of buffers for which to dump profile data
     end subroutine fclDumpBufferProfileData
 
-    module subroutine fclDumpTracingData(fh,profileContainer)
-      integer, intent(in) :: fh
-      class(fclProfileContainer), intent(in) :: profileContainer
+    module subroutine fclDumpTracingData(profiler, filename)
+      !! Writes a chrome://tracing data format for profiled events
+      class(fclProfiler), intent(in) :: profiler
+        !! Profiler collection object containing kernels/buffers that have been profiled
+      character(*), intent(in) :: filename
+        !! Filename to which to write chrome://tracing format
     end subroutine fclDumpTracingData
+
   end interface
 
 

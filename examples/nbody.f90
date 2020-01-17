@@ -67,8 +67,7 @@ nBlock = (N+blockSize-1)/blockSize
 kern1 = fclGetProgramKernel(prog,'bodyForces',[nBlock*blockSize],[blockSize])
 kern2 = fclGetProgramKernel(prog,'integrateBodies',[nBlock*blockSize],[blockSize])
                               
-! call fclProfilerAdd(profiler,Niter,kern1,kern2)
-call profiler%add(Niter,kern1,kern2)
+call fclProfilerAdd(profiler,Niter,kern1,kern2)
 
 ! Initialise host array data
 call random_number(vx)
@@ -117,6 +116,8 @@ call fclWait()
 write(*,*) ' done.'
 
 call fclDumpProfileData(profiler)
+
+call fclDumpTracingData(profiler,'nbody.trace')
 
 ! Calculate performance metric
 kern1T = sum(fclGetEventDurations(kern1%profileEvents(1:Niter)))

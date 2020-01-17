@@ -455,51 +455,114 @@ submodule (Focal) Focal_Profile
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclDumpTracingData !(fh,profileContainer)
+  module procedure fclDumpTracingData !(profiler,filename)
 
-    integer :: i, N
+    integer :: fh, kb, j, i, N
     integer(c_int32_t) :: errcode
     integer(c_int64_t), target :: startTime, endTime
     integer(c_size_t) :: size_ret
+    logical :: isFirstEvent
 
-    N = min(profileContainer%profileSize,profileContainer%nProfileEvent)
+    type(fclKernel), allocatable, target :: kernels(:)
+    type(fclDeviceBuffer), allocatable, target :: buffers(:)
+    class(fclProfileContainer), pointer :: containers(:)
 
-    ! Iterate over kernel profile events
-    do i=1,N
+    isFirstEvent = .true.
 
-      ! Get event start time
-      errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
-        CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
-      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
-      
-      ! Get event end time
-      errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
-        CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
-      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
-      
-      write(fh,*) '{'
-      write(fh,*) '"cat": "Focal",'
-      write(fh,*) '"pid": 1, "tid": 1,'
-      write(fh,*) '"ts": ',startTime,','
-      write(fh,*) '"ph": "B",'
-      write(fh,*) '"name": "',profileContainer%profileName,'"'
-      write(fh,*) '},'
+    open(newunit=fh,file=filename,status='unknown')
+    
+    write(fh,*) '['
 
-      write(fh,*) '{'
-      write(fh,*) '"cat": "Focal",'
-      write(fh,*) '"pid": 1, "tid": 1,'
-      write(fh,*) '"ts": ',endTime,','
-      write(fh,*) '"ph": "E",'
-      write(fh,*) '"name": "',profileContainer%profileName,'"'
-      
+    do kb=1,2
 
-      if (i/=N) then
-        write(fh,*) '},'
-      else
-        write(fh,*) '}'
+      if (kb == 1) then
+
+        if (profiler%nKernels > 0) then
+
+          allocate(kernels(profiler%nKernels))
+          do i=1,profiler%nKernels
+            kernels(i) = profiler%kernels(i)%target
+          end do
+    
+          ! deallocate(kernels)
+          containers => kernels
+          
+        else
+          cycle
+        end if
+
+      else if(kb == 2) then
+
+        if (profiler%nBuffers > 0) then
+    
+          allocate(buffers(profiler%nBuffers))
+          do i=1,profiler%nBuffers
+            buffers(i) = profiler%buffers(i)%target
+          end do
+    
+          ! deallocate(buffers)
+          containers => buffers
+    
+        else
+          cycle
+        end if
+
       end if
 
-    end do
+      do j=1,size(containers,1)
+
+        associate(profileContainer => containers(j))
+
+          N = min(profileContainer%profileSize,profileContainer%nProfileEvent)
+
+          ! Iterate over kernel profile events
+          do i=1,N
+
+            ! Get event start time
+            errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
+              CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
+            call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+            
+            ! Get event end time
+            errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
+              CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
+            call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+            
+            if (.not.isFirstEvent) then
+              write(fh,*) ','
+            else
+              isFirstEvent = .false.
+            end if
+
+            write(fh,*) '{'
+            write(fh,*) '"cat": "Focal",'
+            write(fh,*) '"pid": 1, "tid": 1,'
+            write(fh,*) '"ts": ',startTime,','
+            write(fh,*) '"ph": "B",'
+            write(fh,*) '"name": "',profileContainer%profileName,'"'
+            write(fh,*) '},'
+
+            write(fh,*) '{'
+            write(fh,*) '"cat": "Focal",'
+            write(fh,*) '"pid": 1, "tid": 1,'
+            write(fh,*) '"ts": ',endTime,','
+            write(fh,*) '"ph": "E",'
+            write(fh,*) '"name": "',profileContainer%profileName,'"'
+            write(fh,*) '}'
+            
+
+          end do ! loop over container events
+
+        end associate
+
+      end do ! loop over containers
+
+      deallocate(containers)
+
+    end do ! loop between kernels and buffers
+
+    write(fh,*) ']'
+    close(fh)
 
   end procedure fclDumpTracingData
   ! ---------------------------------------------------------------------------
