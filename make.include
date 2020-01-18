@@ -24,7 +24,7 @@ vpath %.f90 $(FOCAL_DIR)/external/M_strings
 
 # Source files
 FOCAL_BASE = Focal clfortran Quicksort M_strings
-FOCAL_SRCS = Error Memory Query Setup Utils Profile Debug NoDebug
+FOCAL_SRCS = Error Memory HostMemory Query Setup Utils Profile Debug NoDebug
 FOCAL_LIBS = focal focaldbg
 
 # Objects

@@ -11,39 +11,6 @@ submodule (Focal) Focal_Memory
   contains
 
 
-  module procedure fclAllocHostPtr !(cmdq,hostPtr,nBytes) result(ptr)
-    !! Allocate a 'pinned' host array
-
-    integer(c_int32_t) :: errcode
-    integer(c_intptr_t), target :: cl_context
-    integer(c_size_t) :: size_ret
-
-    integer(c_intptr_t) :: devicePtr
-
-    ! Get command queue context
-    errcode = clGetCommandQueueInfo(cmdq%cl_command_queue, &
-                  CL_QUEUE_CONTEXT,c_sizeof(cl_context), &
-                  c_loc(cl_context), size_ret)
-
-    call fclErrorHandler(errcode,'fclBuffer','clGetCommandQueueInfo')
-
-    devicePtr = clCreateBuffer(cl_context, CL_MEM_ALLOC_HOST_PTR, nBytes,&
-                                  C_NULL_PTR, errcode)
-
-    call fclErrorhandler(errcode,'fclAllocHostPtr','clCreateBuffer')
-
-
-    ptr = clEnqueueMapBuffer(cmdq%cl_command_queue,&
-            devicePtr, CL_TRUE,&
-            CL_MAP_WRITE, int(0,c_int64_t), nBytes, 0,&
-            C_NULL_PTR, C_NULL_PTR, errcode)
-
-    call fclErrorhandler(errcode,'nbody','clEnqueueMapBuffer')
-
-  end procedure fclAllocHostPtr
-  ! ---------------------------------------------------------------------------
-
-
   module procedure fclBufferSwap !(memObject1, memObject2)
     !! Helper routine for swapping device buffer pointers
 
