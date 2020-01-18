@@ -12,7 +12,7 @@ submodule (Focal) Focal_Profile
 
   module procedure fclProfilerAdd !(profiler,profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
     !! Enable profiling for multiple containers (kernel/buffer) and add to profiler collection
-    
+
     call fclEnableProfiling(c0,profileSize,profiler)
 
     if (present(c1)) then
@@ -140,7 +140,7 @@ submodule (Focal) Focal_Profile
 
   end procedure fclEnableProfiling
   ! ---------------------------------------------------------------------------
-  
+
 
   module procedure fclPushProfileEvent !(container,event,type)
     !! If profiling is enabled for the container, save an event to it
@@ -170,7 +170,7 @@ submodule (Focal) Focal_Profile
 
   end procedure fclPushProfileEvent
   ! ---------------------------------------------------------------------------
-  
+
 
   module procedure fclGetEventDurations !(eventList) result(durations)
 
@@ -188,12 +188,12 @@ submodule (Focal) Focal_Profile
       errcode = clGetEventProfilingInfo(eventList(i)%cl_event, &
         CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
       call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
-      
+
       ! Get event end time
       errcode = clGetEventProfilingInfo(eventList(i)%cl_event, &
         CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
       call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
-      
+
       ! Save duration (nanoseconds)
       durations(i) = endTime - startTime
 
@@ -208,7 +208,7 @@ submodule (Focal) Focal_Profile
     use iso_fortran_env, only: stdout=>output_unit
 
     integer :: i, unit
-    
+
     type(fclKernel), allocatable :: kernels(:)
     type(fclDeviceBuffer), allocatable :: buffers(:)
 
@@ -445,7 +445,7 @@ submodule (Focal) Focal_Profile
       write(outputUnit,*) ' * - Not all events profiled, increase profileSize'
       write(outputUnit,*) ('-',i=1,77)
     end if
-    
+
     write(outputUnit,*) ''
 
     ! Deallocate durations array
@@ -470,7 +470,7 @@ submodule (Focal) Focal_Profile
     isFirstEvent = .true.
 
     open(newunit=fh,file=filename,status='unknown')
-    
+
     write(fh,*) '['
 
     do kb=1,2
@@ -483,10 +483,10 @@ submodule (Focal) Focal_Profile
           do i=1,profiler%nKernels
             kernels(i) = profiler%kernels(i)%target
           end do
-    
+
           ! deallocate(kernels)
           containers => kernels
-          
+
         else
           cycle
         end if
@@ -494,15 +494,15 @@ submodule (Focal) Focal_Profile
       else if(kb == 2) then
 
         if (profiler%nBuffers > 0) then
-    
+
           allocate(buffers(profiler%nBuffers))
           do i=1,profiler%nBuffers
             buffers(i) = profiler%buffers(i)%target
           end do
-    
+
           ! deallocate(buffers)
           containers => buffers
-    
+
         else
           cycle
         end if
@@ -522,12 +522,12 @@ submodule (Focal) Focal_Profile
             errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
               CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
             call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
-            
+
             ! Get event end time
             errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
               CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
             call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
-            
+
             if (.not.isFirstEvent) then
               write(fh,*) ','
             else
@@ -537,7 +537,7 @@ submodule (Focal) Focal_Profile
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
             write(fh,*) '"pid": 1, "tid": 1,'
-            write(fh,*) '"ts": ',startTime,','
+            write(fh,*) '"ts": ',startTime/1000,','
             write(fh,*) '"ph": "B",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'
             write(fh,*) '},'
@@ -545,11 +545,11 @@ submodule (Focal) Focal_Profile
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
             write(fh,*) '"pid": 1, "tid": 1,'
-            write(fh,*) '"ts": ',endTime,','
+            write(fh,*) '"ts": ',endTime/1000,','
             write(fh,*) '"ph": "E",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'
             write(fh,*) '}'
-            
+
 
           end do ! loop over container events
 
