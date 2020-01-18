@@ -35,7 +35,7 @@ submodule (Focal) Focal_HostMemory
 
     ptr = clEnqueueMapBuffer(cmdq%cl_command_queue,&
             devicePtr, CL_TRUE,&
-            CL_MAP_WRITE, int(0,c_int64_t), nBytes, 0,&
+            ior(CL_MAP_WRITE,CL_MAP_READ), int(0,c_int64_t), nBytes, 0,&
             C_NULL_PTR, C_NULL_PTR, errcode)
 
     call fclErrorhandler(errcode,'fclAllocHostPtr','clEnqueueMapBuffer')
