@@ -255,6 +255,24 @@ module Focal
     procedure :: fclMemCopyDouble
   end interface
 
+
+  ! --------- Host memory allocation ---------
+
+  interface
+    module function fclAllocHostPtr(cmdq,hostPtr,nBytes) result(ptr)
+      !! Allocate a 'pinned' host array
+      type(fclCommandQ), intent(in) :: cmdq
+        !! Command Q with which to associate the allocated device memory
+      integer, pointer, intent(out) :: hostPtr(:)
+        !! Unassociated pointer to integer array
+      integer(c_int64_t), intent(in) :: nBytes
+        !! Desired array size in bytes
+      type(c_ptr) :: ptr
+        !! c pointer to allocated host memory
+    end function fclAllocHostPtr
+  end interface
+
+  ! --------- Pointer swap ---------
   interface
     module subroutine fclBufferSwap(memObject1, memObject2)
       !! Helper routine for swapping device buffer pointers.
