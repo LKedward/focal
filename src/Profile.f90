@@ -557,7 +557,13 @@ submodule (Focal) Focal_Profile
 
       end do ! loop over containers
 
-      deallocate(containers)
+      if (allocated(kernels)) then
+        deallocate(kernels)
+      end if
+
+      if (allocated(buffers)) then
+        deallocate(buffers)
+      end if
 
     end do ! loop between kernels and buffers
 
