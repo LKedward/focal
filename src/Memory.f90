@@ -68,7 +68,7 @@ submodule (Focal) Focal_Memory
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclBufferDouble_1 !(cmdq,dim,read,write,profileSize,profileName) result(mem)
+  module procedure fclBufferDouble_1 !(cmdq,dim,read,write,profileName) result(mem)
 
     integer(c_size_t) :: nBytes
     nBytes = c_sizeof(real(1.0d0,c_double))*dim
@@ -76,23 +76,26 @@ submodule (Focal) Focal_Memory
     mem%cmdq => cmdq
     mem%nBytes = nBytes
 
-    if (present(profileSize)) then
-      call fclEnableProfiling(mem,profileSize,profileName)
+    if (present(profileName)) then
+      if (allocated(mem%profileName)) then
+        deallocate(mem%profileName)
+      end if
+      mem%profileName = profileName
     end if
 
   end procedure fclBufferDouble_1
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclBufferDouble_2 !(dim,read,write,profileSize,profileName) result(mem)
+  module procedure fclBufferDouble_2 !(dim,read,write,profileName) result(mem)
 
-    mem = fclBufferDouble_1(fclDefaultCmdQ,dim,read,write,profileSize,profileName)
+    mem = fclBufferDouble_1(fclDefaultCmdQ,dim,read,write,profileName)
 
   end procedure fclBufferDouble_2
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclBufferFloat_1 !(cmdq,dim,read,write,profileSize,profileName) result(mem)
+  module procedure fclBufferFloat_1 !(cmdq,dim,read,write,profileName) result(mem)
 
     integer(c_size_t) :: nBytes
     nBytes = c_sizeof(real(1.0,c_float))*dim
@@ -100,23 +103,26 @@ submodule (Focal) Focal_Memory
     mem%cmdq => cmdq
     mem%nBytes = nBytes
 
-    if (present(profileSize)) then
-      call fclEnableProfiling(mem,profileSize,profileName)
+    if (present(profileName)) then
+      if (allocated(mem%profileName)) then
+        deallocate(mem%profileName)
+      end if
+      mem%profileName = profileName
     end if
 
   end procedure fclBufferFloat_1
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclBufferFloat_2 !(dim,read,write,profileSize,profileName) result(mem)
+  module procedure fclBufferFloat_2 !(dim,read,write,profileName) result(mem)
 
-    mem = fclBufferFloat_1(fclDefaultCmdQ,dim,read,write,profileSize,profileName)
+    mem = fclBufferFloat_1(fclDefaultCmdQ,dim,read,write,profileName)
 
   end procedure fclBufferFloat_2
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclBufferInt32_1 !(cmdq,dim,read,write,profileSize,profileName) result(mem)
+  module procedure fclBufferInt32_1 !(cmdq,dim,read,write,profileName) result(mem)
 
     integer(c_size_t) :: nBytes
     nBytes = c_sizeof(int(1,c_int32_t))*dim
@@ -124,17 +130,20 @@ submodule (Focal) Focal_Memory
     mem%cmdq => cmdq
     mem%nBytes = nBytes
 
-    if (present(profileSize)) then
-      call fclEnableProfiling(mem,profileSize,profileName)
+    if (present(profileName)) then
+      if (allocated(mem%profileName)) then
+        deallocate(mem%profileName)
+      end if
+      mem%profileName = profileName
     end if
 
   end procedure fclBufferInt32_1
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclBufferInt32_2 !(dim,read,write,profileSize,profileName) result(mem)
+  module procedure fclBufferInt32_2 !(dim,read,write,profileName) result(mem)
 
-    mem = fclBufferInt32_1(fclDefaultCmdQ,dim,read,write,profileSize,profileName)
+    mem = fclBufferInt32_1(fclDefaultCmdQ,dim,read,write,profileName)
 
   end procedure fclBufferInt32_2
   ! ---------------------------------------------------------------------------
@@ -376,9 +385,9 @@ submodule (Focal) Focal_Memory
       memObject1%cl_mem = memObject2%cl_mem
       memObject1%cmdQ => memObject2%cmdQ
       memObject1%nBytes = memObject2%nBytes
+      memObject1%profileName = memObject2%profileName
 
-      if (memObject2%profilingEnabled) then
-        memObject1%profileName = memObject2%profileName
+      if (memObject2%profilingEnabled) then  
         memObject1%profilingEnabled = memObject2%profilingEnabled
         memObject1%profileEvents = memObject2%profileEvents
         memObject1%profileSize = memObject2%profileSize

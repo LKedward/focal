@@ -28,6 +28,7 @@ type(fclDevice), allocatable :: devices(:)          ! List of focal devices
 type(fclProgram) :: prog                            ! Focal program object 
 type(fclKernel) :: kern1, kern2                     ! Focal kernel object
 type(fclEvent) :: e
+type(fclProfiler) :: profiler
 
 real, dimension(N) :: px, py, pz, vx, vy, vz
 type(fclDeviceFloat) :: pxd, pyd, pzd, vxd, vyd, vzd
@@ -44,7 +45,6 @@ call fclSetDefaultContext(fclCreateContext(vendor=cl_vendor))
 
 ! Select device with most cores and create command queue
 devices = fclFindDevices(sortBy='cores')
-
 call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1),enableProfiling=.true., &
            outOfOrderExec=.true.,blockingWrite=.false.))
 
@@ -55,16 +55,19 @@ write(*,'(A,I6,A,I6,A,I4,A,A,A)') '    (', devices(1)%nComputeUnits,' cores, ', 
     devices(1)%version,')'
 write(*,*) ''
 
+! Set profiler device
+profiler%device = devices(1)
+
 ! Load kernels from file and compile
 call fclGetKernelResource(kernelSrc)
 prog = fclCompileProgram(kernelSrc)
 
 ! Get kernel objects and set local/global work sizes
 nBlock = (N+blockSize-1)/blockSize
-kern1 = fclGetProgramKernel(prog,'bodyForces',[nBlock*blockSize],[blockSize],&
-                              profileSize=Niter)
-kern2 = fclGetProgramKernel(prog,'integrateBodies',[nBlock*blockSize],[blockSize],&
-                              profileSize=Niter)
+kern1 = fclGetProgramKernel(prog,'bodyForces',[nBlock*blockSize],[blockSize])
+kern2 = fclGetProgramKernel(prog,'integrateBodies',[nBlock*blockSize],[blockSize])
+                              
+call fclProfilerAdd(profiler,Niter,kern1,kern2)
 
 ! Initialise host array data
 call random_number(vx)
@@ -76,12 +79,14 @@ call random_number(py)
 call random_number(pz)
 
 ! Initialise device arrays
-pxd = fclBufferFloat(N,read=.true.,write=.true.,profileSize=1,profileName='pxd')
-pyd = fclBufferFloat(N,read=.true.,write=.true.,profileSize=1,profileName='pyd')
-pzd = fclBufferFloat(N,read=.true.,write=.true.,profileSize=1,profileName='pzd')
-vxd = fclBufferFloat(N,read=.true.,write=.true.,profileSize=1,profileName='vxd')
-vyd = fclBufferFloat(N,read=.true.,write=.true.,profileSize=1,profileName='vyd')
-vzd = fclBufferFloat(N,read=.true.,write=.true.,profileSize=1,profileName='vzd')
+pxd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pxd')
+pyd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pyd')
+pzd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pzd')
+vxd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vxd')
+vyd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vyd')
+vzd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vzd')
+
+call fclProfilerAdd(profiler,1,pxd,pyd,pzd,vxd,vyd,vzd)
 
 ! Copy data to device
 pxd = px
@@ -110,10 +115,9 @@ end do
 call fclWait()
 write(*,*) ' done.'
 
+call fclDumpProfileData(profiler)
 
-! Calculate and print out profiling data
-call fclDumpProfileData([kern1,kern2],devices(1))
-call fclDumpProfileData([pxd,pyd,pzd,vxd,vyd,vzd])
+call fclDumpTracingData(profiler,'nbody.trace')
 
 ! Calculate performance metric
 kern1T = sum(fclGetEventDurations(kern1%profileEvents(1:Niter)))
