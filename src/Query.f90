@@ -6,6 +6,7 @@ submodule (Focal) Focal_Query
   !!  corresponding header module file. See header module file (Focal.f90) for interface definitions. @endnote
 
   use clfortran
+  use M_Strings, only: str_noesc=>noesc
   implicit none
 
   contains
@@ -25,6 +26,9 @@ submodule (Focal) Focal_Query
     errcode = clGetPlatformInfo(platform%cl_platform_id, key, temp_size, C_LOC(value), size_ret)
     call fclErrorHandler(errcode,'fclGetPlatformInfo','clGetPlatformInfo')
 
+    ! Remove non-printable characters (terminating null char)
+    value = str_noesc(value)
+
   end procedure fclGetPlatformInfo
   ! ---------------------------------------------------------------------------
 
@@ -42,6 +46,9 @@ submodule (Focal) Focal_Query
     allocate( character(len=temp_size) :: value)
     errcode = clGetDeviceInfo(device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
     call fclErrorHandler(errcode,'fclGetDeviceInfoString','clGetDeviceInfo')
+
+    ! Remove non-printable characters (terminating null char)
+    value = str_noesc(value)
 
   end procedure fclGetDeviceInfoString
   ! ---------------------------------------------------------------------------
@@ -89,6 +96,9 @@ submodule (Focal) Focal_Query
     allocate( character(len=temp_size) :: value)
     errcode = clGetKernelInfo(kernel%cl_kernel, key, temp_size, C_LOC(value), size_ret)
     call fclErrorHandler(errcode,'fclGetKernelInfoString','clGetKernelInfo')
+
+    ! Remove non-printable characters (terminating null char)
+    value = str_noesc(value)
 
   end procedure fclGetKernelInfoString
   ! ---------------------------------------------------------------------------
@@ -139,6 +149,9 @@ submodule (Focal) Focal_Query
     errcode = clGetKernelArgInfo(kernel%cl_kernel, argNo, key, temp_size, C_LOC(value), size_ret)
     call fclErrorHandler(errcode,'fclGetKernelArgInfoString','clGetKernelArgInfo')
 
+    ! Remove non-printable characters (terminating null char)
+    value = str_noesc(value)
+    
   end procedure fclGetKernelArgInfoString
   ! ---------------------------------------------------------------------------
 
