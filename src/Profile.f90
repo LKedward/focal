@@ -457,7 +457,7 @@ submodule (Focal) Focal_Profile
 
   module procedure fclDumpTracingData !(profiler,filename)
 
-    integer :: fh, kb, j, i, N
+    integer :: fh, kb, j, i, N, tid
     integer(c_int32_t) :: errcode
     integer(c_int64_t), target :: startTime, endTime
     integer(c_size_t) :: size_ret
@@ -486,6 +486,7 @@ submodule (Focal) Focal_Profile
 
           ! deallocate(kernels)
           containers => kernels
+          tid = 1
 
         else
           cycle
@@ -502,6 +503,7 @@ submodule (Focal) Focal_Profile
 
           ! deallocate(buffers)
           containers => buffers
+          tid = 2
 
         else
           cycle
@@ -536,7 +538,7 @@ submodule (Focal) Focal_Profile
 
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
-            write(fh,*) '"pid": 1, "tid": 1,'
+            write(fh,*) '"pid": 1, "tid": ',tid,','
             write(fh,*) '"ts": ',startTime/1000,','
             write(fh,*) '"ph": "B",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'
@@ -544,7 +546,7 @@ submodule (Focal) Focal_Profile
 
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
-            write(fh,*) '"pid": 1, "tid": 1,'
+            write(fh,*) '"pid": 1, "tid": ',tid,','
             write(fh,*) '"ts": ',endTime/1000,','
             write(fh,*) '"ph": "E",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'
@@ -566,6 +568,17 @@ submodule (Focal) Focal_Profile
       end if
 
     end do ! loop between kernels and buffers
+
+    write(fh,*) ',{"name": "process_name", "ph": "M", "pid": 1, "tid": 1,'
+    write(fh,*) '"args": {"name" : "OpenCL device: ',profiler%device%name,'"}'
+    write(fh,*)  '}'
+    write(fh,*) ',{"name": "thread_name", "ph": "M", "pid": 1, "tid": 1,'
+    write(fh,*) '"args": {"name" : "Kernels"}'
+    write(fh,*)  '}'
+    write(fh,*) ',{"name": "thread_name", "ph": "M", "pid": 1, "tid": 2,'
+    write(fh,*) '"args": {"name" : "Buffers"}'
+    write(fh,*)  '}'
+
 
     write(fh,*) ']'
     close(fh)
