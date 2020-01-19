@@ -7,4 +7,5 @@ doc/*
 *fclKernels.cl
 test/testSummary
 test/test_outputs*
+*.trace
 

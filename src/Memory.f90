@@ -30,7 +30,7 @@ submodule (Focal) Focal_Memory
     tempCmdQ => memObject2%cmdq
     memObject2%cmdQ => memObject1%cmdQ
     memObject1%cmdQ => tempCmdQ
-    
+
   end procedure fclBufferSwap
   ! ---------------------------------------------------------------------------
 
@@ -231,7 +231,7 @@ submodule (Focal) Focal_Memory
 
     call fclPopDependencies(memObject%cmdq)
     fclLastWriteEvent = memObject%cmdq%lastWriteEvent
-    
+
     call memObject%pushProfileEvent(memObject%cmdq%lastWriteEvent,1)
 
     call fclErrorHandler(errcode,'fclMemWrite','clEnqueueWriteBuffer')
@@ -413,7 +413,7 @@ submodule (Focal) Focal_Memory
     call fclDbgCheckBufferInit(memObject,'fclFreeBuffer')
 
     errcode = clReleaseMemObject(memObject%cl_mem)
-    
+
     call fclErrorHandler(errcode,'fclFreeBuffer','clReleaseMemObject')
 
     memObject%nBytes = -1

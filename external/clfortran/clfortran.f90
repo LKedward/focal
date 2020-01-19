@@ -20,8 +20,8 @@
 !  Add explicit definition of 'BOZ' constants as integers.
 !  Fix interface definitions to be in interface block.
 !  Add definitions of cl_event_command_execution_status constants
+!  Add definitions of cl_map_flags bitfields
 !
-! https://github.com/LKedward/clfortran
 !
 ! -----------------------------------------------------------------------------
 !
@@ -362,6 +362,11 @@ module clfortran
     integer(c_int32_t), parameter :: CL_PROGRAM_BINARIES                        = int(Z'1166',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_NUM_KERNELS                     = int(Z'1167',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_PROGRAM_KERNEL_NAMES                    = int(Z'1168',kind=c_int32_t)
+
+    ! cl_map_flags - bitfield
+    integer(c_int64_t), parameter :: CL_MAP_READ                                =int(b'1'  ,kind=c_int64_t)
+    integer(c_int64_t), parameter :: CL_MAP_WRITE                               =int(b'10' ,kind=c_int64_t)
+    integer(c_int64_t), parameter :: CL_MAP_WRITE_INVALIDATE_REGION             =int(b'100',kind=c_int64_t)
 
     ! cl_program_build_info
     integer(c_int32_t), parameter :: CL_PROGRAM_BUILD_STATUS                    = int(Z'1181',kind=c_int32_t)
