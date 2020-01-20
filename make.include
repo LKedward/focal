@@ -24,8 +24,10 @@ vpath %.f90 $(FOCAL_DIR)/external/M_strings
 
 # Source files
 FOCAL_BASE = Focal clfortran Quicksort M_strings
-FOCAL_SRCS = Error Memory HostMemory Query Setup Utils Profile Debug NoDebug
-FOCAL_LIBS = focal focaldbg
+FOCAL_SRCS = Focal_Error Focal_Memory Focal_HostMemory \
+             Focal_Query Focal_Setup Focal_Utils Focal_Profile \
+             Focal_Debug Focal_NoDebug
+FOCAL_LIBS = Focal Focaldbg
 
 # Objects
 FOCAL_BASE_OBJS = $(addprefix $(FOCAL_OBJDIR), $(addsuffix .o, $(FOCAL_BASE)) )
@@ -46,12 +48,12 @@ focal_clean:
 	rm -f $(FOCAL_MODDIR)*.smod
 
 # Generate release library
-$(FOCAL_LIBDIR)libfocal.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)Debug.o, $(FOCAL_OBJS))
+$(FOCAL_LIBDIR)libFocal.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)Debug.o, $(FOCAL_OBJS))
 	rm -f $@
 	$(AR) -cq $@ $^
 
 # Generate debug library
-$(FOCAL_LIBDIR)libfocaldbg.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)NoDebug.o, $(FOCAL_OBJS))
+$(FOCAL_LIBDIR)libFocaldbg.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)NoDebug.o, $(FOCAL_OBJS))
 	rm -f $@
 	$(AR) -cq $@ $^
 

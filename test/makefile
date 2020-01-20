@@ -32,9 +32,9 @@ FFLAGS=$(FOCAL_FFLAGS)
 
 # --- Link Flags ---
 ifeq ($(BUILD), release)
-    FOCAL_LFLAGS ?= -L$(FOCAL_DIR)/lib -lfocal
+    FOCAL_LFLAGS ?= -L$(FOCAL_DIR)/lib -lFocal
 else ifeq ($(BUILD), debug)
-    FOCAL_LFLAGS ?= -L$(FOCAL_DIR)/lib -lfocaldbg
+    FOCAL_LFLAGS ?= -L$(FOCAL_DIR)/lib -lFocaldbg
 else
     $(error unrecognized build.)
 endif
