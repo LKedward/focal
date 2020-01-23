@@ -96,6 +96,17 @@ module Focal
     integer(c_intptr_t) :: cl_program                !! openCL program pointer
   end type fclProgram
 
+ type :: fclKernelPointer
+    !! Wrapper type for implementing an array of pointers to kernel objects
+    class(fclKernel), pointer :: target
+  end type fclKernelPointer
+
+  type :: fclBufferPointer
+    !! Wrapper type for implementing an array of pointers to buffer objects
+    class(fclDeviceBuffer), pointer :: target
+  end type fclBufferPointer
+
+
   type :: fclProfiler
     !! Helper type to collect objects (kernels and buffers) that
     !!  are profiled to simply user code.
@@ -113,17 +124,7 @@ module Focal
       procedure, pass :: add => fclProfilerAdd
   end type fclProfiler
 
-  type :: fclKernelPointer
-    !! Wrapper type for implementing an array of pointers to kernel objects
-    class(fclKernel), pointer :: target
-  end type fclKernelPointer
-
-  type :: fclBufferPointer
-    !! Wrapper type for implementing an array of pointers to buffer objects
-    class(fclDeviceBuffer), pointer :: target
-  end type fclBufferPointer
-
-  type :: fclProfileContainer
+   type :: fclProfileContainer
     !! Base container type for event profiling
     character(:), allocatable :: profileName
       !! Descriptive name for output of profiling information
