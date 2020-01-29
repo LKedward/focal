@@ -137,7 +137,7 @@ module Focal
     integer :: nProfileEvent = 0
       !! Number of events saved to profileEvents(:) array
     contains
-      procedure, pass :: enableProfiling => fclEnableProfiling
+      ! procedure, pass :: enableProfiling => fclEnableProfiling
       procedure, pass :: pushProfileEvent => fclPushProfileEvent
       ! procedure, pass :: dumpProfileData => fclDumpProfileData
   end type fclProfileContainer

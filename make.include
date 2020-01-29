@@ -48,12 +48,12 @@ focal_clean:
 	rm -f $(FOCAL_MODDIR)*.smod
 
 # Generate release library
-$(FOCAL_LIBDIR)libFocal.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)Debug.o, $(FOCAL_OBJS))
+$(FOCAL_LIBDIR)libFocal.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)Focal_Debug.o, $(FOCAL_OBJS))
 	rm -f $@
 	$(AR) -cq $@ $^
 
 # Generate debug library
-$(FOCAL_LIBDIR)libFocaldbg.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)NoDebug.o, $(FOCAL_OBJS))
+$(FOCAL_LIBDIR)libFocaldbg.a: $(FOCAL_BASE_OBJS) $(filter-out $(FOCAL_OBJDIR)Focal_NoDebug.o, $(FOCAL_OBJS))
 	rm -f $@
 	$(AR) -cq $@ $^
 
