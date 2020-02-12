@@ -57,7 +57,8 @@ submodule (Focal) Focal_Setup
 
       do i=1,size(platforms,1)
 
-        if (index( upperstr(platforms(i)%vendor) , upperstr(trim(vendors(vi))) ) > 0) then
+        if (index( upperstr(platforms(i)%vendor) , upperstr(trim(vendors(vi))) ) > 0 .or. &
+            index( upperstr(platforms(i)%name) , upperstr(trim(vendors(vi))) ) > 0) then
           chosenPlatform = platforms(i)
           vendorFound = .TRUE.
           exit vendorLoop
