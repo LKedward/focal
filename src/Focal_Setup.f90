@@ -504,6 +504,7 @@ submodule (Focal) Focal_Setup
   module procedure fclLaunchKernel !(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,&
                                       ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
 
+    integer :: i, nBlocki
     integer(c_int32_t) :: errcode
     type(fclCommandQ), pointer :: cmdQ
     type(c_ptr) :: localSizePtr
@@ -520,6 +521,16 @@ submodule (Focal) Focal_Setup
       localSizePtr = C_NULL_PTR
     else
       localSizePtr = c_loc(kernel%local_work_size)
+
+      ! Check global dims are multiples of user-specified 
+      !  local dims and update if necessary
+      do i=1,kernel%work_dim
+        if (mod(kernel%global_work_size(i),kernel%local_work_size(i)) > 0) then
+          nBlocki = (kernel%global_work_size(i) + kernel%local_work_size(i) - 1)/kernel%local_work_size(i)
+          kernel%global_work_size(i) = nBlocki*kernel%local_work_size(i)
+        end if
+      end do
+
     end if
 
     ! Set arguments and parse (get number of args and cmdq if specified)
