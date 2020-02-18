@@ -458,6 +458,7 @@ submodule (Focal) Focal_Profile
   module procedure fclDumpTracingData !(profiler,filename)
 
     integer :: fh, kb, j, i, N, tid
+    integer(c_intptr_t), target :: qid
     integer(c_int32_t) :: errcode
     integer(c_int64_t), target :: startTime, endTime
     integer(c_size_t) :: size_ret
@@ -530,6 +531,11 @@ submodule (Focal) Focal_Profile
               CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
             call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
 
+            ! Get event command queue
+            errcode = clGetEventInfo(profileContainer%profileEvents(i)%cl_event, &
+              CL_EVENT_COMMAND_QUEUE, c_sizeof(qid), c_loc(qid), size_ret)
+            call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventInfo')
+
             if (.not.isFirstEvent) then
               write(fh,*) ','
             else
@@ -538,7 +544,7 @@ submodule (Focal) Focal_Profile
 
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
-            write(fh,*) '"pid": 1, "tid": ',tid,','
+            write(fh,*) '"pid": 1, "tid": ',qid,','
             write(fh,*) '"ts": ',startTime/1000,','
             write(fh,*) '"ph": "B",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'
@@ -546,7 +552,7 @@ submodule (Focal) Focal_Profile
 
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
-            write(fh,*) '"pid": 1, "tid": ',tid,','
+            write(fh,*) '"pid": 1, "tid": ',qid,','
             write(fh,*) '"ts": ',endTime/1000,','
             write(fh,*) '"ph": "E",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'
