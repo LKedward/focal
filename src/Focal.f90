@@ -91,6 +91,23 @@ module Focal
       !! Use fclClearDependencies to clear and reset.
   end type fclCommandQ
 
+  type :: fclCommandQPool
+    !! Collection of fclCommandQ objects with round-robin scheduling.
+    !!  Allows easy handling of multiple command queues for parallel kernels
+    !!  data transfers.
+    integer :: length
+      !! Number of command queues
+    type(fclCommandQ), allocatable :: queues(:)
+      !! Array of command queues
+    integer :: idx = 1
+      !! Index of current command queue
+    contains
+    procedure, pass :: next => fclCommandQPool_Next
+      !! Returns next scheduled queue in queue pool
+    procedure, pass :: current => fclCommandQPool_Current
+      !! Returns current scheduled queue in queue pool
+  end type fclCommandQPool
+
   type :: fclProgram
     !! Type wrapper for openCL program objects
     integer(c_intptr_t) :: cl_program                !! openCL program pointer
@@ -889,6 +906,54 @@ module Focal
 
   end interface fclCreateCommandQ
 
+  interface fclCreateCommandQPool
+    !! Generic interface to create a pool of command queues
+
+    module function fclCreateCommandQPool_1(ctx,N,device,enableProfiling,outOfOrderExec,&
+                                          blockingWrite,blockingRead) result(qPool)
+      !! Create a command queue pool with a Focal device object
+      type(fclContext), intent(in), target :: ctx          !! Context containing device for command queue
+      integer, intent(in) :: N                             !! Number of command queues to create in pool
+      type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
+      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling
+      logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
+      logical, intent(in), optional :: blockingWrite       !! Enable/disable host-blocking write to device
+      logical, intent(in), optional :: blockingRead        !! Enable/disable host-blocking read from device
+      type(fclCommandQPool) :: qPool                       !! Returns fclCommandQPool object
+    end function fclCreateCommandQPool_1
+
+    module function fclCreateCommandQPool_2(N,device,enableProfiling,outOfOrderExec,&
+                                          blockingWrite,blockingRead) result(qPool)
+      !! Create a command queue pool with a Focal device object using default context
+      integer, intent(in) :: N                             !! Number of command queues to create in pool
+      type(fclDevice), intent(inout), target :: device     !! Device on which to create command queue
+      logical, intent(in), optional :: enableProfiling     !! Enable OpenCL profiling
+      logical, intent(in), optional :: outOfOrderExec      !! Enable out of order execution
+      logical, intent(in), optional :: blockingWrite       !! Enable/disable host-blocking write to device
+      logical, intent(in), optional :: blockingRead        !! Enable/disable host-blocking read from device
+      type(fclCommandQPool) :: qPool                       !! Returns fclCommandQPool object
+    end function fclCreateCommandQPool_2
+
+  end interface fclCreateCommandQPool
+
+
+  interface
+
+    module function fclCommandQPool_Next(qPool) result(cmdQ)
+      !! Returns next scheduled queue in queue pool
+      class(fclCommandQPool), intent(inout) :: qPool
+      type(fclCommandQ) :: cmdQ
+    end function fclCommandQPool_Next
+
+    module function fclCommandQPool_Current(qPool) result(cmdQ)
+      !! Returns current scheduled queue in queue pool
+      class(fclCommandQPool), intent(in) :: qPool
+      type(fclCommandQ) :: cmdQ
+    end function fclCommandQPool_Current
+
+  end interface
+
+
   interface
 
     module subroutine fclSetDefaultCommandQ(cmdq)
@@ -1082,6 +1147,11 @@ module Focal
     module subroutine fclFinish_2()
       !! Wait on host for all events in focal default command queue
     end subroutine fclFinish_2
+
+    module subroutine fclFinish_3(qPool)
+      !! Wait on host for all events in all queues in a queue pool
+      type(fclCommandQPool), intent(in) :: qPool
+    end subroutine fclFinish_3
 
     module subroutine fclWaitEvent(event)
       !! Wait on host for a specific event

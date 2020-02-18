@@ -249,6 +249,59 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclCreateCommandQPool_1 !(ctx,N,device,enableProfiling,outOfOrderExec,&
+      ! blockingWrite,blockingRead) result(qPool)
+    !! Create a command queue pool with a Focal device object
+
+    integer :: i
+
+    qPool%length = N
+
+    allocate(qPool%queues(N))
+
+    do i=1,N
+      qPool%queues(i) = fclCreateCommandQ_1(ctx,device,enableProfiling,outOfOrderExec, &
+                                                blockingWrite, blockingRead)
+    end do
+
+  end procedure fclCreateCommandQPool_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCreateCommandQPool_2 !(N,device,enableProfiling,outOfOrderExec,&
+    ! blockingWrite,blockingRead) result(qPool)
+    !! Create a command queue pool with a Focal device object using the default context
+    
+    qPool = fclCreateCommandQPool_1(fclDefaultCtx,N,device,enableProfiling,outOfOrderExec,&
+                                      blockingWrite,blockingRead)
+
+  end procedure fclCreateCommandQPool_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCommandQPool_Next !(qPool) result(cmdQ)
+    !! Returns next scheduled queue in queue pool
+
+    ! Increment queue index (round-robin scheduling)
+    qPool%idx = qPool%idx + 1
+    qPool%idx = mod(qPool%idx-1,qPool%length) + 1
+
+    ! Return next queue
+    cmdQ = qPool%queues(qPool%idx)
+
+  end procedure fclCommandQPool_Next
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclCommandQPool_Current !(qPool) result(cmdQ)
+    !! Returns current scheduled queue in queue pool
+
+    cmdQ = qPool%queues(qPool%idx)
+
+  end procedure fclCommandQPool_Current
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclSetDefaultCommandQ !(cmdq)
     !! Set the global default command queue
     fclDefaultCmdQ = cmdq
@@ -256,7 +309,7 @@ submodule (Focal) Focal_Setup
   end procedure fclSetDefaultCommandQ
   ! ---------------------------------------------------------------------------
 
-
+  
   module procedure fclCompileProgram_1 !(ctx,source,options) result(prog)
 
     integer :: i
@@ -788,6 +841,19 @@ submodule (Focal) Focal_Setup
     call fclFinish_1(fclDefaultCmdQ)
 
   end procedure fclFinish_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFinish_3 !(qPool)
+    !! Wait on host for all events in all queues in a queue pool
+
+    integer :: i
+
+    do i=1,qPool%length
+      call fclFinish_1(qPool%queues(i))
+    end do
+
+  end procedure fclFinish_3
   ! ---------------------------------------------------------------------------
 
 
