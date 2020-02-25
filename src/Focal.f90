@@ -1175,7 +1175,7 @@ module Focal
 
     module subroutine fclEnableProfiling(container,profileSize,profiler)
       !! Enable profiling on a specific container by allocating space to save events
-      class(fclProfileContainer), intent(inout) :: container
+      class(fclProfileContainer), intent(inout), target :: container
         !! Container on which to enable profiling. This can be one of:
         !! `fclKernel`,`fclDeviceBuffer`,`fclProfileContainer`.
       integer, intent(in) :: profileSize
