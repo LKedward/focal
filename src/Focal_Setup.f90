@@ -88,7 +88,7 @@ submodule (Focal) Focal_Setup
 
   module procedure fclFindDevices_1 !(ctx,type,nameLike,sortBy) result(deviceList)
     !! Create command queue by finding a device
-    use quicksort
+    use futils_sorting, only: argsort
     integer :: i,j
 
     integer :: sortMetric(ctx%platform%numDevice)
@@ -164,8 +164,7 @@ submodule (Focal) Focal_Setup
 
     ! --- Sort by sorting metric ---
     sortMetric = -sortMetric          ! Sort descending
-    sortList = [(i,i=1,ctx%platform%numDevice)]
-    call quick_sort(sortMetric,sortList)
+    sortList = argsort(sortMetric)
 
     nFiltered = count(filter)
     if (nFiltered < 1) then
