@@ -352,7 +352,10 @@ submodule (Focal) Focal_Memory
       memObject1%cl_mem = memObject2%cl_mem
       memObject1%cmdQ => memObject2%cmdQ
       memObject1%nBytes = memObject2%nBytes
-      memObject1%profileName = memObject2%profileName
+
+      if (allocated(memObject2%profileName)) then
+        memObject1%profileName = memObject2%profileName
+      end if
 
       if (memObject2%profilingEnabled) then  
         memObject1%profilingEnabled = memObject2%profilingEnabled
