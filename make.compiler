@@ -1,33 +1,33 @@
 # --- Compile flags ---
 # Compiler
-PLATFORM ?= gnu
+FC = gfortran
 BUILD ?= release
-ifeq ($(PLATFORM), gnu)
+ifeq ($(FC), gfortran)
 	FC=gfortran
 	AR=gcc-ar
 	FOCAL_FFLAGS += -std=f2008 -fimplicit-none -J$(FOCAL_MODDIR)
 	FOCAL_FFLAGS_LEGACY = -fimplicit-none -J$(FOCAL_MODDIR)
 
-else ifeq ($(PLATFORM), intel)
+else ifeq ($(FC), ifort)
 	FC=ifort
-	FOCAL_FFLAGS += -stand:f08 -module:$(FOCAL_MODDIR)
+	FOCAL_FFLAGS += -stand:f08 -module $(FOCAL_MODDIR)
 	FOCAL_FFLAGS_LEGACY = $(FOCAL_FFLAGS)
 
 else
-  $(error unrecognized platform.)
+  $(error unrecognized compiler $(FC).)
 endif
 
-ifeq ($(PLATFORM)-$(BUILD), gnu-debug)
+ifeq ($(FC)-$(BUILD), gfortran-debug)
 	FOCAL_FFLAGS += -g -Og -C -Wall -fbounds-check -fbacktrace -ffpe-trap=invalid,zero,overflow
 
-else ifeq ($(PLATFORM)-$(BUILD), gnu-release)
+else ifeq ($(FC)-$(BUILD), gfortran-release)
 	FOCAL_FFLAGS += -O3 
 	#-flto
 
-else ifeq ($(PLATFORM)-$(BUILD), intel-debug)
+else ifeq ($(FC)-$(BUILD), ifort-debug)
 	FOCAL_FFLAGS += -O0 -check all -debug all -traceback -fpe0
 
-else ifeq ($(PLATFORM)-$(BUILD), intel-release)
+else ifeq ($(FC)-$(BUILD), ifort-release)
 	FOCAL_FFLAGS += -fast
 
 else

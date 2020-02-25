@@ -54,7 +54,7 @@ clean:
 $(PROGOBJS): $(FOCAL_LIB_OBJS) $(MODOBJS)
 
 # Recipe to link executables
-$(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS)
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS) | $(BINDIR)
 	$(FC) $^ $(LFLAGS) -o $@
 
 # Recipe to compile fortran objects
@@ -95,6 +95,9 @@ $(REPORT): $(TESTOUT)
 
 $(OUTDIR):
 	mkdir $(OUTDIR)
+
+$(BINDIR):
+	mkdir $(BINDIR)
 
 # Don't cleanup kernels object
 .SECONDARY: $(KERNELOBJS)

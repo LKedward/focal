@@ -44,7 +44,7 @@ clean:
 $(PROGOBJS): $(FOCAL_LIB_OBJS)
 
 # Recipe to link executables
-$(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o)
+$(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) | $(BINDIR)
 	$(FC) $^ $(LFLAGS) -o $@
 
 # Recipe to compile fortran objects
@@ -58,4 +58,7 @@ $(OBJDIR)%.cl.o: %.cl
 	rm fclKernels.cl
 	nm $@
 
+# Recipe to create output directory
+$(BINDIR):
+	mkdir $@
 
