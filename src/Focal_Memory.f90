@@ -173,6 +173,8 @@ submodule (Focal) Focal_Memory
     logical :: read, write
     integer(c_size_t), target :: info(2)
 
+    call fclDbgCheckBufferInit(sourceBuffer,'fclInitSubBuffer:sourceBuffer')
+
     ! Check kernel access flags
     if (present(access)) then
       read = index(upperstr(access),'R') > 0
