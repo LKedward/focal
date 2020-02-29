@@ -21,7 +21,7 @@ character(*), parameter :: cl_vendor = 'nvidia,amd,intel'     ! Vendors for whic
 
 ! ---------Program variables  ---------
 integer :: i, nBlock
-integer :: kern1T, kern2T
+integer(c_size_t) :: kern1T, kern2T
 real :: Tavg, perf
 character(:), allocatable :: kernelSrc              ! Kernel source string
 type(fclDevice), allocatable :: devices(:)          ! List of focal devices
