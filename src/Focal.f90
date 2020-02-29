@@ -557,6 +557,113 @@ module Focal
 
   end interface fclInitBuffer
 
+  ! --------- Sub-Buffer Initialisation ---------
+
+  interface fclInitSubBuffer
+    !! Generic interface to initialise sub-buffers on the device
+
+    module subroutine fclInitSubBufferUntyped_1(cmdq,subbuffer,sourceBuffer,offset,size,profileName,access)
+      !! Initialise an untyped sub-buffer from an existing buffer
+      type(fclCommandQ), intent(in), target :: cmdq         !! Queue with which to associate new buffer
+      type(fclDeviceBuffer), intent(inout) :: subBuffer     !! Focal memory object to initialise as new sub-buffer
+      class(fclDeviceBuffer), intent(inout) :: sourceBuffer !! Focal memory object in which to create sub-buffer
+      integer(c_size_t), intent(in) :: offset               !! Offset in bytes of sub-buffer within sourceBuffer
+      integer(c_size_t), intent(in) :: size                 !! Size in bytes of sub-buffer
+      character(*), intent(in), optional :: profileName     !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferUntyped_1
+
+    module subroutine fclInitSubBufferUntyped_2(subbuffer,sourceBuffer,offset,size,profileName,access)
+      !! Initialise an untyped sub-buffer from an existing buffer on the default command queue
+      type(fclDeviceBuffer), intent(inout) :: subBuffer     !! Focal memory object to initialise as new sub-buffer
+      class(fclDeviceBuffer), intent(inout) :: sourceBuffer !! Focal memory object in which to create sub-buffer
+      integer(c_size_t), intent(in) :: offset               !! Offset in bytes of sub-buffer within sourceBuffer
+      integer(c_size_t), intent(in) :: size                 !! Size in bytes of sub-buffer
+      character(*), intent(in), optional :: profileName     !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferUntyped_2
+
+    module subroutine fclInitSubBufferFloat_1(cmdq,subbuffer,sourceBuffer,start,length,profileName,access)
+      !! Initialise a float sub-buffer from an existing float buffer
+      type(fclCommandQ), intent(in), target :: cmdq        !! Queue with which to associate new buffer
+      type(fclDeviceFloat), intent(inout) :: subBuffer     !! Focal memory object to initialise as new sub-buffer
+      type(fclDeviceFloat), intent(inout) :: sourceBuffer  !! Focal memory object in which to create sub-buffer
+      integer, intent(in) :: start                         !! Zero-based start element of sub-buffer within sourceBuffer
+      integer, intent(in) :: length                        !! Length (no. of elements) of sub-buffer
+      character(*), intent(in), optional :: profileName    !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferFloat_1
+
+    module subroutine fclInitSubBufferFloat_2(subbuffer,sourceBuffer,start,length,profileName,access)
+      !! Initialise a float sub-buffer from an existing float buffer on the default command queue
+      type(fclDeviceFloat), intent(inout) :: subBuffer     !! Focal memory object to initialise as new sub-buffer
+      type(fclDeviceFloat), intent(inout) :: sourceBuffer  !! Focal memory object in which to create sub-buffer
+      integer, intent(in) :: start                         !! Zero-based start element of sub-buffer within sourceBuffer
+      integer, intent(in) :: length                        !! Length (no. of elements) of sub-buffer
+      character(*), intent(in), optional :: profileName    !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferFloat_2
+
+    module subroutine fclInitSubBufferDouble_1(cmdq,subbuffer,sourceBuffer,start,length,profileName,access)
+      !! Initialise a double sub-buffer from an existing float buffer
+      type(fclCommandQ), intent(in), target :: cmdq         !! Queue with which to associate new buffer
+      type(fclDeviceDouble), intent(inout) :: subBuffer     !! Focal memory object to initialise as new sub-buffer
+      type(fclDeviceDouble), intent(inout) :: sourceBuffer  !! Focal memory object in which to create sub-buffer
+      integer, intent(in) :: start                          !! Zero-based start element of sub-buffer within sourceBuffer
+      integer, intent(in) :: length                         !! Length (no. of elements) of sub-buffer
+      character(*), intent(in), optional :: profileName     !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferDouble_1
+
+    module subroutine fclInitSubBufferDouble_2(subbuffer,sourceBuffer,start,length,profileName,access)
+      !! Initialise a double sub-buffer from an existing float buffer on the default command queue
+      type(fclDeviceDouble), intent(inout) :: subBuffer     !! Focal memory object to initialise as new sub-buffer
+      type(fclDeviceDouble), intent(inout) :: sourceBuffer  !! Focal memory object in which to create sub-buffer
+      integer, intent(in) :: start                          !! Zero-based start element of sub-buffer within sourceBuffer
+      integer, intent(in) :: length                         !! Length (no. of elements) of sub-buffer
+      character(*), intent(in), optional :: profileName     !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferDouble_2
+
+    module subroutine fclInitSubBufferint32_1(cmdq,subbuffer,sourceBuffer,start,length,profileName,access)
+      !! Initialise a 32bit integer sub-buffer from an existing float buffer
+      type(fclCommandQ), intent(in), target :: cmdq         !! Queue with which to associate new buffer
+      type(fclDeviceInt32), intent(inout) :: subBuffer      !! Focal memory object to initialise as new sub-buffer
+      type(fclDeviceInt32), intent(inout) :: sourceBuffer   !! Focal memory object in which to create sub-buffer
+      integer, intent(in) :: start                          !! Zero-based start element of sub-buffer within sourceBuffer
+      integer, intent(in) :: length                         !! Length (no. of elements) of sub-buffer
+      character(*), intent(in), optional :: profileName     !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferint32_1
+
+    module subroutine fclInitSubBufferint32_2(subbuffer,sourceBuffer,start,length,profileName,access)
+      !! Initialise a 32bit integer sub-buffer from an existing float buffer on the default command queue
+      type(fclDeviceInt32), intent(inout) :: subBuffer      !! Focal memory object to initialise as new sub-buffer
+      type(fclDeviceInt32), intent(inout) :: sourceBuffer   !! Focal memory object in which to create sub-buffer
+      integer, intent(in) :: start                          !! Zero-based start element of sub-buffer within sourceBuffer
+      integer, intent(in) :: length                         !! Length (no. of elements) of sub-buffer
+      character(*), intent(in), optional :: profileName     !! Descriptive name for profiling output
+      character(*), intent(in), optional :: access
+        !! Read/write access of kernels to buffer
+        !! 'rw' = read&write (default), 'r'=read-only, 'w'=write-only
+    end subroutine fclInitSubBufferint32_2
+
+  end interface fclInitSubBuffer
+
   interface
 
     ! --------- Write scalar to device ---------
