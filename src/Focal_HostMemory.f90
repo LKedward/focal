@@ -11,8 +11,8 @@ submodule (Focal) Focal_HostMemory
   contains
 
 
-  module procedure fclAllocHostPtr !(cmdq,nBytes) result(ptr)
-    !! Allocate a 'pinned' host array
+  module procedure fclAllocHostPtr_1 !(cmdq,hostPtr,nBytes)
+    !! Allocate a 'pinned' (non-paged) host array
 
     integer(c_int32_t) :: errcode
     integer(c_intptr_t), target :: cl_context
@@ -33,23 +33,30 @@ submodule (Focal) Focal_HostMemory
     call fclErrorhandler(errcode,'fclAllocHostPtr','clCreateBuffer')
 
 
-    ptr = clEnqueueMapBuffer(cmdq%cl_command_queue,&
+    hostPtr = clEnqueueMapBuffer(cmdq%cl_command_queue,&
             devicePtr, CL_TRUE,&
             ior(CL_MAP_WRITE,CL_MAP_READ), int(0,c_int64_t), nBytes, 0,&
             C_NULL_PTR, C_NULL_PTR, errcode)
 
     call fclErrorhandler(errcode,'fclAllocHostPtr','clEnqueueMapBuffer')
 
-  end procedure fclAllocHostPtr
+  end procedure fclAllocHostPtr_1
   ! ---------------------------------------------------------------------------
   
+  module procedure fclAllocHostPtr_2 !(hostPtr,nBytes)
+    !! Allocate a 'pinned' (non-paged) host array on default command queue
+
+    call fclAllocHostPtr_1(fclDefaultCmdQ,hostPtr,nBytes)
+
+  end procedure fclAllocHostPtr_2
+  ! ---------------------------------------------------------------------------
 
   module procedure fclAllocHostInt32D1_1 !(cmdq,hostPtr,dim)
     !! Allocate a 1D 'pinned' host array for 32bit integers
 
     type(c_ptr) :: ptr
 
-    ptr = fclAllocHostPtr(cmdq,dim*c_sizeof(int(1,c_int32_t)))
+    call fclAllocHostPtr_1(cmdq,ptr,dim*c_sizeof(int(1,c_int32_t)))
 
     call c_f_pointer(ptr,hostPtr,[dim])
 
@@ -60,7 +67,7 @@ submodule (Focal) Focal_HostMemory
   module procedure fclAllocHostInt32D1_2 !(hostPtr,dim)
     !! Allocate a 1D 'pinned' host array for 32bit integers on default cmdq
 
-    call fclAllocHostInt32D1_1 (fclDefaultCmdQ,hostPtr,dim)
+    call fclAllocHostInt32D1_1(fclDefaultCmdQ,hostPtr,dim)
 
   end procedure fclAllocHostInt32D1_2
   ! ---------------------------------------------------------------------------
@@ -71,7 +78,7 @@ submodule (Focal) Focal_HostMemory
 
     type(c_ptr) :: ptr
 
-    ptr = fclAllocHostPtr(cmdq,product(dim)*c_sizeof(int(1,c_int32_t)))
+    call fclAllocHostPtr_1(cmdq,ptr,product(dim)*c_sizeof(int(1,c_int32_t)))
 
     call c_f_pointer(ptr,hostPtr,dim)
 
@@ -93,7 +100,7 @@ submodule (Focal) Focal_HostMemory
 
     type(c_ptr) :: ptr
 
-    ptr = fclAllocHostPtr(cmdq,dim*c_sizeof(real(1.0,c_float)))
+    call fclAllocHostPtr_1(cmdq,ptr,dim*c_sizeof(real(1.0,c_float)))
 
     call c_f_pointer(ptr,hostPtr,[dim])
 
@@ -115,7 +122,7 @@ submodule (Focal) Focal_HostMemory
 
     type(c_ptr) :: ptr
 
-    ptr = fclAllocHostPtr(cmdq,product(dim)*c_sizeof(real(1,c_Float)))
+    call fclAllocHostPtr_1(cmdq,ptr,product(dim)*c_sizeof(real(1,c_Float)))
 
     call c_f_pointer(ptr,hostPtr,dim)
 
@@ -137,7 +144,7 @@ submodule (Focal) Focal_HostMemory
 
     type(c_ptr) :: ptr
 
-    ptr = fclAllocHostPtr(cmdq,dim*c_sizeof(real(1.0,c_Double)))
+    call fclAllocHostPtr_1(cmdq,ptr,dim*c_sizeof(real(1.0,c_Double)))
 
     call c_f_pointer(ptr,hostPtr,[dim])
 
@@ -159,7 +166,7 @@ submodule (Focal) Focal_HostMemory
 
     type(c_ptr) :: ptr
 
-    ptr = fclAllocHostPtr(cmdq,product(dim)*c_sizeof(real(1,c_Double)))
+    call fclAllocHostPtr_1(cmdq,ptr,product(dim)*c_sizeof(real(1,c_Double)))
 
     call c_f_pointer(ptr,hostPtr,dim)
 

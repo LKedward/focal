@@ -79,12 +79,12 @@ call random_number(py)
 call random_number(pz)
 
 ! Initialise device arrays
-pxd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pxd')
-pyd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pyd')
-pzd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pzd')
-vxd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vxd')
-vyd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vyd')
-vzd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vzd')
+call fclInitBuffer(pxd,N,profileName='pxd')
+call fclInitBuffer(pyd,N,profileName='pyd')
+call fclInitBuffer(pzd,N,profileName='pzd')
+call fclInitBuffer(vxd,N,profileName='vxd')
+call fclInitBuffer(vyd,N,profileName='vyd')
+call fclInitBuffer(vzd,N,profileName='vzd')
 
 call fclProfilerAdd(profiler,1,pxd,pyd,pzd,vxd,vyd,vzd)
 

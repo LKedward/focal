@@ -28,15 +28,11 @@ integer :: i
 ! --- Initialise ---
 call fclTestInit()
 
-! --- Initialise typed device buffers ---
-deviceInt32 = fclBufferInt32(FCL_TEST_SIZE,read=.true.,write=.true.)
-deviceReal32 = fclBufferFloat(FCL_TEST_SIZE,read=.true.,write=.true.)
-deviceReal64 = fclBufferDouble(FCL_TEST_SIZE,read=.true.,write=.true.)
-
-! --- Manually initialise un-typed buffer objects ---
-deviceBuffer%cmdq => fclDefaultCmdQ
-deviceBuffer%nBytes = c_sizeof(hostChar)
-deviceBuffer%cl_mem = fclBuffer(fclDefaultCmdQ,c_sizeof(hostChar),read=.true.,write=.true.)
+! --- Initialise device buffers ---
+call fclInitBuffer(deviceInt32,FCL_TEST_SIZE)
+call fclInitBuffer(deviceReal32,FCL_TEST_SIZE)
+call fclInitBuffer(deviceReal64,FCL_TEST_SIZE)
+call fclInitBuffer(deviceBuffer,c_sizeof(hostChar))
 
 ! --- Initialise kernels ---
 call fclGetKernelResource(kernelSrc)

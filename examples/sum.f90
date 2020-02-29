@@ -32,8 +32,8 @@ prog = fclCompileProgram(kernelSrc)
 sumKernel = fclGetProgramKernel(prog,'sum')
 
 ! Initialise device arrays
-array1_d = fclBufferFloat(Nelem,read=.true.,write=.false.)
-array2_d = fclBufferFloat(Nelem,read=.true.,write=.true.)
+call fclInitBuffer(array1_d,Nelem,access='r')
+call fclInitBuffer(array2_d,Nelem,access='rw')
 
 ! Initialise host array data
 do i=1,Nelem
