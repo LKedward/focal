@@ -43,7 +43,6 @@ submodule (Focal) Focal_Memory
 
     integer(c_intptr_t), target :: cl_context
     integer(c_size_t) :: size_ret
-    logical :: read, write
 
     ! Get command queue context
     errcode = clGetCommandQueueInfo(cmdq%cl_command_queue, &
@@ -54,21 +53,21 @@ submodule (Focal) Focal_Memory
 
     ! Check kernel access flags
     if (present(access)) then
-      read = index(upperstr(access),'R') > 0
-      write = index(upperstr(access),'W') > 0
+      buffer%kernelRead = index(upperstr(access),'R') > 0
+      buffer%kernelWrite = index(upperstr(access),'W') > 0
     else
-      read = .true.
-      write = .true.
+      buffer%kernelRead = .true.
+      buffer%kernelWrite = .true.
     end if
 
     MEM_FLAGS = CL_MEM_READ_WRITE
-    if (.not.write.and..not.read) then
+    if (.not.buffer%kernelWrite.and..not.buffer%kernelRead) then
       call fclRuntimeError('fclBuffer: memory must be at least read or write.')
 
-    elseif (.not.write) then
+    elseif (.not.buffer%kernelWrite) then
       MEM_FLAGS = CL_MEM_READ_ONLY
 
-    elseif (.not.read) then
+    elseif (.not.buffer%kernelRead) then
       MEM_FLAGS = CL_MEM_WRITE_ONLY
 
     end if
@@ -170,30 +169,37 @@ submodule (Focal) Focal_Memory
     integer(c_int32_t) :: errcode
     integer(c_int64_t) :: MEM_FLAGS
 
-    logical :: read, write
     integer(c_size_t), target :: info(2)
 
     call fclDbgCheckBufferInit(sourceBuffer,'fclInitSubBuffer:sourceBuffer')
 
     ! Check kernel access flags
     if (present(access)) then
-      read = index(upperstr(access),'R') > 0
-      write = index(upperstr(access),'W') > 0
+      subbuffer%kernelRead = index(upperstr(access),'R') > 0
+      subbuffer%kernelWrite = index(upperstr(access),'W') > 0
     else
-      read = .true.
-      write = .true.
+      subbuffer%kernelRead = .true.
+      subbuffer%kernelWrite = .true.
     end if
 
     MEM_FLAGS = CL_MEM_READ_WRITE
-    if (.not.write.and..not.read) then
-      call fclRuntimeError('fclBuffer: memory must be at least read or write.')
+    if (.not.subbuffer%kernelWrite.and..not.subbuffer%kernelRead) then
+      call fclRuntimeError('fclInitSubBuffer: memory must be at least read or write.')
 
-    elseif (.not.write) then
+    elseif (.not.subbuffer%kernelWrite) then
       MEM_FLAGS = CL_MEM_READ_ONLY
 
-    elseif (.not.read) then
+    elseif (.not.subbuffer%kernelRead) then
       MEM_FLAGS = CL_MEM_WRITE_ONLY
 
+    end if
+
+    ! Check for incompatible sub-buffer flags
+    if (.not.sourceBuffer%kernelRead .and. subBuffer%kernelRead) then
+      call fclRuntimeError('fclInitSubBuffer: sub-buffer cannot allow kernel read access if parent buffer does not.')
+    end if
+    if (.not.sourceBuffer%kernelWrite .and. subBuffer%kernelWrite) then
+      call fclRuntimeError('fclInitSubBuffer: sub-buffer cannot allow kernel write access if parent buffer does not.')
     end if
 
     info(1) = offset

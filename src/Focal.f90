@@ -185,6 +185,8 @@ module Focal
     type(fclCommandQ), pointer :: cmdq               !! Focal commandQ object
     integer(c_size_t) :: nBytes = -1                 !! Size of buffer in bytes
     integer, allocatable :: profileEventType(:)      !! Integer for indicating type of buffer event
+    logical :: kernelRead                            !! Indicates kernel read access
+    logical :: kernelWrite                           !! Indicate kernel write access
   end type fclDeviceBuffer
 
   type, extends(fclDeviceBuffer) :: fclDeviceInt32
