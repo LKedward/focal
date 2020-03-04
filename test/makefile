@@ -51,7 +51,10 @@ clean:
 	rm -f $(TESTOUT)
 
 # Programs depend on modules
-$(PROGOBJS): $(FOCAL_LIB_OBJS) $(MODOBJS)
+$(PROGOBJS): $(MODOBJS)
+
+# Module depends on focal
+$(MODOBJS): $(FOCAL_LIB_OBJS)
 
 # Recipe to link executables
 $(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS) | $(BINDIR)
