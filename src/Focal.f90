@@ -1093,14 +1093,14 @@ module Focal
 
     module function fclCommandQPool_Next(qPool) result(cmdQ)
       !! Returns next scheduled queue in queue pool
-      class(fclCommandQPool), intent(inout) :: qPool
-      type(fclCommandQ) :: cmdQ
+      class(fclCommandQPool), intent(inout), target :: qPool
+      type(fclCommandQ), pointer :: cmdQ
     end function fclCommandQPool_Next
 
     module function fclCommandQPool_Current(qPool) result(cmdQ)
       !! Returns current scheduled queue in queue pool
-      class(fclCommandQPool), intent(in) :: qPool
-      type(fclCommandQ) :: cmdQ
+      class(fclCommandQPool), intent(in), target :: qPool
+      type(fclCommandQ), pointer :: cmdQ
     end function fclCommandQPool_Current
 
   end interface

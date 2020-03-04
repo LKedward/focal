@@ -315,7 +315,7 @@ submodule (Focal) Focal_Setup
     qPool%idx = mod(qPool%idx-1,qPool%length) + 1
 
     ! Return next queue
-    cmdQ = qPool%queues(qPool%idx)
+    cmdQ => qPool%queues(qPool%idx)
 
   end procedure fclCommandQPool_Next
   ! ---------------------------------------------------------------------------
@@ -324,7 +324,7 @@ submodule (Focal) Focal_Setup
   module procedure fclCommandQPool_Current !(qPool) result(cmdQ)
     !! Returns current scheduled queue in queue pool
 
-    cmdQ = qPool%queues(qPool%idx)
+    cmdQ => qPool%queues(qPool%idx)
 
   end procedure fclCommandQPool_Current
   ! ---------------------------------------------------------------------------
