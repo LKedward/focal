@@ -63,6 +63,11 @@ module Focal
     integer(c_int64_t) :: global_memory              !! Total global memory, bytes
     integer(c_int32_t) :: clock_freq                 !! Max clock frequency, MHz
     character(:), allocatable :: version             !! OpenCL version
+    character(:), allocatable :: extensions          !! Supported OpenCL extensions
+    type(fclPlatform), pointer :: platform           !! Pointer to containing platform
+    integer(c_intptr_t) :: cl_platform_id            !! OpenCL platform pointer
+    character(:), allocatable :: platformName        !! Name of containing platform
+    character(:), allocatable :: platformVendor      !! Vendor of containing platform
   end type fclDevice
 
   type :: fclPlatform
@@ -1008,23 +1013,99 @@ module Focal
       !! Set the global default context
       type(fclContext), intent(in) :: ctx
     end subroutine fclSetDefaultContext
+
+    module function fclFilterDevices(devices,vendor,type,nameLike,extensions,sortBy) result(deviceList)
+      !! Filter and sort list of devices based on criteria
+      type(fclDevice), intent(in) :: devices(:)
+      character(*), intent(in), optional :: vendor
+        !! Filter device list based on platform vendor.
+        !!  Specify multiple possible vendors in comma-separate list
+      character(*), intent(in), optional :: type
+        !! Filter device list based on device type.
+        !! Specify at least one of 'cpu', 'gpu', default: 'cpu,gpu' (both)
+      character(*), intent(in), optional :: nameLike
+        !! Filter devices based on device name. Look for this substring in device name.
+      character(*), intent(in), optional :: extensions
+        !! Filter devices based on supported device extensions.
+        !! Specify comma-separated list of OpenCL extension names, e.g. cl_khr_fp64.
+        !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceInfo.html)
+        !! Extensions specified are requirements: devices are filtered-out if they don't support all extensions specified.
+      character(*), intent(in), optional :: sortBy
+        !! Sort device list based on either 'memory': total global memory,
+        !!  'cores': total number of compute units, 'clock': maximum clock speed
+      type(fclDevice), allocatable :: deviceList(:)
+        !! Filtered and sorted list. Unallocated if no matching devices found.
+    end function fclFilterDevices
+
+    module function fclInit(vendor,type,nameLike,extensions,sortBy) result(device)
+      !! Quick setup helper function: find a single device based on criteria
+      !!  and set the default context accordingly.
+      !!  Raises runtime error if no matching device is found.
+      character(*), intent(in), optional :: vendor
+        !! Filter device based on platform vendor
+      !!  Specify multiple possible vendors in comma-separate list
+      character(*), intent(in), optional :: type
+        !! Filter device list based on device type.
+        !! Specify at least one of 'cpu', 'gpu', default: 'cpu,gpu' (both)
+      character(*), intent(in), optional :: nameLike
+        !! Filter devices based on device name. Look for this substring in device name.
+      character(*), intent(in), optional :: extensions
+        !! Filter devices based on supported device extensions.
+        !! Specify comma-separated list of OpenCL extension names, e.g. cl_khr_fp64.
+        !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceInfo.html)
+        !! Extensions specified are requirements: devices are filtered-out if they don't support all extensions specified.
+      character(*), intent(in), optional :: sortBy
+        !! Sort device list based on either 'memory': total global memory,
+        !!  'cores': total number of compute units, 'clock': maximum clock speed
+      type(fclDevice), allocatable :: device
+        !! The device chosen based on the user criteria
+    end function fclInit
+
   end interface
 
   interface fclFindDevices
     !! Generic interface to list devices, sorted and filtered by properties
+    !!  Raises runtime error if no matching device is found.  
 
-    module function fclFindDevices_1(ctx,type,nameLike,sortBy) result(deviceList)
+    module function fclFindDevices_1(ctx,vendor,type,nameLike,extensions,sortBy) result(deviceList)
       type(fclContext), intent(in), target :: ctx
+        !! Context containing device for command queue
+      character(*), intent(in), optional :: vendor
+        !! Filter device list based on platform vendor.
+        !!  Specify multiple possible vendors in comma-separate list
       character(*), intent(in), optional :: type
+        !! Filter device list based on device type.
+        !! Specify at least one of 'cpu', 'gpu', default: 'cpu,gpu' (both)
       character(*), intent(in), optional :: nameLike
+        !! Filter devices based on device name. Look for this substring in device name.
+      character(*), intent(in), optional :: extensions
+        !! Filter devices based on supported device extensions.
+        !! Specify comma-separated list of OpenCL extension names, e.g. cl_khr_fp64.
+        !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceInfo.html)
+        !! Extensions specified are requirements: devices are filtered-out if they don't support all extensions specified.
       character(*), intent(in), optional :: sortBy
+        !! Sort device list based on either 'memory': total global memory,
+        !!  'cores': total number of compute units, 'clock': maximum clock speed
       type(fclDevice), allocatable :: deviceList(:)
     end function fclFindDevices_1
 
-    module function fclFindDevices_2(type,nameLike,sortBy) result(deviceList)
+    module function fclFindDevices_2(vendor,type,nameLike,extensions,sortBy) result(deviceList)
+      character(*), intent(in), optional :: vendor
+        !! Filter device list based on platform vendor.
+        !!  Specify multiple possible vendors in comma-separate list
       character(*), intent(in), optional :: type
+        !! Filter device list based on device type.
+        !! Specify at least one of 'cpu', 'gpu', default: 'cpu,gpu' (both)
       character(*), intent(in), optional :: nameLike
+        !! Filter devices based on device name. Look for this substring in device name.
+      character(*), intent(in), optional :: extensions
+        !! Filter devices based on supported device extensions.
+        !! Specify comma-separated list of OpenCL extension names, e.g. cl_khr_fp64.
+        !! See [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceInfo.html)
+        !! Extensions specified are requirements: devices are filtered-out if they don't support all extensions specified.
       character(*), intent(in), optional :: sortBy
+        !! Sort device list based on either 'memory': total global memory,
+        !!  'cores': total number of compute units, 'clock': maximum clock speed
       type(fclDevice), allocatable :: deviceList(:)
     end function fclFindDevices_2
 

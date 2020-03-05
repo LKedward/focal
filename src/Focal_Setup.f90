@@ -117,14 +117,14 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclFindDevices_1 !(ctx,type,nameLike,sortBy) result(deviceList)
-    !! Create command queue by finding a device
+  module procedure fclFilterDevices !(devices,vendor,type,nameLike,extensions,sortBy) result(deviceList)
+    !! Filter and sort list of devices based on criteria
     use futils_sorting, only: argsort
     integer :: i,j
 
-    integer :: sortMetric(ctx%platform%numDevice)
-    integer :: sortList(ctx%platform%numDevice)
-    logical :: filter(ctx%platform%numDevice)
+    integer :: sortMetric(size(devices,1))
+    integer :: sortList(size(devices,1))
+    logical :: filter(size(devices,1)), platformMatch
 
     integer(c_int64_t) :: typeFilter
     integer(c_int64_t) :: deviceType
@@ -133,12 +133,17 @@ submodule (Focal) Focal_Setup
     integer(c_int64_t) :: int64Metric
 
     character(3) :: CPU_TYPE
+    character(:), allocatable :: extensionList(:)
+    character(:), allocatable :: vendorList(:)
+    
     CPU_TYPE = 'CPU'
 
     ! --- Parse any request to filter by device type ---
     typeFilter = 0
     if (present(type)) then
-      if (index(upperstr(type),'CPU') > 0) then
+      if (index(upperstr(type),'CPU') > 0 .and. index(upperstr(type),'GPU') > 0) then
+        typeFilter = 0
+      else if (index(upperstr(type),'CPU') > 0) then
         typeFilter = CL_DEVICE_TYPE_CPU
       elseif (index( upperstr(type) , 'GPU' ) > 0) then
         typeFilter = CL_DEVICE_TYPE_GPU
@@ -148,15 +153,23 @@ submodule (Focal) Focal_Setup
       end if
     end if
 
+    if (present(extensions)) then
+      call splitStr(extensions,extensionList,delimiters=',')
+    end if
+
+    if (present(vendor)) then
+      call splitStr(vendor,vendorList,delimiters=',')
+    end if
+
     ! --- Process the devices ---
     filter = .true.
 
-    do i=1,ctx%platform%numDevice
+    do i=1,size(devices,1)
 
       ! --- Filter by device type ---
       if (typeFilter > 0) then
 
-        call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_TYPE,deviceType)
+        call fclGetDeviceInfo(devices(i),CL_DEVICE_TYPE,deviceType)
 
         if (deviceType /= typeFilter) then
           filter(i) = .false.         ! Filtered out by device type
@@ -164,19 +177,43 @@ submodule (Focal) Focal_Setup
 
       end if
 
+      ! --- Filter by device extensions ---
+      if (allocated(extensionList)) then
+        do j=1,size(extensionList,1)
+          if (index(upperstr(devices(i)%extensions), &
+                         upperstr(trim(extensionList(j)))) == 0) then
+            filter(i) = .false.      ! Filtered out by device extensions
+            exit
+          end if
+        end do
+      end if
+
+      ! --- Filter by device platform vendor ---
+      if (allocated(vendorList)) then
+        platformMatch = .false.
+        do j=1,size(vendorList,1)
+          if ( index(upperstr(devices(i)%platformName),upperstr(trim(vendorList(j))))>0 .or. & 
+               index(upperstr(devices(i)%platformVendor),upperstr(trim(vendorList(j))))>0 ) then
+             platformMatch = .true.      
+            exit
+          end if
+        end do
+        filter(i) = filter(i).and.platformMatch ! Filtered out by device platform vendor
+      end if
+
       ! --- Extract sorting metric ---
       if (present(sortBy)) then
 
         select case (upperstr(sortBy))
         case ('MEMORY')
-          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_GLOBAL_MEM_SIZE,int64Metric)
+          call fclGetDeviceInfo(devices(i),CL_DEVICE_GLOBAL_MEM_SIZE,int64Metric)
           sortMetric(i) = int(int64Metric/1000000,c_int32_t) ! Convert to megabytes to avoid overflow in int32
 
         case ('CORES')
-          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_COMPUTE_UNITS,sortMetric(i))
+          call fclGetDeviceInfo(devices(i),CL_DEVICE_MAX_COMPUTE_UNITS,sortMetric(i))
 
         case ('CLOCK')
-          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_CLOCK_FREQUENCY,sortMetric(i))
+          call fclGetDeviceInfo(devices(i),CL_DEVICE_MAX_CLOCK_FREQUENCY,sortMetric(i))
 
         end select
 
@@ -186,7 +223,7 @@ submodule (Focal) Focal_Setup
 
       ! --- Filter by device name ---
       if (present(nameLike)) then
-        if (index(upperstr(ctx%platform%devices(i)%name),upperstr(nameLike)) == 0) then
+        if (index(upperstr(devices(i)%name),upperstr(nameLike)) == 0) then
           filter(i) = .false.         ! Filtered out by device name
         end if
       end if
@@ -196,20 +233,20 @@ submodule (Focal) Focal_Setup
     ! --- Sort by sorting metric ---
     sortMetric = -sortMetric          ! Sort descending
     sortList = argsort(sortMetric)
-
+    
     nFiltered = count(filter)
+    allocate(deviceList(nFiltered))
     if (nFiltered < 1) then
-      call fclRuntimeError("fclFindDevices: no devices found matching criteria")
-    end if
+      return
+    end if    
 
     ! --- Output filtered sorted list of devices ---
-    allocate(deviceList(nFiltered))
     nFill = 1
-    do i=1,ctx%platform%numDevice
+    do i=1,size(devices,1)
 
-      if (filter(i)) then
-        j = sortList(i)
-        deviceList(nFill) = ctx%platform%devices(j)
+      j = sortList(i)
+      if (filter(j)) then
+        deviceList(nFill) = devices(j)
         nFill = nFill + 1
       end if
 
@@ -219,14 +256,90 @@ submodule (Focal) Focal_Setup
 
     end do
 
+  end procedure fclFilterDevices
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInit !(vendor,type,nameLike,extensions,sortBy) result(device)
+    !! Quick setup helper function: find a single device based on criteria
+    !!  and set the default context accordingly.
+    !!  Raises runtime error if no matching device is found.
+
+    integer :: i
+
+    type(fclPlatform) :: chosenPlatform
+    type(fclPlatform), allocatable :: platforms(:)
+    type(fclDevice), allocatable :: devices(:), deviceList(:)
+    integer :: nDevice
+    logical :: found
+
+    ! Get platforms
+    platforms = fclGetPlatforms();
+
+    ! Count total number of system devices
+    nDevice = 0
+    do i=1,size(platforms,1)
+      nDevice = nDevice + platforms(i)%numDevice
+    end do
+
+    ! Concatenate device lists across platforms
+    allocate(devices(nDevice))
+    nDevice = 0
+    do i=1,size(platforms,1)
+      devices(nDevice+1:nDevice+platforms(i)%numDevice) = platforms(i)%devices(:)
+      nDevice = nDevice + platforms(i)%numDevice
+    end do
+
+    ! Find devices based on criteria
+    deviceList = fclFilterDevices(devices,vendor,type,nameLike,extensions,sortBy)
+
+    if (size(deviceList,1) < 1) then
+      call fclRuntimeError('fclInit: no devices matching the specified criteria were found.')
+    end if
+
+    ! Choose first device in filtered, sorted list
+    device = deviceList(1)
+
+    ! Find corresponding platform for creating context
+    found = .false.
+    do i=1,size(platforms,1)
+      
+      if (platforms(i)%cl_platform_id == device%cl_platform_id) then
+        chosenPlatform = platforms(i)
+        found = .true.
+        exit
+      end if
+
+    end do
+
+    ! Create context and set as default
+    call fclSetDefaultContext(fclCreateContext(chosenPlatform))
+
+  end procedure fclInit
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFindDevices_1 !(ctx,vendor,type,nameLike,extensions,sortBy) result(deviceList)
+    !! Create command queue by finding a device
+    use futils_sorting, only: argsort
+    
+    call fclDbgCheckContext('fclFindDevices',ctx)
+
+    deviceList = fclFilterDevices(ctx%platform%devices,vendor,type,nameLike,extensions,sortBy)
+
+    if (.not.allocated(deviceList)) then
+      call fclRuntimeError('fclFindDevices: no devices matching the specified criteria were found.')
+    end if
+
   end procedure fclFindDevices_1
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclFindDevices_2 !(type,nameLike,sortBy) result(deviceList)
+  module procedure fclFindDevices_2 !(type,vendor,nameLike,extensions,sortBy) result(deviceList)
+
     call fclDbgCheckContext('fclFindDevices')
 
-    deviceList = fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
+    deviceList = fclFindDevices_1(fclDefaultCtx,vendor,type,nameLike,extensions,sortBy)
 
   end procedure fclFindDevices_2
   ! ---------------------------------------------------------------------------

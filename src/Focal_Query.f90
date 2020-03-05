@@ -274,19 +274,23 @@ submodule (Focal) Focal_Query
                                   C_LOC(platform%cl_device_ids), int32_ret)
     call fclErrorHandler(errcode,'fclGetPlatform','clGetDeviceIDs')
 
-    ! --- Populate fclDevice structure array ---
-    do i=1,platform%numDevice
-
-      platform%devices(i) = fclGetDevice(platform%cl_device_ids(i))
-
-    end do
-
     ! --- Populate fclPlatform info strings ---
     call fclGetPlatformInfo(platform,CL_PLATFORM_PROFILE,platform%profile)
     call fclGetPlatformInfo(platform,CL_PLATFORM_VERSION,platform%version)
     call fclGetPlatformInfo(platform,CL_PLATFORM_NAME,platform%name)
     call fclGetPlatformInfo(platform,CL_PLATFORM_VENDOR,platform%vendor)
     call fclGetPlatformInfo(platform,CL_PLATFORM_EXTENSIONS,platform%extensions)
+
+    ! --- Populate fclDevice structure array ---
+    do i=1,platform%numDevice
+
+      platform%devices(i) = fclGetDevice(platform%cl_device_ids(i))
+      platform%devices(i)%platformName = platform%name
+      platform%devices(i)%platformVendor = platform%vendor
+      platform%devices(i)%cl_platform_id = platform_id
+
+    end do
+
 
   end procedure fclGetPlatform
   ! ---------------------------------------------------------------------------
@@ -303,6 +307,7 @@ submodule (Focal) Focal_Query
     call fclGetDeviceInfo(device,CL_DEVICE_GLOBAL_MEM_SIZE,device%global_memory)
     call fclGetDeviceInfo(device,CL_DEVICE_MAX_CLOCK_FREQUENCY,device%clock_freq)
     call fclGetDeviceInfo(device,CL_DEVICE_VERSION,device%version)
+    call fclGetDeviceInfo(device,CL_DEVICE_EXTENSIONS,device%extensions)
 
   end procedure fclGetDevice
   ! ---------------------------------------------------------------------------
