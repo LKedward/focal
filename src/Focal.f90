@@ -80,7 +80,7 @@ module Focal
 
   type :: fclContext
     !! Type wrapper for openCL context objects
-    integer(c_intptr_t) :: cl_context                !! openCL context pointer
+    integer(c_intptr_t) :: cl_context = -1           !! openCL context pointer
     type(fclPlatform) :: platform                    !! Focal platform object
   end type fclContext
 
@@ -1467,6 +1467,16 @@ module Focal
 
   ! ---------------------------- DEBUG ROUTINES -------------------------------
   interface
+
+    module subroutine fclDbgCheckContext(descrip,ctx)
+      !! Check the (default) context is initialised.
+      !! Assumes uninitialised contexts have cl_context = -1.
+      !! @note Debug routine: only executed for debug build. @endnote
+      character(*), intent(in) :: descrip
+        !! Description of program location for error output
+      type(fclContext), intent(in), optional :: ctx
+        !! Context to test. Uses fclDefaultContext if not present.
+    end subroutine fclDbgCheckContext
 
     module subroutine fclDbgCheckBufferInit(memObject,descrip)
       !! Check that a device buffer object has been initialised.

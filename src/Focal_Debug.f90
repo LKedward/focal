@@ -39,6 +39,39 @@ submodule (Focal) Focal_Debug
 
   contains
 
+  module procedure fclDbgCheckContext !(descrip,ctx)
+    !! Check the (default) context is initialised.
+    !! Assumes uninitialised contexts have cl_context = -1.
+
+    if (present(ctx)) then
+      if (ctx%cl_context == -1) then
+
+        write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+        write(*,*) ' Attempt to use uninitialised context at: ',descrip
+        write(*,*)
+
+        call fclRuntimeError('fclDbgCheckContext')
+
+      end if
+    else
+
+      if (fclDefaultCtx%cl_context == -1) then
+
+        write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+        write(*,*) ' The default context is uninitialised.'
+        write(*,*) '  but referenced at: ',descrip
+        write(*,*)
+
+        call fclRuntimeError('fclDbgCheckContext')
+
+      end if
+
+    end if
+
+  end procedure fclDbgCheckContext
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclDbgCheckBufferInit !(memObject,descrip)
     !! Check that a device buffer object has been initialised.
 

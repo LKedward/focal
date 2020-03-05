@@ -109,6 +109,8 @@ submodule (Focal) Focal_Setup
 
   module procedure fclSetDefaultContext !(ctx)
     ! Set the global default context
+
+    call fclDbgCheckContext('fclSetDefaultContext',ctx)
     fclDefaultCtx = ctx
 
   end procedure fclSetDefaultContext
@@ -222,6 +224,7 @@ submodule (Focal) Focal_Setup
 
 
   module procedure fclFindDevices_2 !(type,nameLike,sortBy) result(deviceList)
+    call fclDbgCheckContext('fclFindDevices')
 
     deviceList = fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
 
@@ -237,6 +240,8 @@ submodule (Focal) Focal_Setup
     integer(c_int64_t) :: properties
 
     properties = 0
+
+    call fclDbgCheckContext('fclCreateCommandQ',ctx)
 
     if (present(enableProfiling)) then
       if (enableProfiling) then
@@ -270,6 +275,9 @@ submodule (Focal) Focal_Setup
   module procedure fclCreateCommandQ_2 !(device,enableProfiling,outOfOrderExec,&
                                          !blockingWrite,blockingRead) result(cmdq)
     !! Create a command queue with a Focal device object using default context
+
+    call fclDbgCheckContext('fclCreateCommandQ')
+
     cmdq = fclCreateCommandQ_1(fclDefaultCtx,device,enableProfiling,outOfOrderExec, &
                                            blockingWrite,blockingRead)
 
@@ -282,6 +290,8 @@ submodule (Focal) Focal_Setup
     !! Create a command queue pool with a Focal device object
 
     integer :: i
+
+    call fclDbgCheckContext('fclCreateCommandQPool',ctx)
 
     qPool%length = N
 
@@ -299,7 +309,9 @@ submodule (Focal) Focal_Setup
   module procedure fclCreateCommandQPool_2 !(N,device,enableProfiling,outOfOrderExec,&
     ! blockingWrite,blockingRead) result(qPool)
     !! Create a command queue pool with a Focal device object using the default context
-    
+
+    call fclDbgCheckContext('fclCreateCommandQPool')
+
     qPool = fclCreateCommandQPool_1(fclDefaultCtx,N,device,enableProfiling,outOfOrderExec,&
                                       blockingWrite,blockingRead)
 
@@ -347,6 +359,8 @@ submodule (Focal) Focal_Setup
     character(:), allocatable :: options_temp
     character(len=1,kind=c_char), allocatable, target :: c_options(:)
 
+    call fclDbgCheckContext('fclCompileProgram',ctx)
+
     ! Convert to c character array
     do i=1,len(source)
       c_source(i) = source(i:i)
@@ -384,6 +398,8 @@ submodule (Focal) Focal_Setup
 
   module procedure fclCompileProgram_2 !(source,options) result(prog)
 
+    call fclDbgCheckContext('fclCompileProgram')
+
     prog = fclCompileProgram_1(fclDefaultCtx,source,options)
 
   end procedure fclCompileProgram_2
@@ -397,6 +413,8 @@ submodule (Focal) Focal_Setup
     integer :: out
     integer(c_size_t) :: buffLen, int32_ret
     character(len=1), allocatable, target :: buildLogBuffer(:)
+
+    call fclDbgCheckContext('fclDumpBuildLog',ctx)
 
     if (present(outputUnit)) then
       out = outputUnit
@@ -428,6 +446,8 @@ submodule (Focal) Focal_Setup
 
 
   module procedure fclDumpBuildLog_2 !(prog,device,outputUnit)
+
+    call fclDbgCheckContext('fclDumpBuildLog')
 
     call fclDumpBuildLog_1(fclDefaultCtx,prog,device,outputUnit)
 

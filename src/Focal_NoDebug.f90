@@ -39,6 +39,13 @@ submodule (Focal) Focal_NoDebug
 
   contains
 
+  module procedure fclDbgCheckContext !(ctx)
+    !! Check the (default) context is initialised.
+
+  end procedure fclDbgCheckContext
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclDbgCheckBufferInit !(memObject)
     !! Check that a device buffer object has been initialised.
 
