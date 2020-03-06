@@ -1,0 +1,6 @@
+language: c
+dist: xenial
+compiler:
+- gfortran
+script:
+- make -j test
