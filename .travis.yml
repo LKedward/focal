@@ -3,6 +3,8 @@ dist: xenial
 compiler:
 - gfortran
 before_install:
+- sudo apt-get update -qq
 - sudo apt-get install -qq gfortran
+
 script:
 - make -j test
