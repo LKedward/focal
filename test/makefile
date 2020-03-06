@@ -21,8 +21,7 @@ EXEC = $(addprefix $(BINDIR), $(PROGS))
 
 # --- Main build target ---
 all: $(EXEC) $(REPORT)
-	@sed '/Test outputs/q' $(REPORT)
-	@echo  \(Open file: $(REPORT) to see full test outputs\)
+	@cat $(REPORT)
 	@test $$(grep "EXIT_" test_outputs/* --binary-files=text | grep -c -v "EXIT_0\|EXIT_101") -eq 0
 
 BUILD:=debug
@@ -79,8 +78,14 @@ $(OUTDIR)/%.out: $(BINDIR)% | $(OUTDIR)
 
 $(REPORT): $(TESTOUT)
 	@echo Generating report...
-	@echo "------------------------------------------------------" > $@
+	@echo "*** Test outputs ***" > $@
+	@grep -T --binary-files=text . $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
+	@echo "------------------------------------------------------" >> $@
 	@echo "          Focal library test suite results" >> $@
+	@echo "------------------------------------------------------" >> $@
+	@echo "Test environment:" >> $@
+	@echo "$$(uname -a)" >> $@
+	@echo "$$($(FC) --version)" >> $@
 	@echo "------------------------------------------------------" >> $@
 	@echo "NO_OF_TESTS: $$(ls -A test_outputs/* | wc -l)" >> $@
 	@echo "TEST_SUCCESS: $$(cat $^ | grep -c EXIT_0)" >> $@
@@ -93,8 +98,6 @@ $(REPORT): $(TESTOUT)
 	@echo "*** Tests not run ***" >> $@
 	@grep -l EXIT_101 $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "" >> $@
-	@echo "*** Test outputs ***" >> $@
-	@grep -T --binary-files=text . $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "------------------------------------------------------" >> $@
 
 $(OUTDIR):
