@@ -2,5 +2,7 @@ language: c
 dist: xenial
 compiler:
 - gfortran
+before_install:
+- sudo apt-get install -qq gfortran
 script:
 - make -j test
