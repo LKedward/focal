@@ -2,12 +2,11 @@ language: c
 dist: bionic
 before_install:
 - sudo apt-get update -qq
-- sudo apt-get install -qq gfortran &
+- sudo apt-get install -qq gfortran 
 - wget -q http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/16284/intel_sdk_for_opencl_applications_2020.0.270.tar.gz -O /tmp/opencl_runtime.tgz
 - tar -xzf /tmp/opencl_runtime.tgz -C /tmp
 - sed 's/decline/accept/g' -i /tmp/intel_sdk_for_opencl_applications_2020.0.270/silent.cfg
 - sudo /tmp/intel_sdk_for_opencl_applications_2020.0.270/install.sh -s /tmp/intel_sdk_for_opencl_applications_2020.0.270/silent.cfg
-- fg
 
 script:
 - make -j test
