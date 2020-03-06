@@ -23,6 +23,7 @@ EXEC = $(addprefix $(BINDIR), $(PROGS))
 all: $(EXEC) $(REPORT)
 	@sed '/Test outputs/q' $(REPORT)
 	@echo  \(Open file: $(REPORT) to see full test outputs\)
+	@test $$(grep "EXIT_" test_outputs/* --binary-files=text | grep -c -v "EXIT_0\|EXIT_101") -eq 0
 
 BUILD:=debug
 include $(FOCAL_DIR)/make.include
