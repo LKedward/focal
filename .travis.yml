@@ -1,5 +1,5 @@
 language: c
-dist: xenial
+dist: bionic
 compiler:
 - gfortran
 before_install:
