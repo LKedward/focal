@@ -50,6 +50,7 @@ real(dp), parameter :: DP_TOL = epsilon(real(1.0d0,dp))
 
 ! --------- Global variables ---------
 integer :: fclTestResult
+type(fclDevice) :: ocl_device
 
 ! --------- Interfaces ---------
 interface fclTestAssertEqual
@@ -77,7 +78,8 @@ contains
 
     ! Select device with most cores and create command queue
     devices = fclFindDevices(sortBy='cores')
-    call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1), &
+    ocl_device = devices(1)
+    call fclSetDefaultCommandQ(fclCreateCommandQ(ocl_device, &
                 enableProfiling=.false.,outOfOrderExec=.false.))
 
   end subroutine fclTestInit
