@@ -1404,7 +1404,7 @@ module Focal
 
     module subroutine fclSetDependencyEvent_1(cmdQ,event,hold)
       !! Interface for specifying a single event dependency on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue
+      type(fclCommandQ), target :: cmdQ     !! Command queue
       type(fclEvent), intent(in) :: event                  !! Event dependency
       logical, intent(in), optional :: hold
         !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
@@ -1421,7 +1421,7 @@ module Focal
 
     module subroutine fclSetDependencyEventList_1(cmdq,eventList,hold)
       !! Interface for specifying a list of dependent events on specific cmdq
-      type(fclCommandQ), intent(inout), target :: cmdQ     !! Command queue
+      type(fclCommandQ), target :: cmdQ     !! Command queue
       type(fclEvent), intent(in) :: eventList(:)           !! List of event dependencies
       logical, intent(in), optional :: hold
         !! Hold dependency list: set to true to not automatically clear dependencies after enqueueing.
