@@ -80,7 +80,7 @@ contains
     devices = fclFindDevices(sortBy='cores')
     ocl_device = devices(1)
     call fclSetDefaultCommandQ(fclCreateCommandQ(ocl_device, &
-                enableProfiling=.false.,outOfOrderExec=.false.))
+                enableProfiling=.true.,outOfOrderExec=.false.))
 
   end subroutine fclTestInit
   ! ---------------------------------------------------------------------------
