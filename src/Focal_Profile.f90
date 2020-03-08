@@ -241,6 +241,9 @@ submodule (Focal) Focal_Profile
     type(fclKernel), allocatable :: kernels(:)
     type(fclDeviceBuffer), allocatable :: buffers(:)
 
+    call fclDbgCheckDevice(profiler%device,'fclDumpProfileData. '// &
+        '(Has the profiler%device been set?)')
+
     if (.not.present(outputUnit)) then
       unit = stdout
     else
@@ -330,6 +333,9 @@ submodule (Focal) Focal_Profile
 
         N = min(kern%profileSize,kern%nProfileEvent)
         durations(1:N) = fclGetEventDurations(kern%profileEvents(1:N))
+
+        ! Minimum of 100 nanosecond resolution
+        durations = max(durations,int(100,c_int64_t))
 
         ! Write to table
         if (N>0) then
@@ -438,6 +444,9 @@ submodule (Focal) Focal_Profile
 
           N = min(buff%profileSize,buff%nProfileEvent)
           durations(1:N) = fclGetEventDurations(buff%profileEvents(1:N))
+
+          ! Minimum of 100 nanosecond resolution
+          durations = max(durations,int(100,c_int64_t))
 
           ! Write to table, iterate over write,read,copy
           do i=1,3

@@ -56,7 +56,7 @@ module Focal
   ! ---------------------------- FOCAL TYPES ----------------------------------
   type :: fclDevice
     !! Type wrapper for openCL device objects
-    integer(c_intptr_t) :: cl_device_id              !! OpenCL device pointer
+    integer(c_intptr_t) :: cl_device_id = -1         !! OpenCL device pointer
     integer(c_int64_t) :: cl_device_type             !! Device type
     character(:), allocatable :: name                !! Device name
     integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
@@ -1558,6 +1558,16 @@ module Focal
       type(fclContext), intent(in), optional :: ctx
         !! Context to test. Uses fclDefaultContext if not present.
     end subroutine fclDbgCheckContext
+
+    module subroutine fclDbgCheckDevice(device,descrip)
+      !! Check a device object is valid
+      !! Assumes uninitialised devices have cl_device_id = -1.
+      !! @note Debug routine: only executed for debug build. @endnote
+      type(fclDevice), intent(in) :: device
+        !! Device object to check
+      character(*), intent(in) :: descrip
+        !! Description of program location for error output
+    end subroutine fclDbgCheckDevice
 
     module subroutine fclDbgCheckBufferInit(memObject,descrip)
       !! Check that a device buffer object has been initialised.

@@ -72,6 +72,23 @@ submodule (Focal) Focal_Debug
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclDbgCheckDevice !(device,descrip)
+    !! Check a device object is valid
+
+    if (device%cl_device_id < 0) then
+
+      write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+      write(*,*) ' Attempt to use uninitialised device at: ',descrip
+      write(*,*)
+
+      call fclRuntimeError('fclDbgCheckDevice')
+
+    end if
+
+  end procedure fclDbgCheckDevice
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclDbgCheckBufferInit !(memObject,descrip)
     !! Check that a device buffer object has been initialised.
 

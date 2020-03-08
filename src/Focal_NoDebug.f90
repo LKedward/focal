@@ -45,6 +45,11 @@ submodule (Focal) Focal_NoDebug
   end procedure fclDbgCheckContext
   ! ---------------------------------------------------------------------------
 
+  module procedure fclDbgCheckDevice !(device,descrip)
+    !! Check a device object is valid
+
+  end procedure fclDbgCheckDevice
+  ! ---------------------------------------------------------------------------
 
   module procedure fclDbgCheckBufferInit !(memObject)
     !! Check that a device buffer object has been initialised.
