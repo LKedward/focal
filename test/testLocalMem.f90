@@ -58,10 +58,12 @@ hostInt32 = deviceInt32
 hostReal32 = deviceReal32
 hostReal64 = deviceReal64
 
+call fclWait()
+
 ! --- Check arrays ---
 call fclTestAssert(sum(hostInt32(1:FCL_TEST_SIZE/blockSize))==sum([(i*i,i=1,FCL_TEST_SIZE)]),'sumSqInt32Test')
-call fclTestAssert(sum(hostReal32(1:FCL_TEST_SIZE/blockSize))==sum([(1.0*i*i,i=1,FCL_TEST_SIZE)]),'sumSqReal32Test')
-call fclTestAssert(sum(hostReal64(1:FCL_TEST_SIZE/blockSize))==sum([(1.0d0*i*i,i=1,FCL_TEST_SIZE)]),'sumSqReal64Test')
+call fclTestAssert(abs(sum(hostReal32(1:FCL_TEST_SIZE/blockSize))-sum([(1.0*i*i,i=1,FCL_TEST_SIZE)])) < 1e-5,'sumSqReal32Test')
+call fclTestAssert(abs(sum(hostReal64(1:FCL_TEST_SIZE/blockSize))-sum([(1.0d0*i*i,i=1,FCL_TEST_SIZE)])) < 1e-10,'sumSqReal64Test')
 
 call fclFreeBuffer(deviceInt32)
 call fclFreeBuffer(deviceReal32)
