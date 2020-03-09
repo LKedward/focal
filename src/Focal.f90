@@ -181,16 +181,17 @@ module Focal
       !! Descriptive name for output of profiling information
     logical :: profilingEnabled = .false.
       !! Switch to enable saving of events for profiling
-    type(fclEvent), allocatable :: profileEvents(:)
+    type(fclEvent), pointer :: profileEvents(:) => NULL()
       !! Array of events for profiling
     integer :: profileSize = 0
       !! Allocation size of profileEvents(:) array
-    integer :: nProfileEvent = 0
+    integer, pointer :: nProfileEvent => NULL()
       !! Number of events saved to profileEvents(:) array
+    integer, pointer :: profileEventType(:) => NULL()
+      !! Integer for indicating type of buffer event
     contains
       ! procedure, pass :: enableProfiling => fclEnableProfiling
       procedure, pass :: pushProfileEvent => fclPushProfileEvent
-      ! procedure, pass :: dumpProfileData => fclDumpProfileData
   end type fclProfileContainer
 
   type, extends(fclProfileContainer) :: fclKernel
@@ -210,7 +211,7 @@ module Focal
     procedure, pass, private :: launchKernelAfterEventList_2 => fclLaunchKernelAfterEventList_2
     generic :: launchAfter => launchKernelAfterEvent_1, launchKernelAfterEvent_2, &
            launchKernelAfterEventList_1, launchKernelAfterEventList_2
-     !! Launch a kernel with event dependencies
+      !! Launch a kernel with event dependencies
   end type fclKernel
 
   type, extends(fclProfileContainer) :: fclDeviceBuffer
@@ -218,7 +219,6 @@ module Focal
     integer(c_intptr_t) :: cl_mem                    !! openCL memory pointer
     type(fclCommandQ), pointer :: cmdq               !! Focal commandQ object
     integer(c_size_t) :: nBytes = -1                 !! Size of buffer in bytes
-    integer, allocatable :: profileEventType(:)      !! Integer for indicating type of buffer event
     logical :: kernelRead                            !! Indicates kernel read access
     logical :: kernelWrite                           !! Indicate kernel write access
   end type fclDeviceBuffer
@@ -767,7 +767,7 @@ module Focal
     module subroutine fclMemRead(hostBufferPtr,memObject,nBytes)
       !! Transfer device buffer to host buffer
       type(c_ptr), intent(in) :: hostBufferPtr             !! C pointer to host buffer (target)
-      class(fclDeviceBuffer), target :: memObject      !! Focal memory object (source)
+      class(fclDeviceBuffer), intent(in), target :: memObject      !! Focal memory object (source)
       integer(c_size_t), intent(in) :: nBytes              !! Size of buffers in bytes
     end subroutine fclMemRead
 
@@ -775,21 +775,21 @@ module Focal
       !! Transfer device integer array to host integer array
       !!  Called by operator-overloading of assignment(=)
       integer(c_int32_t), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceInt32) :: memObject       !! Focal memory object (source)
+      class(fclDeviceInt32), intent(in) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadInt32
 
     module subroutine fclMemReadFloat(hostBuffer,memObject)
       !! Transfer device float array to host float array
       !!  Called by operator-overloading of assignment(=)
       real(c_float), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceFloat) :: memObject       !! Focal memory object (source)
+      class(fclDeviceFloat), intent(in) :: memObject       !! Focal memory object (source)
     end subroutine fclMemReadFloat
 
     module subroutine fclMemReadDouble(hostBuffer,memObject)
       !! Transfer device double array to host double array
       !!  Called by operator-overloading of assignment(=)
       real(c_double), intent(inout), target :: hostBuffer(:) !! Host array (target)
-      class(fclDeviceDouble) :: memObject      !! Focal memory object (source)
+      class(fclDeviceDouble), intent(in) :: memObject      !! Focal memory object (source)
     end subroutine fclMemReadDouble
 
     ! --------- Copy device array to device array ---------
@@ -1489,12 +1489,12 @@ module Focal
 
     module subroutine fclPushProfileEvent(container,event,type)
       !! If profiling is enabled for the container, save an event to it
-      class(fclProfileContainer), intent(inout) :: container
+      class(fclProfileContainer), intent(in) :: container
         !! Profiling container (`fclKernel`,`fclDeviceBuffer`,`fclProfileContainer`)
       type(fclEvent), intent(in) :: event
         !! Event to push to container
       integer, intent(in), optional :: type
-        !! Type info for buffer objects
+        !! For buffer object events only, indicates transfer type
     end subroutine fclPushProfileEvent
 
     module function fclGetEventDurations(eventList) result(durations)

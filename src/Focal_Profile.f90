@@ -85,21 +85,23 @@ submodule (Focal) Focal_Profile
     container%profilingEnabled = .true.
 
     ! ------ Allocate space for event objects ------
-    if (allocated(container%profileEvents)) then
+    if (associated(container%profileEvents)) then
       deallocate(container%profileEvents)
     end if
-
     allocate(container%profileEvents(profileSize))
+
+    if (associated(container%nProfileEvent)) then
+      deallocate(container%nProfileEvent)
+    end if
+    allocate(container%nProfileEvent)
+
+    if (associated(container%profileEventType)) then
+      deallocate(container%profileEventType)
+    end if
+    allocate(container%profileEventType(profileSize))
+
     container%nProfileEvent = 0
     container%profileSize = profileSize
-
-    select type(b=>container)
-    class is (fclDeviceBuffer)
-      if (allocated(b%profileEventType)) then
-        deallocate(b%profileEventType)
-      end if
-      allocate(b%profileEventType(profileSize))
-    end select
 
     ! ------ Set profile name, if not specified ------
     if(.not.allocated(container%profileName)) then
@@ -190,12 +192,10 @@ submodule (Focal) Focal_Profile
     ! Save event
     container%profileEvents(i) = event
 
-    select type(c=>container)
-    class is (fclDeviceBuffer)
-      if (present(type)) then
-        c%profileEventType(i) = type
-      end if
-    end select
+    ! Save event type if specified
+    if (present(type)) then
+      container%profileEventType(i) = type
+    end if
 
   end procedure fclPushProfileEvent
   ! ---------------------------------------------------------------------------

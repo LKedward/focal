@@ -43,19 +43,19 @@ call fclInitBuffer(deviceBuffer,c_sizeof(hostChar))
 call fclProfilerAdd(profiler,1,deviceInt32,deviceReal32,deviceReal64,deviceBuffer)
 
 call fclTestAssert(deviceInt32%profileSize == 1,'deviceInt32%profileSize == 1')
-call fclTestAssert(allocated(deviceInt32%profileEvents),'allocated(deviceInt32%profileEvents)')
+call fclTestAssert(associated(deviceInt32%profileEvents),'associated(deviceInt32%profileEvents)')
 call fclTestAssert(size(deviceInt32%profileEvents,1)==1,'size(deviceInt32%profileEvents,1)==1')
 
 call fclTestAssert(deviceReal32%profileSize == 1,'deviceReal32%profileSize == 1')
-call fclTestAssert(allocated(deviceReal32%profileEvents),'allocated(deviceReal32%profileEvents)')
+call fclTestAssert(associated(deviceReal32%profileEvents),'associated(deviceReal32%profileEvents)')
 call fclTestAssert(size(deviceReal32%profileEvents,1)==1,'size(deviceReal32%profileEvents,1)==1')
 
 call fclTestAssert(deviceReal64%profileSize == 1,'deviceReal64%profileSize == 1')
-call fclTestAssert(allocated(deviceReal64%profileEvents),'allocated(deviceReal64%profileEvents)')
+call fclTestAssert(associated(deviceReal64%profileEvents),'associated(deviceReal64%profileEvents)')
 call fclTestAssert(size(deviceReal64%profileEvents,1)==1,'size(deviceReal64%profileEvents,1)==1')
 
 call fclTestAssert(deviceBuffer%profileSize == 1,'deviceBuffer%profileSize == 1')
-call fclTestAssert(allocated(deviceBuffer%profileEvents),'allocated(deviceBuffer%profileEvents)')
+call fclTestAssert(associated(deviceBuffer%profileEvents),'associated(deviceBuffer%profileEvents)')
 call fclTestAssert(size(deviceBuffer%profileEvents,1)==1,'size(deviceBuffer%profileEvents,1)==1')
 
 ! --- Initialise kernels ---
@@ -69,19 +69,19 @@ setChar_k = fclGetProgramKernel(prog,'setCharTest',[FCL_TEST_SIZE])
 call fclProfilerAdd(profiler,2,setInt_k,setFloat_k,setDouble_k,setChar_k)
 
 call fclTestAssert(setInt_k%profileSize == 2,'setInt_k%profileSize == 2')
-call fclTestAssert(allocated(setInt_k%profileEvents),'allocated(setInt_k%profileEvents)')
+call fclTestAssert(associated(setInt_k%profileEvents),'associated(setInt_k%profileEvents)')
 call fclTestAssert(size(setInt_k%profileEvents,1)==2,'size(setInt_k%profileEvents,1)==2')
 
 call fclTestAssert(setFloat_k%profileSize == 2,'setFloat_k%profileSize == 2')
-call fclTestAssert(allocated(setFloat_k%profileEvents),'allocated(setFloat_k%profileEvents)')
+call fclTestAssert(associated(setFloat_k%profileEvents),'associated(setFloat_k%profileEvents)')
 call fclTestAssert(size(setFloat_k%profileEvents,1)==2,'size(setFloat_k%profileEvents,1)==2')
 
 call fclTestAssert(setDouble_k%profileSize == 2,'setDouble_k%profileSize == 2')
-call fclTestAssert(allocated(setDouble_k%profileEvents),'allocated(setDouble_k%profileEvents)')
+call fclTestAssert(associated(setDouble_k%profileEvents),'associated(setDouble_k%profileEvents)')
 call fclTestAssert(size(setDouble_k%profileEvents,1)==2,'size(setDouble_k%profileEvents,1)==2')
 
 call fclTestAssert(setChar_k%profileSize == 2,'setChar_k%profileSize == 2')
-call fclTestAssert(allocated(setChar_k%profileEvents),'allocated(setChar_k%profileEvents)')
+call fclTestAssert(associated(setChar_k%profileEvents),'associated(setChar_k%profileEvents)')
 call fclTestAssert(size(setChar_k%profileEvents,1)==2,'size(setChar_k%profileEvents,1)==2')
 
 ! Launch kernels
