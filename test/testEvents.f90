@@ -32,7 +32,7 @@ integer :: i
 ! --- Initialise ---
 call fclTestInit()
 
-qPool = fclCreateCommandQPool(4,ocl_device,enableProfiling=.true.,&
+qPool = fclCreateCommandQPool(3,ocl_device,enableProfiling=.true.,&
                             blockingRead=.false., blockingWrite=.false.)
 
 ! --- Initialise device buffers ---
@@ -103,10 +103,14 @@ call fclTestAssert(transfer(cmdq%dependencyListPtr,int(1,c_intptr_t)) == &
 call fclTestAssert(cmdq%nDependency==0, &
                     'fclLaunchKernel:ndependency:unset (2)')
 
-! Launch fourth kernel: no dependencies
-call setChar_k%launch(qPool%next(),FCL_TEST_SIZE,deviceBuffer)
+! Launch fourth kernel on default command queue: dependency on first and second
+call setChar_k%setArgs(FCL_TEST_SIZE,deviceBuffer)
+call setChar_k%launchAfter(e)
 
-cmdq => qPool%current()
+! Relaunch fourth kernel, dependency on third kernel
+call setChar_k%launchAfter(cmdq%lastKernelEvent)
+
+cmdq => fclDefaultCmdQ
 call fclTestAssert(transfer(cmdq%dependencyListPtr,int(1,c_intptr_t)) == &
                      transfer(C_NULL_PTR,int(1,c_intptr_t)), &
                     'dependencyListPtr:unset (3)')
@@ -114,12 +118,13 @@ call fclTestAssert(transfer(cmdq%dependencyListPtr,int(1,c_intptr_t)) == &
 call fclTestAssert(cmdq%nDependency==0, &
                     'ndependency:unset (3)')
 
-call fclWait(qPool%queues(:)%lastKernelEvent)
+call fclWait(fclDefaultCmdQ%lastKernelEvent)
+call fclWait(qPool)
 
 ! --- Transfer device buffers to host ---
 call fclSetDependency(qPool%queues(:)%lastKernelEvent,hold=.true.)
 
-call fclTestAssert(fclDefaultCmdQ%nDependency==4, &
+call fclTestAssert(fclDefaultCmdQ%nDependency==3, &
                       'fclSetDependency_EventList:fclDefaultCmdQ:ndependency:set')
 
 call fclTestAssert(transfer(fclDefaultCmdQ%dependencyListPtr,int(1,c_intptr_t)) == &
@@ -128,22 +133,22 @@ call fclTestAssert(transfer(fclDefaultCmdQ%dependencyListPtr,int(1,c_intptr_t)) 
 
 hostInt32 = deviceInt32
 
-call fclTestAssert(fclDefaultCmdQ%nDependency==4, &
+call fclTestAssert(fclDefaultCmdQ%nDependency==3, &
                       'fclSetDependency_EventList:fclDefaultCmdQ:ndependency:set (2)')
 
 hostReal32 = deviceReal32
 
-call fclTestAssert(fclDefaultCmdQ%nDependency==4, &
+call fclTestAssert(fclDefaultCmdQ%nDependency==3, &
                       'fclSetDependency_EventList:fclDefaultCmdQ:ndependency:set (3)')
 
 hostReal64 = deviceReal64
 
-call fclTestAssert(fclDefaultCmdQ%nDependency==4, &
+call fclTestAssert(fclDefaultCmdQ%nDependency==3, &
                       'fclSetDependency_EventList:fclDefaultCmdQ:ndependency:set (4)')
 
 call fclMemRead(c_loc(hostChar),deviceBuffer,c_sizeof(hostChar))
 
-call fclTestAssert(fclDefaultCmdQ%nDependency==4, &
+call fclTestAssert(fclDefaultCmdQ%nDependency==3, &
                       'fclSetDependency_EventList:fclDefaultCmdQ:ndependency:set (5)')
 
 call fclClearDependencies()
