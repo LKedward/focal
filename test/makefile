@@ -2,7 +2,7 @@
 MODULES = Focal_Test_Utils
 PROGS = testExample testMemoryTransfer testPinnedMemory \
         testKernelSetup testLocalMem testSubBuffers testQueuePool \
-		testEvents testProfiling
+		testEvents testProfiling testFileSource
 REPORT = testSummary
 
 # --- Output Directories ---
