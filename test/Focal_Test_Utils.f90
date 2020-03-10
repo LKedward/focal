@@ -39,6 +39,8 @@ use Focal
 implicit none
 
 ! --------- Global constants ---------
+character(*), parameter :: ocl_vendors = 'nvidia,amd,intel,bristol'
+
 integer, parameter :: FCL_TEST_SUCCESS = 0
 integer, parameter :: FCL_TEST_NOT_RUN = 101
 integer, parameter :: FCL_TEST_FAILED = 102
@@ -62,9 +64,13 @@ end interface fclTestAssertEqual
 
 contains
 
-  subroutine fclTestInit()
+  subroutine fclTestInit(mode)
+    integer, intent(in), optional :: mode
+      !! Which init routine to use
+
     !! Perform initialisation for test framework
 
+    integer :: initMode
     type(fclDevice), allocatable :: devices(:)
 
     ! Initialise test flag
@@ -73,12 +79,28 @@ contains
     ! Override error handler with custom one
     fclErrorHandler => fclTestErrorHandler
 
-    ! Create context with first platform
-    call fclSetDefaultContext(fclCreateContext(vendor='nvidia,amd,intel'))
+    if (present(mode)) then
+      initMode = mode
+    else
+      initMode = 1
+    end if
 
-    ! Select device with most cores and create command queue
-    devices = fclFindDevices(sortBy='cores')
-    ocl_device = devices(1)
+    if (initMode == 1) then
+
+      ! Create context with first platform
+      call fclSetDefaultContext(fclCreateContext(vendor=ocl_vendors))
+
+      ! Select device with most cores and create command queue
+      devices = fclFindDevices(sortBy='cores')
+      ocl_device = devices(1)
+
+    else
+
+      ! Create context from vendors and select device with most cores
+      ocl_device = fclInit(vendor=ocl_vendors,sortBy='cores')
+
+    end if
+
     call fclSetDefaultCommandQ(fclCreateCommandQ(ocl_device, &
                 enableProfiling=.true.,outOfOrderExec=.false.))
 

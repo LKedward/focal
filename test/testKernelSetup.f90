@@ -23,10 +23,12 @@ type(fclDeviceDouble) :: deviceReal64
 type(fclDeviceInt32) :: deviceInt32
 type(fclDeviceBuffer) :: deviceBuffer
 
-integer :: i
+integer :: i, fh
+logical :: fExist
 
 ! --- Initialise ---
-call fclTestInit()
+!  Use fclInit here (mode=2)
+call fclTestInit(mode=2)
 
 ! --- Initialise device buffers ---
 call fclInitBuffer(deviceInt32,FCL_TEST_SIZE)
@@ -37,6 +39,18 @@ call fclInitBuffer(deviceBuffer,c_sizeof(hostChar))
 ! --- Initialise kernels ---
 call fclGetKernelResource(kernelSrc)
 prog = fclCompileProgram(kernelSrc)
+
+! --- Dump build log to file and check ---
+open(newunit=fh,file='testBuildLog',status='unknown')
+call fclDumpBuildLog(prog,ocl_device,fh)
+close(fh)
+INQUIRE(FILE='testBuildLog', EXIST=fExist)
+call fclTestAssert(fExist,'Build log file exists')
+if (fExist) then
+    open(newunit=fh,file='testBuildLog',status='old')
+    close(fh,status='delete')
+end if
+
 setInt_k = fclGetProgramKernel(prog,'setInt32Test',[FCL_TEST_SIZE])
 setFloat_k = fclGetProgramKernel(prog,'setFloatTest',[FCL_TEST_SIZE])
 setDouble_k = fclGetProgramKernel(prog,'setDoubleTest',[FCL_TEST_SIZE])
