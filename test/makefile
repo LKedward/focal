@@ -29,7 +29,7 @@ BUILD:=debug
 include $(FOCAL_DIR)/make.include
 
 # --- Compiler Flags ---
-FFLAGS=$(FOCAL_FFLAGS) -fprofile-arcs -ftest-coverage
+FFLAGS=$(FOCAL_FFLAGS) 
 
 
 # --- Link Flags ---
@@ -42,8 +42,6 @@ else
 endif
 OPENCL_LFLAGS ?= -g -L$(OPENCL_DIR) -lOpenCL
 LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS) -fprofile-arcs -ftest-coverage
-
-
 
 # --- Cleanup (reset) ---
 clean:
@@ -66,6 +64,11 @@ $(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS) | $(BINDIR)
 # Recipe to compile fortran objects
 $(OBJDIR)%.o: %.f90
 	$(FC) $(FFLAGS) -c $< -o $@
+
+# Recipe just for Focal library objects
+#  to include code coverage flags
+$(OBJDIR)Focal_%.o: Focal_%.f90
+	$(FC) $(FFLAGS) -fprofile-arcs -ftest-coverage -c $< -o $@
 
 # Recipe to 'compile' kernel source into a binary object
 $(OBJDIR)%.cl.o: %.cl
