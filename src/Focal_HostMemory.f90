@@ -100,28 +100,6 @@ submodule (Focal) Focal_HostMemory
 
   end procedure fclAllocHostInt32D1_2
   ! ---------------------------------------------------------------------------
-  
-
-  module procedure fclAllocHostInt32D2_1 !(cmdq,hostPtr,dim)
-    !! Allocate a 2D 'pinned' host array for 32bit integers
-
-    type(c_ptr) :: ptr
-
-    call fclAllocHostPtr_1(cmdq,ptr,product(dim)*c_sizeof(int(1,c_int32_t)))
-
-    call c_f_pointer(ptr,hostPtr,dim)
-
-  end procedure fclAllocHostInt32D2_1
-  ! ---------------------------------------------------------------------------
-  
-
-  module procedure fclAllocHostInt32D2_2 !(hostPtr,dim)
-    !! Allocate a 2D 'pinned' host array for 32bit integers on default cmdq
-
-    call fclAllocHostInt32D2_1 (fclDefaultCmdQ,hostPtr,dim)
-
-  end procedure fclAllocHostInt32D2_2
-  ! ---------------------------------------------------------------------------
 
 
   module procedure fclAllocHostFloatD1_1 !(cmdq,hostPtr,dim)
@@ -144,28 +122,6 @@ submodule (Focal) Focal_HostMemory
 
   end procedure fclAllocHostFloatD1_2
   ! ---------------------------------------------------------------------------
-  
-
-  module procedure fclAllocHostFloatD2_1 !(cmdq,hostPtr,dim)
-    !! Allocate a 2D 'pinned' host array for 32bit reals
-
-    type(c_ptr) :: ptr
-
-    call fclAllocHostPtr_1(cmdq,ptr,product(dim)*c_sizeof(real(1,c_Float)))
-
-    call c_f_pointer(ptr,hostPtr,dim)
-
-  end procedure fclAllocHostFloatD2_1
-  ! ---------------------------------------------------------------------------
-  
-
-  module procedure fclAllocHostFloatD2_2 !(hostPtr,dim)
-    !! Allocate a 2D 'pinned' host array for 32bit reals on default cmdq
-
-    call fclAllocHostFloatD2_1 (fclDefaultCmdQ,hostPtr,dim)
-
-  end procedure fclAllocHostFloatD2_2
-  ! ---------------------------------------------------------------------------
 
 
   module procedure fclAllocHostDoubleD1_1 !(cmdq,hostPtr,dim)
@@ -187,28 +143,6 @@ submodule (Focal) Focal_HostMemory
     call fclAllocHostDoubleD1_1 (fclDefaultCmdQ,hostPtr,dim)
 
   end procedure fclAllocHostDoubleD1_2
-  ! ---------------------------------------------------------------------------
-  
-
-  module procedure fclAllocHostDoubleD2_1 !(cmdq,hostPtr,dim)
-    !! Allocate a 2D 'pinned' host array for 64bit reals
-
-    type(c_ptr) :: ptr
-
-    call fclAllocHostPtr_1(cmdq,ptr,product(dim)*c_sizeof(real(1,c_Double)))
-
-    call c_f_pointer(ptr,hostPtr,dim)
-
-  end procedure fclAllocHostDoubleD2_1
-  ! ---------------------------------------------------------------------------
-  
-
-  module procedure fclAllocHostDoubleD2_2 !(hostPtr,dim)
-    !! Allocate a 2D 'pinned' host array for 64bit reals on default cmdq
-
-    call fclAllocHostDoubleD2_1 (fclDefaultCmdQ,hostPtr,dim)
-
-  end procedure fclAllocHostDoubleD2_2
   ! ---------------------------------------------------------------------------
 
 
