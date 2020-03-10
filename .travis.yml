@@ -10,3 +10,6 @@ before_install:
 
 script:
 - make -j test
+
+after_success:
+ - bash <(curl -s https://codecov.io/bash)

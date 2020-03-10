@@ -29,7 +29,8 @@ BUILD:=debug
 include $(FOCAL_DIR)/make.include
 
 # --- Compiler Flags ---
-FFLAGS=$(FOCAL_FFLAGS)
+FFLAGS=$(FOCAL_FFLAGS) -fprofile-arcs -ftest-coverage
+
 
 # --- Link Flags ---
 ifeq ($(BUILD), release)
@@ -40,7 +41,8 @@ else
     $(error unrecognized build.)
 endif
 OPENCL_LFLAGS ?= -g -L$(OPENCL_DIR) -lOpenCL
-LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS)
+LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS) -fprofile-arcs -ftest-coverage
+
 
 
 # --- Cleanup (reset) ---
