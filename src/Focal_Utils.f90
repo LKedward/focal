@@ -96,11 +96,12 @@ submodule (Focal) Focal_Utils
     character(1) :: char
 
     ! --- First pass: get kernel source length ---
-    open(newunit=fh,file=filename,status='old',access='direct',recl=1)
+    open(newunit=fh,file=filename,status='old', form='formatted', &
+                   access='direct',recl=1)
     iLen = 1
     iostat = 0
     do while(iostat == 0)
-      read(fh,rec=iLen,iostat=iostat) char
+      read(fh,'(A)',rec=iLen,iostat=iostat) char
       iLen = iLen + 1
     enddo
     iLen = iLen - 2
@@ -109,9 +110,10 @@ submodule (Focal) Focal_Utils
     allocate(character(len=iLen) :: sourceString)
 
     ! --- Second pass: read kernel source into buffer ---
-    open(newunit=fh,file=filename,status='old',access='direct',recl=1)
+    open(newunit=fh,file=filename,status='old', form='formatted', &
+                  access='direct',recl=1)
     do i=1,iLen
-        read(fh,rec=i) char
+        read(fh,'(A)',rec=i) char
         sourceString(i:i) = char
     end do
     close(fh)

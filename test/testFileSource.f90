@@ -5,12 +5,14 @@ program testFileSource
 
 use Focal
 use Focal_Test_Utils
+use M_Strings, only: strCrop => crop, strReplace => replace, &
+                     cr => ascii_cr, nl => ascii_lf
 use iso_fortran_env, only: sp=>real32, dp=>real64
 implicit none
 
 character(:), allocatable :: kernelSrc1, kernelSrc2              ! Kernel source string
 
-integer :: i, fh
+integer :: i, fh, n
 logical :: fExist
 
 ! --- Initialise ---
@@ -25,14 +27,15 @@ close(fh)
 INQUIRE(FILE='testSource.cl', EXIST=fExist)
 call fclTestAssert(fExist,'Source file written')
 
-allocate( character(len(kernelSrc1)) :: kernelSrc2 )
 if (fExist) then
     call fclSourceFromFile('testSource.cl',kernelSrc2)
     open(newunit=fh,file='testSource.cl',status='unknown')
     close(fh,status='delete')
 end if
 
-call fclTestAssert(all([(kernelSrc1(i:i)==kernelSrc2(i:i),i=1,len(kernelSrc1))]),'kernelSrc1 == kernelSrc2')
+n = min(len(kernelSrc1),len(kernelSrc2))
+
+call fclTestAssert(all([(kernelSrc1(i:i)==kernelSrc2(i:i),i=1,n)]),'kernelSrc1 == kernelSrc2')
 
 call fclTestFinish()
 
