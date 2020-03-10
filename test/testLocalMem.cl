@@ -4,7 +4,8 @@
 //  sum of first blocksize elements stored at index 0
 //  sum of next blocksize elements stored at index 1 etc.
 
-__kernel void sumSqInt32Test(int N, int M, global int * deviceInt, local int * localInt){
+__kernel void sumSqInt32Test(int N, int M, global int * deviceInt, local int * localInt,
+                             global int *blockResults){
 
   int i = get_global_id(0);
   int j = get_local_id(0);
@@ -19,13 +20,14 @@ __kernel void sumSqInt32Test(int N, int M, global int * deviceInt, local int * l
       temp += localInt[k];
     }
 
-    deviceInt[(i/M)] = temp;
+    blockResults[(i/M)] = temp;
   }
 
 }
 
 
-__kernel void sumSqFloatTest(int N, int M, global float * deviceFloat, local float * localFloat){
+__kernel void sumSqFloatTest(int N, int M, global float * deviceFloat, local float * localFloat,
+                               global float *blockResults){
 
   int i = get_global_id(0);
   int j = get_local_id(0);
@@ -40,13 +42,14 @@ __kernel void sumSqFloatTest(int N, int M, global float * deviceFloat, local flo
       temp += localFloat[k];
     }
 
-    deviceFloat[(i/M)] = temp;
+    blockResults[(i/M)] = temp;
   }
 
 }
 
 
-__kernel void sumSqDoubleTest(int N, int M, global double * deviceDouble, local double * localDouble){
+__kernel void sumSqDoubleTest(int N, int M, global double * deviceDouble, local double * localDouble, 
+                               global double *blockResults){
 
   int i = get_global_id(0);
   int j = get_local_id(0);
@@ -61,7 +64,7 @@ __kernel void sumSqDoubleTest(int N, int M, global double * deviceDouble, local 
       temp += localDouble[k];
     }
 
-    deviceDouble[(i/M)] = temp;
+    blockResults[(i/M)] = temp;
   }
 
 }
