@@ -43,7 +43,7 @@ include $(FOCAL_DIR)/make.compiler
 focal:  $(FOCAL_LIB_OBJS)
 
 focal_clean:
-	rm -f $(FOCAL_OBJDIR)*.o
+	rm -f $(FOCAL_OBJDIR)*
 	rm -f $(FOCAL_LIBDIR)*.a
 	rm -f $(FOCAL_MODDIR)*.mod
 	rm -f $(FOCAL_MODDIR)*.smod
