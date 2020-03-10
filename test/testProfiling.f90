@@ -140,10 +140,13 @@ call fclDumpProfileData(profiler)
 call fclDumpTracingData(profiler,'testProfiling.trace')
 
 INQUIRE(FILE='testProfiling.trace', EXIST=fExist)
-open(newunit=fh,file='testProfiling.trace',status='old')
-close(fh,status='delete')
-
 call fclTestAssert(fExist,'trace file exists')
+if (fExist) then
+    open(newunit=fh,file='testProfiling.trace',status='old')
+    close(fh,status='delete')
+end if
+
+
 
 call fclFreeBuffer(deviceInt32)
 call fclFreeBuffer(deviceReal32)
