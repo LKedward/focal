@@ -176,7 +176,7 @@ submodule (Focal) Focal_Profile
   module procedure fclPushProfileEvent !(container,event,type)
     !! If profiling is enabled for the container, save an event to it
 
-    integer :: i
+    integer(c_int32_t) :: errcode
 
     if (.not.container%profilingEnabled) then
       return
@@ -185,16 +185,22 @@ submodule (Focal) Focal_Profile
     ! Increment number of events
     container%nProfileEvent = container%nProfileEvent + 1
 
-    ! Wrap index around
-    ! (Overwrite previous events if we exceed allocation size)
-    i = mod(container%nProfileEvent-1,container%profileSize) + 1
+    ! Don't save if exceeded profile size
+    !  (Only first profileSize events are saved)
+    if (container%nProfileEvent > container%profileSize) then
+      return
+    end if
+
+    ! Increment event reference counter
+    errcode = clRetainEvent(event%cl_event)
+    call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent')
 
     ! Save event
-    container%profileEvents(i) = event
+    container%profileEvents(container%nProfileEvent) = event
 
     ! Save event type if specified
     if (present(type)) then
-      container%profileEventType(i) = type
+      container%profileEventType(container%nProfileEvent) = type
     end if
 
   end procedure fclPushProfileEvent

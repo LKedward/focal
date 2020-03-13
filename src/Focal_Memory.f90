@@ -334,6 +334,12 @@ submodule (Focal) Focal_Memory
 
     call fclDbgCheckBufferInit(memObject,'fclMemWriteScalar')
 
+    ! Decrement event reference counter
+    if (memObject%cmdq%lastWriteEvent%cl_event > 0) then
+      errcode = clReleaseEvent(memObject%cmdq%lastWriteEvent%cl_event)
+      call fclErrorHandler(errcode,'fclMemWriteScalar','clReleaseEvent') 
+    end if
+
     errcode = clEnqueueFillBuffer(memObject%cmdq%cl_command_queue, &
                 memObject%cl_mem, hostBufferPtr, nBytesPattern, &
                 int(0,c_size_t), memObject%nBytes, &
@@ -393,6 +399,12 @@ submodule (Focal) Focal_Memory
       blocking_write = CL_TRUE
     else
       blocking_write = CL_FALSE
+    end if
+
+    ! Decrement event reference counter
+    if (memObject%cmdq%lastWriteEvent%cl_event > 0) then
+      errcode = clReleaseEvent(memObject%cmdq%lastWriteEvent%cl_event)
+      call fclErrorHandler(errcode,'fclMemWrite','clReleaseEvent') 
     end if
 
     errcode = clEnqueueWriteBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
@@ -456,6 +468,12 @@ submodule (Focal) Focal_Memory
       blocking_read = CL_TRUE
     else
       blocking_read = CL_FALSE
+    end if
+
+    ! Decrement event reference counter
+    if (memObject%cmdq%lastReadEvent%cl_event > 0) then
+      errcode = clReleaseEvent(memObject%cmdq%lastReadEvent%cl_event)
+      call fclErrorHandler(errcode,'fclMemRead','clReleaseEvent') 
     end if
 
     errcode = clEnqueueReadBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
@@ -540,6 +558,12 @@ submodule (Focal) Focal_Memory
       !  therefore perform a device-to-device copy
 
       call fclDbgCheckCopyBufferSize(memObject1,memObject2)
+
+      ! Decrement event reference counter
+      if (memObject1%cmdq%lastCopyEvent%cl_event > 0) then
+        errcode = clReleaseEvent(memObject1%cmdq%lastCopyEvent%cl_event)
+        call fclErrorHandler(errcode,'fclMemCopy','clReleaseEvent') 
+      end if
 
       errcode = clEnqueueCopyBuffer(memObject1%cmdq%cl_command_queue, &
                 memObject2%cl_mem, memObject1%cl_mem, &

@@ -698,6 +698,12 @@ submodule (Focal) Focal_Setup
     call fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,&
                                 a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
 
+    ! Decrement event reference counter
+    if (cmdQ%lastKernelEvent%cl_event > 0) then
+      errcode = clReleaseEvent(cmdQ%lastKernelEvent%cl_event)
+      call fclErrorHandler(errcode,'fclLaunchKernel','clReleaseEvent') 
+    end if
+
     errcode = clEnqueueNDRangeKernel(cmdq%cl_command_queue, &
                 kernel%cl_kernel, kernel%work_dim, &
                 c_loc(kernel%global_work_offset), &
@@ -975,6 +981,12 @@ submodule (Focal) Focal_Setup
     !! Enqueue barrier on all events in command queue
     integer(c_int32_t) :: errcode
 
+    ! Decrement event reference counter
+    if (cmdq%lastBarrierEvent%cl_event > 0) then
+      errcode = clReleaseEvent(cmdq%lastBarrierEvent%cl_event)
+      call fclErrorHandler(errcode,'fclBarrier','clReleaseEvent') 
+    end if
+
     errcode = clEnqueueBarrierWithWaitList( cmdq%cl_command_queue, &
                   cmdq%nDependency, cmdq%dependencyListPtr , &
                   c_loc(cmdq%lastBarrierEvent%cl_event))
@@ -1060,6 +1072,9 @@ submodule (Focal) Focal_Setup
 
   module procedure fclSetDependencyEvent_1 !(cmdq,event,hold)
     !! Specify a single event dependency on specific cmdq
+
+    integer(c_int32_t) :: errcode
+
     if (.not.allocated(cmdq%dependencyList)) then
 
      allocate(cmdq%dependencyList(fclAllocationSize))
@@ -1069,6 +1084,10 @@ submodule (Focal) Focal_Setup
     cmdq%dependencyList(1) = event%cl_event
     cmdq%nDependency = 1
     cmdq%dependencyListPtr = c_loc(cmdq%dependencyList)
+
+    ! Increment event reference counter
+    errcode = clRetainEvent(event%cl_event)
+    call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent')
 
     if (present(hold)) then
       cmdq%holdDependencies = hold
@@ -1088,7 +1107,9 @@ submodule (Focal) Focal_Setup
 
   module procedure fclSetDependencyEventList_1 !(cmdq,eventList,hold)
     !! Specify a list of dependent events on specific cmdq
+    
     integer :: i, nEvent, nAlloc
+    integer(c_int32_t) :: errcode
 
     nEvent = size(eventList,1)
     nAlloc = max(fclAllocationSize,nEvent)
@@ -1107,6 +1128,12 @@ submodule (Focal) Focal_Setup
     cmdq%dependencyList(1:nEvent) = [(eventList(i)%cl_event,i=1,nEvent)]
     cmdq%nDependency = nEvent
     cmdq%dependencyListPtr = c_loc(cmdq%dependencyList)
+
+    ! Increment event reference counters
+    do i=1,nEvent
+      errcode = clRetainEvent(eventList(i)%cl_event)
+      call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent') 
+    end do
 
     if (present(hold)) then
       cmdq%holdDependencies = hold
@@ -1139,6 +1166,16 @@ submodule (Focal) Focal_Setup
 
   module procedure fclClearDependencies_1 !(cmdq)
     !! Reset dependency list
+
+    integer :: i
+    integer(c_int32_t) :: errcode
+
+    ! Decrement event reference counters
+    do i=1,cmdq%nDependency
+      errcode = clReleaseEvent(cmdq%dependencyList(i))
+      call fclErrorHandler(errcode,'fclClearDependencies','clReleaseEvent') 
+    end do
+
     cmdq%nDependency = 0
     cmdq%dependencyListPtr = C_NULL_PTR
     cmdq%holdDependencies = .false.

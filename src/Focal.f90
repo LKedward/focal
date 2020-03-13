@@ -91,7 +91,7 @@ module Focal
 
     type :: fclEvent
     !! Type wrapper for OpenCL event pointers
-    integer(c_intptr_t) :: cl_event                          !! OpenCL event pointer
+    integer(c_intptr_t) :: cl_event = -1             !! OpenCL event pointer
   end type fclEvent
 
   type :: fclCommandQ
