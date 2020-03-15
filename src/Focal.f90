@@ -1460,6 +1460,32 @@ module Focal
 
   end interface fclClearDependencies
 
+  interface fclCreateUserEvent
+    !! Generic interface to create a user event
+ 
+    module function fclCreateUserEvent_1(ctx) result(userEvent)
+      !! Create user event in a specific context
+      type(fclContext), intent(in) :: ctx
+      type(fclEvent) :: userEvent
+    end function fclCreateUserEvent_1
+    
+    module function fclCreateUserEvent_2() result(userEvent)
+      !! Create user event in the default context
+      type(fclEvent) :: userEvent
+    end function fclCreateUserEvent_2
+
+  end interface fclCreateUserEvent
+
+  interface
+ 
+    module subroutine fclSetUserEvent(event,stat)
+      !! Set status of a user event
+      type(fclEvent), intent(inout) :: event
+      integer(c_int32_t), intent(in), optional :: stat
+    end subroutine fclSetUserEvent
+
+  end interface
+
   ! ------------------------- PROFILING  ROUTINES -----------------------------
 
   interface

@@ -1192,4 +1192,44 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclCreateUserEvent_1 !(ctx) result(userEvent)
+    !! Create user event in a specific context
+    
+    integer(c_int32_t) :: errcode
+
+    userEvent%cl_event = clCreateUserEvent(ctx%cl_context,errcode)
+
+    call fclErrorHandler(errcode,'fclCreateUserEvent','clCreateUserEvent') 
+
+  end procedure fclCreateUserEvent_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCreateUserEvent_2 !() result(userEvent)
+    !! Create user event in in the default context
+    
+    userEvent = fclCreateUserEvent_1(fclDefaultCtx)
+
+  end procedure fclCreateUserEvent_2
+  ! ---------------------------------------------------------------------------
+  
+
+  module procedure fclSetUserEvent !(event,stat)
+     !! Set status of a user event
+
+    integer(c_int32_t) :: errcode, eStatus
+
+    if (present(stat)) then
+      eStatus = stat
+    else
+      eStatus = 0
+    end if
+
+    errcode = clSetUserEventStatus(event%cl_event, eStatus)
+    
+    call fclErrorHandler(errcode,'fclSetUserEvent','clSetUserEventStatus') 
+
+  end procedure fclSetUserEvent
+  ! ---------------------------------------------------------------------------
+
 end submodule Focal_Setup

@@ -15,7 +15,7 @@ type(fclCommandQ), pointer :: cmdq
 character(:), allocatable :: kernelSrc              ! Kernel source string
 type(fclProgram) :: prog                            ! Focal program object
 type(fclKernel) :: setInt_k, setFloat_k, setDouble_k, setChar_k
-type(fclEvent) :: e(2)
+type(fclEvent) :: e(2), ue
 
 real(sp), dimension(FCL_TEST_SIZE) :: hostReal32
 real(dp), dimension(FCL_TEST_SIZE) :: hostReal64
@@ -35,11 +35,16 @@ call fclTestInit()
 qPool = fclCreateCommandQPool(3,ocl_device,enableProfiling=.true.,&
                             blockingRead=.false., blockingWrite=.false.)
 
+ue = fclCreateUserEvent()
+
+
 ! --- Initialise device buffers ---
 call fclInitBuffer(deviceInt32,FCL_TEST_SIZE)
 call fclInitBuffer(deviceReal32,FCL_TEST_SIZE)
 call fclInitBuffer(deviceReal64,FCL_TEST_SIZE)
 call fclInitBuffer(deviceBuffer,c_sizeof(hostChar))
+
+
 
 ! --- Initialise kernels ---
 call fclGetKernelResource(kernelSrc)
@@ -50,6 +55,7 @@ setDouble_k = fclGetProgramKernel(prog,'setDoubleTest',[FCL_TEST_SIZE])
 setChar_k = fclGetProgramKernel(prog,'setCharTest',[FCL_TEST_SIZE])
 
 ! Launch first kernel
+call fclSetDependency(ue)
 call setInt_k%launch(qPool%next(),FCL_TEST_SIZE,deviceInt32)
 e(1) = fclLastKernelEvent
 
@@ -118,8 +124,13 @@ call fclTestAssert(transfer(cmdq%dependencyListPtr,int(1,c_intptr_t)) == &
 call fclTestAssert(cmdq%nDependency==0, &
                     'ndependency:unset (3)')
 
+
+call fclSetUserEvent(ue)
 call fclWait(fclDefaultCmdQ%lastKernelEvent)
 call fclWait(qPool)
+
+
+
 
 ! --- Transfer device buffers to host ---
 call fclSetDependency(qPool%queues(:)%lastKernelEvent,hold=.true.)
