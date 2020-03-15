@@ -21,6 +21,8 @@
 !  Fix interface definitions to be in interface block.
 !  Add definitions of cl_event_command_execution_status constants
 !  Add definitions of cl_map_flags bitfields
+!  Fix type of context in clCreateUserEvent interface
+!  Add definitions of cl_command_type
 !
 !
 ! -----------------------------------------------------------------------------
@@ -433,6 +435,33 @@ module clfortran
     integer(c_int32_t), parameter :: CL_EVENT_REFERENCE_COUNT                   = int(Z'11D2',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_EVENT_COMMAND_EXECUTION_STATUS          = int(Z'11D3',kind=c_int32_t)
     integer(c_int32_t), parameter :: CL_EVENT_CONTEXT                           = int(Z'11D4',kind=c_int32_t)
+
+    ! cl_command_type
+    integer(c_int32_t), parameter :: CL_COMMAND_NDRANGE_KERNEL                  = int(Z'11F0',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_TASK                            = int(Z'11F1',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_NATIVE_KERNEL                   = int(Z'11F2',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_READ_BUFFER                     = int(Z'11F3',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_WRITE_BUFFER                    = int(Z'11F4',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_BUFFER                     = int(Z'11F5',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_READ_IMAGE                      = int(Z'11F6',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_WRITE_IMAGE                     = int(Z'11F7',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_IMAGE                      = int(Z'11F8',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_IMAGE_TO_BUFFER            = int(Z'11F9',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_BUFFER_TO_IMAGE            = int(Z'11FA',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_MAP_BUFFER                 = int(Z'11FB',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_MAP_IMAGE                  = int(Z'11FC',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_UNMAP_MEM_OBJECT           = int(Z'11FD',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_MARKER                          = int(Z'11FE',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_ACQUIRE_GL_OBJECTS              = int(Z'11FF',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_RELEASE_GL_OBJECTS              = int(Z'1200',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_READ_BUFFER_RECT                = int(Z'1201',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_WRITE_BUFFER_RECT               = int(Z'1202',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_COPY_BUFFER_RECT                = int(Z'1203',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_USER                            = int(Z'1204',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_BARRIER                         = int(Z'1205',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_MIGRATE_MEM_OBJECTS             = int(Z'1206',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_FILL_BUFFER                     = int(Z'1207',kind=c_int32_t)
+    integer(c_int32_t), parameter :: CL_COMMAND_FILL_IMAGE                      = int(Z'1208',kind=c_int32_t)
 
     ! cl_profiling_info
     integer(c_int32_t), parameter :: CL_PROFILING_COMMAND_QUEUED                = int(Z'1280',kind=c_int32_t)
@@ -1294,7 +1323,7 @@ module clfortran
             USE ISO_C_BINDING
 
             ! Define parameters.
-            integer(c_int32_t), value :: context
+            integer(c_intptr_t), value :: context
             integer(c_int32_t), intent(out) :: errcode_ret
 
         end function
