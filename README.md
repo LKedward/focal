@@ -1,4 +1,9 @@
 # Focal
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/LKedward/focal.svg?branch=master)](https://travis-ci.org/LKedward/focal)
+[![codecov](https://codecov.io/gh/LKedward/focal/branch/v1.0rc/graph/badge.svg)](https://codecov.io/gh/LKedward/focal)
+
 ## *A modern Fortran abstraction layer for openCL*
 Focal is a module library which wraps calls to the openCL runtime API (using [clfortran](https://github.com/cass-support/clfortran)) with a higher abstraction level appropriate to the Fortran language.
 
