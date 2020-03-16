@@ -4,6 +4,8 @@
 *.smod
 *.a
 doc/*
+bin/*
+obj/*
 *fclKernels.cl
 test/testSummary
 test/test_outputs*

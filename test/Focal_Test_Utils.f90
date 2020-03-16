@@ -1,4 +1,36 @@
+! -----------------------------------------------------------------------------
+!  FOCAL
+!
+!   A modern Fortran abstraction layer for OpenCL
+!   https://lkedward.github.io/focal-docs
+!
+! -----------------------------------------------------------------------------
+!
+! Copyright (c) 2020 Laurence Kedward
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!
+! -----------------------------------------------------------------------------
+
 module Focal_Test_Utils
+!! Utility module for running tests
+  
 use iso_fortran_env, only: stderr => error_unit, sp=>real32, dp=>real64
 use iso_c_binding, only: int32=>c_int32_t
 use clfortran, only: CL_COMPILER_NOT_AVAILABLE
@@ -7,6 +39,8 @@ use Focal
 implicit none
 
 ! --------- Global constants ---------
+character(*), parameter :: ocl_vendors = 'nvidia,amd,intel,bristol'
+
 integer, parameter :: FCL_TEST_SUCCESS = 0
 integer, parameter :: FCL_TEST_NOT_RUN = 101
 integer, parameter :: FCL_TEST_FAILED = 102
@@ -18,6 +52,7 @@ real(dp), parameter :: DP_TOL = epsilon(real(1.0d0,dp))
 
 ! --------- Global variables ---------
 integer :: fclTestResult
+type(fclDevice) :: ocl_device
 
 ! --------- Interfaces ---------
 interface fclTestAssertEqual
@@ -29,9 +64,13 @@ end interface fclTestAssertEqual
 
 contains
 
-  subroutine fclTestInit()
+  subroutine fclTestInit(mode)
+    integer, intent(in), optional :: mode
+      !! Which init routine to use
+
     !! Perform initialisation for test framework
 
+    integer :: initMode
     type(fclDevice), allocatable :: devices(:)
 
     ! Initialise test flag
@@ -40,13 +79,30 @@ contains
     ! Override error handler with custom one
     fclErrorHandler => fclTestErrorHandler
 
-    ! Create context with first platform
-    call fclSetDefaultContext(fclCreateContext(vendor='nvidia,amd,intel'))
+    if (present(mode)) then
+      initMode = mode
+    else
+      initMode = 1
+    end if
 
-    ! Select device with most cores and create command queue
-    devices = fclFindDevices(sortBy='cores')
-    call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1), &
-                enableProfiling=.false.,outOfOrderExec=.false.))
+    if (initMode == 1) then
+
+      ! Create context with first platform
+      call fclSetDefaultContext(fclCreateContext(vendor=ocl_vendors))
+
+      ! Select device with most cores and create command queue
+      devices = fclFindDevices(sortBy='cores')
+      ocl_device = devices(1)
+
+    else
+
+      ! Create context from vendors and select device with most cores
+      ocl_device = fclInit(vendor=ocl_vendors,sortBy='cores')
+
+    end if
+
+    call fclSetDefaultCommandQ(fclCreateCommandQ(ocl_device, &
+                enableProfiling=.true.,outOfOrderExec=.false.))
 
   end subroutine fclTestInit
   ! ---------------------------------------------------------------------------

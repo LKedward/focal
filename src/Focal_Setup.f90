@@ -1,5 +1,34 @@
+! -----------------------------------------------------------------------------
+!  FOCAL
+!
+!   A modern Fortran abstraction layer for OpenCL
+!   https://lkedward.github.io/focal-docs
+!
+! -----------------------------------------------------------------------------
+!
+! Copyright (c) 2020 Laurence Kedward
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!
+! -----------------------------------------------------------------------------
+
 submodule (Focal) Focal_Setup
-  !! FOCAL: openCL abstraction layer for fortran
   !!  Implementation module for openCL setup routines: context, command queues and programs.
 
   !! @note This is an implementation submodule: it contains the code implementing the subroutines defined in the
@@ -80,20 +109,22 @@ submodule (Focal) Focal_Setup
 
   module procedure fclSetDefaultContext !(ctx)
     ! Set the global default context
+
+    call fclDbgCheckContext('fclSetDefaultContext',ctx)
     fclDefaultCtx = ctx
 
   end procedure fclSetDefaultContext
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclFindDevices_1 !(ctx,type,nameLike,sortBy) result(deviceList)
-    !! Create command queue by finding a device
-    use quicksort
+  module procedure fclFilterDevices !(devices,vendor,type,nameLike,extensions,sortBy) result(deviceList)
+    !! Filter and sort list of devices based on criteria
+    use futils_sorting, only: argsort
     integer :: i,j
 
-    integer :: sortMetric(ctx%platform%numDevice)
-    integer :: sortList(ctx%platform%numDevice)
-    logical :: filter(ctx%platform%numDevice)
+    integer :: sortMetric(size(devices,1))
+    integer :: sortList(size(devices,1))
+    logical :: filter(size(devices,1)), platformMatch
 
     integer(c_int64_t) :: typeFilter
     integer(c_int64_t) :: deviceType
@@ -102,12 +133,17 @@ submodule (Focal) Focal_Setup
     integer(c_int64_t) :: int64Metric
 
     character(3) :: CPU_TYPE
+    character(:), allocatable :: extensionList(:)
+    character(:), allocatable :: vendorList(:)
+    
     CPU_TYPE = 'CPU'
 
     ! --- Parse any request to filter by device type ---
     typeFilter = 0
     if (present(type)) then
-      if (index(upperstr(type),'CPU') > 0) then
+      if (index(upperstr(type),'CPU') > 0 .and. index(upperstr(type),'GPU') > 0) then
+        typeFilter = 0
+      else if (index(upperstr(type),'CPU') > 0) then
         typeFilter = CL_DEVICE_TYPE_CPU
       elseif (index( upperstr(type) , 'GPU' ) > 0) then
         typeFilter = CL_DEVICE_TYPE_GPU
@@ -117,15 +153,23 @@ submodule (Focal) Focal_Setup
       end if
     end if
 
+    if (present(extensions)) then
+      call splitStr(extensions,extensionList,delimiters=',')
+    end if
+
+    if (present(vendor)) then
+      call splitStr(vendor,vendorList,delimiters=',')
+    end if
+
     ! --- Process the devices ---
     filter = .true.
 
-    do i=1,ctx%platform%numDevice
+    do i=1,size(devices,1)
 
       ! --- Filter by device type ---
       if (typeFilter > 0) then
 
-        call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_TYPE,deviceType)
+        call fclGetDeviceInfo(devices(i),CL_DEVICE_TYPE,deviceType)
 
         if (deviceType /= typeFilter) then
           filter(i) = .false.         ! Filtered out by device type
@@ -133,19 +177,43 @@ submodule (Focal) Focal_Setup
 
       end if
 
+      ! --- Filter by device extensions ---
+      if (allocated(extensionList)) then
+        do j=1,size(extensionList,1)
+          if (index(upperstr(devices(i)%extensions), &
+                         upperstr(trim(extensionList(j)))) == 0) then
+            filter(i) = .false.      ! Filtered out by device extensions
+            exit
+          end if
+        end do
+      end if
+
+      ! --- Filter by device platform vendor ---
+      if (allocated(vendorList)) then
+        platformMatch = .false.
+        do j=1,size(vendorList,1)
+          if ( index(upperstr(devices(i)%platformName),upperstr(trim(vendorList(j))))>0 .or. & 
+               index(upperstr(devices(i)%platformVendor),upperstr(trim(vendorList(j))))>0 ) then
+             platformMatch = .true.      
+            exit
+          end if
+        end do
+        filter(i) = filter(i).and.platformMatch ! Filtered out by device platform vendor
+      end if
+
       ! --- Extract sorting metric ---
       if (present(sortBy)) then
 
         select case (upperstr(sortBy))
         case ('MEMORY')
-          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_GLOBAL_MEM_SIZE,int64Metric)
+          call fclGetDeviceInfo(devices(i),CL_DEVICE_GLOBAL_MEM_SIZE,int64Metric)
           sortMetric(i) = int(int64Metric/1000000,c_int32_t) ! Convert to megabytes to avoid overflow in int32
 
         case ('CORES')
-          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_COMPUTE_UNITS,sortMetric(i))
+          call fclGetDeviceInfo(devices(i),CL_DEVICE_MAX_COMPUTE_UNITS,sortMetric(i))
 
         case ('CLOCK')
-          call fclGetDeviceInfo(ctx%platform%devices(i),CL_DEVICE_MAX_CLOCK_FREQUENCY,sortMetric(i))
+          call fclGetDeviceInfo(devices(i),CL_DEVICE_MAX_CLOCK_FREQUENCY,sortMetric(i))
 
         end select
 
@@ -155,7 +223,7 @@ submodule (Focal) Focal_Setup
 
       ! --- Filter by device name ---
       if (present(nameLike)) then
-        if (index(upperstr(ctx%platform%devices(i)%name),upperstr(nameLike)) == 0) then
+        if (index(upperstr(devices(i)%name),upperstr(nameLike)) == 0) then
           filter(i) = .false.         ! Filtered out by device name
         end if
       end if
@@ -164,22 +232,21 @@ submodule (Focal) Focal_Setup
 
     ! --- Sort by sorting metric ---
     sortMetric = -sortMetric          ! Sort descending
-    sortList = [(i,i=1,ctx%platform%numDevice)]
-    call quick_sort(sortMetric,sortList)
-
+    sortList = argsort(sortMetric)
+    
     nFiltered = count(filter)
+    allocate(deviceList(nFiltered))
     if (nFiltered < 1) then
-      call fclRuntimeError("fclFindDevices: no devices found matching criteria")
-    end if
+      return
+    end if    
 
     ! --- Output filtered sorted list of devices ---
-    allocate(deviceList(nFiltered))
     nFill = 1
-    do i=1,ctx%platform%numDevice
+    do i=1,size(devices,1)
 
-      if (filter(i)) then
-        j = sortList(i)
-        deviceList(nFill) = ctx%platform%devices(j)
+      j = sortList(i)
+      if (filter(j)) then
+        deviceList(nFill) = devices(j)
         nFill = nFill + 1
       end if
 
@@ -189,13 +256,90 @@ submodule (Focal) Focal_Setup
 
     end do
 
+  end procedure fclFilterDevices
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInit !(vendor,type,nameLike,extensions,sortBy) result(device)
+    !! Quick setup helper function: find a single device based on criteria
+    !!  and set the default context accordingly.
+    !!  Raises runtime error if no matching device is found.
+
+    integer :: i
+
+    type(fclPlatform) :: chosenPlatform
+    type(fclPlatform), allocatable :: platforms(:)
+    type(fclDevice), allocatable :: devices(:), deviceList(:)
+    integer :: nDevice
+    logical :: found
+
+    ! Get platforms
+    platforms = fclGetPlatforms();
+
+    ! Count total number of system devices
+    nDevice = 0
+    do i=1,size(platforms,1)
+      nDevice = nDevice + platforms(i)%numDevice
+    end do
+
+    ! Concatenate device lists across platforms
+    allocate(devices(nDevice))
+    nDevice = 0
+    do i=1,size(platforms,1)
+      devices(nDevice+1:nDevice+platforms(i)%numDevice) = platforms(i)%devices(:)
+      nDevice = nDevice + platforms(i)%numDevice
+    end do
+
+    ! Find devices based on criteria
+    deviceList = fclFilterDevices(devices,vendor,type,nameLike,extensions,sortBy)
+
+    if (size(deviceList,1) < 1) then
+      call fclRuntimeError('fclInit: no devices matching the specified criteria were found.')
+    end if
+
+    ! Choose first device in filtered, sorted list
+    device = deviceList(1)
+
+    ! Find corresponding platform for creating context
+    found = .false.
+    do i=1,size(platforms,1)
+      
+      if (platforms(i)%cl_platform_id == device%cl_platform_id) then
+        chosenPlatform = platforms(i)
+        found = .true.
+        exit
+      end if
+
+    end do
+
+    ! Create context and set as default
+    call fclSetDefaultContext(fclCreateContext(chosenPlatform))
+
+  end procedure fclInit
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFindDevices_1 !(ctx,vendor,type,nameLike,extensions,sortBy) result(deviceList)
+    !! Create command queue by finding a device
+    use futils_sorting, only: argsort
+    
+    call fclDbgCheckContext('fclFindDevices',ctx)
+
+    deviceList = fclFilterDevices(ctx%platform%devices,vendor,type,nameLike,extensions,sortBy)
+
+    if (.not.allocated(deviceList)) then
+      call fclRuntimeError('fclFindDevices: no devices matching the specified criteria were found.')
+    end if
+
   end procedure fclFindDevices_1
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclFindDevices_2 !(type,nameLike,sortBy) result(deviceList)
+  module procedure fclFindDevices_2 !(type,vendor,nameLike,extensions,sortBy) result(deviceList)
 
-    deviceList = fclFindDevices_1(fclDefaultCtx,type,nameLike,sortBy)
+    call fclDbgCheckContext('fclFindDevices')
+
+    deviceList = fclFindDevices_1(fclDefaultCtx,vendor,type,nameLike,extensions,sortBy)
 
   end procedure fclFindDevices_2
   ! ---------------------------------------------------------------------------
@@ -209,6 +353,8 @@ submodule (Focal) Focal_Setup
     integer(c_int64_t) :: properties
 
     properties = 0
+
+    call fclDbgCheckContext('fclCreateCommandQ',ctx)
 
     if (present(enableProfiling)) then
       if (enableProfiling) then
@@ -242,10 +388,70 @@ submodule (Focal) Focal_Setup
   module procedure fclCreateCommandQ_2 !(device,enableProfiling,outOfOrderExec,&
                                          !blockingWrite,blockingRead) result(cmdq)
     !! Create a command queue with a Focal device object using default context
+
+    call fclDbgCheckContext('fclCreateCommandQ')
+
     cmdq = fclCreateCommandQ_1(fclDefaultCtx,device,enableProfiling,outOfOrderExec, &
                                            blockingWrite,blockingRead)
 
   end procedure fclCreateCommandQ_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCreateCommandQPool_1 !(ctx,N,device,enableProfiling,outOfOrderExec,&
+      ! blockingWrite,blockingRead) result(qPool)
+    !! Create a command queue pool with a Focal device object
+
+    integer :: i
+
+    call fclDbgCheckContext('fclCreateCommandQPool',ctx)
+
+    qPool%length = N
+
+    allocate(qPool%queues(N))
+
+    do i=1,N
+      qPool%queues(i) = fclCreateCommandQ_1(ctx,device,enableProfiling,outOfOrderExec, &
+                                                blockingWrite, blockingRead)
+    end do
+
+  end procedure fclCreateCommandQPool_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCreateCommandQPool_2 !(N,device,enableProfiling,outOfOrderExec,&
+    ! blockingWrite,blockingRead) result(qPool)
+    !! Create a command queue pool with a Focal device object using the default context
+
+    call fclDbgCheckContext('fclCreateCommandQPool')
+
+    qPool = fclCreateCommandQPool_1(fclDefaultCtx,N,device,enableProfiling,outOfOrderExec,&
+                                      blockingWrite,blockingRead)
+
+  end procedure fclCreateCommandQPool_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCommandQPool_Next !(qPool) result(cmdQ)
+    !! Returns next scheduled queue in queue pool
+
+    ! Increment queue index (round-robin scheduling)
+    qPool%idx = qPool%idx + 1
+    qPool%idx = mod(qPool%idx-1,qPool%length) + 1
+
+    ! Return next queue
+    cmdQ => qPool%queues(qPool%idx)
+
+  end procedure fclCommandQPool_Next
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclCommandQPool_Current !(qPool) result(cmdQ)
+    !! Returns current scheduled queue in queue pool
+
+    cmdQ => qPool%queues(qPool%idx)
+
+  end procedure fclCommandQPool_Current
   ! ---------------------------------------------------------------------------
 
 
@@ -256,7 +462,7 @@ submodule (Focal) Focal_Setup
   end procedure fclSetDefaultCommandQ
   ! ---------------------------------------------------------------------------
 
-
+  
   module procedure fclCompileProgram_1 !(ctx,source,options) result(prog)
 
     integer :: i
@@ -265,6 +471,8 @@ submodule (Focal) Focal_Setup
     type(c_ptr), target :: c_source_p
     character(:), allocatable :: options_temp
     character(len=1,kind=c_char), allocatable, target :: c_options(:)
+
+    call fclDbgCheckContext('fclCompileProgram',ctx)
 
     ! Convert to c character array
     do i=1,len(source)
@@ -303,6 +511,8 @@ submodule (Focal) Focal_Setup
 
   module procedure fclCompileProgram_2 !(source,options) result(prog)
 
+    call fclDbgCheckContext('fclCompileProgram')
+
     prog = fclCompileProgram_1(fclDefaultCtx,source,options)
 
   end procedure fclCompileProgram_2
@@ -316,6 +526,8 @@ submodule (Focal) Focal_Setup
     integer :: out
     integer(c_size_t) :: buffLen, int32_ret
     character(len=1), allocatable, target :: buildLogBuffer(:)
+
+    call fclDbgCheckContext('fclDumpBuildLog',ctx)
 
     if (present(outputUnit)) then
       out = outputUnit
@@ -347,6 +559,8 @@ submodule (Focal) Focal_Setup
 
 
   module procedure fclDumpBuildLog_2 !(prog,device,outputUnit)
+
+    call fclDbgCheckContext('fclDumpBuildLog')
 
     call fclDumpBuildLog_1(fclDefaultCtx,prog,device,outputUnit)
 
@@ -451,6 +665,7 @@ submodule (Focal) Focal_Setup
   module procedure fclLaunchKernel !(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,&
                                       ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
 
+    integer(c_size_t) :: i, nBlocki
     integer(c_int32_t) :: errcode
     type(fclCommandQ), pointer :: cmdQ
     type(c_ptr) :: localSizePtr
@@ -467,11 +682,27 @@ submodule (Focal) Focal_Setup
       localSizePtr = C_NULL_PTR
     else
       localSizePtr = c_loc(kernel%local_work_size)
+
+      ! Check global dims are multiples of user-specified 
+      !  local dims and update if necessary
+      do i=1,kernel%work_dim
+        if (mod(kernel%global_work_size(i),kernel%local_work_size(i)) > 0) then
+          nBlocki = (kernel%global_work_size(i) + kernel%local_work_size(i) - 1)/kernel%local_work_size(i)
+          kernel%global_work_size(i) = nBlocki*kernel%local_work_size(i)
+        end if
+      end do
+
     end if
 
     ! Set arguments and parse (get number of args and cmdq if specified)
     call fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,&
                                 a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+
+    ! Decrement event reference counter
+    if (cmdQ%lastKernelEvent%cl_event > 0) then
+      errcode = clReleaseEvent(cmdQ%lastKernelEvent%cl_event)
+      call fclErrorHandler(errcode,'fclLaunchKernel','clReleaseEvent') 
+    end if
 
     errcode = clEnqueueNDRangeKernel(cmdq%cl_command_queue, &
                 kernel%cl_kernel, kernel%work_dim, &
@@ -750,6 +981,12 @@ submodule (Focal) Focal_Setup
     !! Enqueue barrier on all events in command queue
     integer(c_int32_t) :: errcode
 
+    ! Decrement event reference counter
+    if (cmdq%lastBarrierEvent%cl_event > 0) then
+      errcode = clReleaseEvent(cmdq%lastBarrierEvent%cl_event)
+      call fclErrorHandler(errcode,'fclBarrier','clReleaseEvent') 
+    end if
+
     errcode = clEnqueueBarrierWithWaitList( cmdq%cl_command_queue, &
                   cmdq%nDependency, cmdq%dependencyListPtr , &
                   c_loc(cmdq%lastBarrierEvent%cl_event))
@@ -791,6 +1028,19 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclFinish_3 !(qPool)
+    !! Wait on host for all events in all queues in a queue pool
+
+    integer :: i
+
+    do i=1,qPool%length
+      call fclFinish_1(qPool%queues(i))
+    end do
+
+  end procedure fclFinish_3
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclWaitEvent !(event)
     !! Wait on host for a specific event
     integer(c_int32_t) :: errcode
@@ -822,6 +1072,9 @@ submodule (Focal) Focal_Setup
 
   module procedure fclSetDependencyEvent_1 !(cmdq,event,hold)
     !! Specify a single event dependency on specific cmdq
+
+    integer(c_int32_t) :: errcode
+
     if (.not.allocated(cmdq%dependencyList)) then
 
      allocate(cmdq%dependencyList(fclAllocationSize))
@@ -831,6 +1084,10 @@ submodule (Focal) Focal_Setup
     cmdq%dependencyList(1) = event%cl_event
     cmdq%nDependency = 1
     cmdq%dependencyListPtr = c_loc(cmdq%dependencyList)
+
+    ! Increment event reference counter
+    errcode = clRetainEvent(event%cl_event)
+    call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent')
 
     if (present(hold)) then
       cmdq%holdDependencies = hold
@@ -850,7 +1107,9 @@ submodule (Focal) Focal_Setup
 
   module procedure fclSetDependencyEventList_1 !(cmdq,eventList,hold)
     !! Specify a list of dependent events on specific cmdq
+    
     integer :: i, nEvent, nAlloc
+    integer(c_int32_t) :: errcode
 
     nEvent = size(eventList,1)
     nAlloc = max(fclAllocationSize,nEvent)
@@ -869,6 +1128,12 @@ submodule (Focal) Focal_Setup
     cmdq%dependencyList(1:nEvent) = [(eventList(i)%cl_event,i=1,nEvent)]
     cmdq%nDependency = nEvent
     cmdq%dependencyListPtr = c_loc(cmdq%dependencyList)
+
+    ! Increment event reference counters
+    do i=1,nEvent
+      errcode = clRetainEvent(eventList(i)%cl_event)
+      call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent') 
+    end do
 
     if (present(hold)) then
       cmdq%holdDependencies = hold
@@ -901,6 +1166,16 @@ submodule (Focal) Focal_Setup
 
   module procedure fclClearDependencies_1 !(cmdq)
     !! Reset dependency list
+
+    integer :: i
+    integer(c_int32_t) :: errcode
+
+    ! Decrement event reference counters
+    do i=1,cmdq%nDependency
+      errcode = clReleaseEvent(cmdq%dependencyList(i))
+      call fclErrorHandler(errcode,'fclClearDependencies','clReleaseEvent') 
+    end do
+
     cmdq%nDependency = 0
     cmdq%dependencyListPtr = C_NULL_PTR
     cmdq%holdDependencies = .false.
@@ -916,5 +1191,45 @@ submodule (Focal) Focal_Setup
   end procedure fclClearDependencies_2
   ! ---------------------------------------------------------------------------
 
+
+  module procedure fclCreateUserEvent_1 !(ctx) result(userEvent)
+    !! Create user event in a specific context
+    
+    integer(c_int32_t) :: errcode
+
+    userEvent%cl_event = clCreateUserEvent(ctx%cl_context,errcode)
+
+    call fclErrorHandler(errcode,'fclCreateUserEvent','clCreateUserEvent') 
+
+  end procedure fclCreateUserEvent_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclCreateUserEvent_2 !() result(userEvent)
+    !! Create user event in in the default context
+    
+    userEvent = fclCreateUserEvent_1(fclDefaultCtx)
+
+  end procedure fclCreateUserEvent_2
+  ! ---------------------------------------------------------------------------
+  
+
+  module procedure fclSetUserEvent !(event,stat)
+     !! Set status of a user event
+
+    integer(c_int32_t) :: errcode, eStatus
+
+    if (present(stat)) then
+      eStatus = stat
+    else
+      eStatus = 0
+    end if
+
+    errcode = clSetUserEventStatus(event%cl_event, eStatus)
+    
+    call fclErrorHandler(errcode,'fclSetUserEvent','clSetUserEventStatus') 
+
+  end procedure fclSetUserEvent
+  ! ---------------------------------------------------------------------------
 
 end submodule Focal_Setup

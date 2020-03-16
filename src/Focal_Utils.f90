@@ -1,5 +1,34 @@
+! -----------------------------------------------------------------------------
+!  FOCAL
+!
+!   A modern Fortran abstraction layer for OpenCL
+!   https://lkedward.github.io/focal-docs
+!
+! -----------------------------------------------------------------------------
+!
+! Copyright (c) 2020 Laurence Kedward
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!
+! -----------------------------------------------------------------------------
+
 submodule (Focal) Focal_Utils
-  !! FOCAL: openCL abstraction layer for fortran
   !!  Implementation module for focal utility routines
 
   !! @note This is an implementation submodule: it contains the code implementing the subroutines defined in the
@@ -67,11 +96,12 @@ submodule (Focal) Focal_Utils
     character(1) :: char
 
     ! --- First pass: get kernel source length ---
-    open(newunit=fh,file=filename,status='old',access='direct',recl=1)
+    open(newunit=fh,file=filename,status='old', form='formatted', &
+                   access='direct',recl=1)
     iLen = 1
     iostat = 0
     do while(iostat == 0)
-      read(fh,rec=iLen,iostat=iostat) char
+      read(fh,'(A)',rec=iLen,iostat=iostat) char
       iLen = iLen + 1
     enddo
     iLen = iLen - 2
@@ -80,9 +110,10 @@ submodule (Focal) Focal_Utils
     allocate(character(len=iLen) :: sourceString)
 
     ! --- Second pass: read kernel source into buffer ---
-    open(newunit=fh,file=filename,status='old',access='direct',recl=1)
+    open(newunit=fh,file=filename,status='old', form='formatted', &
+                  access='direct',recl=1)
     do i=1,iLen
-        read(fh,rec=i) char
+        read(fh,'(A)',rec=i) char
         sourceString(i:i) = char
     end do
     close(fh)

@@ -9,7 +9,7 @@ real, parameter :: sumVal = 10.0            ! Target value for array sum
 
 integer :: i                                ! Counter variable
 character(:), allocatable :: kernelSrc      ! Kernel source string
-type(fclDevice), allocatable :: devices(:)      ! List of focal devices
+type(fclDevice) :: device                   ! OpenCL device on which to run
 type(fclProgram) :: prog                    ! Focal program object
 type(fclKernel) :: sumKernel                ! Focal kernel object
 real(c_float) :: array1(Nelem)              ! Host array 1
@@ -17,13 +17,12 @@ real(c_float) :: array2(Nelem)              ! Host array 2
 type(fclDeviceFloat) :: array1_d            ! Device array 1
 type(fclDeviceFloat) :: array2_d            ! Device array 2
 
-! Create context with nvidia platform
-call fclSetDefaultContext(fclCreateContext(vendor='nvidia,amd,intel'))
+! Initialise OpenCL context and select device with most cores 
+device = fclInit(vendor='nvidia,amd,intel',sortBy='cores')
 
 ! Select device with most cores and create command queue
-devices = fclFindDevices(sortBy='cores') !,type='cpu')
-write(*,*) 'Using device: ',devices(1)%name
-call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1),enableProfiling=.true.))
+write(*,*) 'Using device: ',device%name
+call fclSetDefaultCommandQ(fclCreateCommandQ(device,enableProfiling=.true.))
 
 ! Load kernel from file and compile
 ! call fclSourceFromFile('examples/sum.cl',kernelSrc)
@@ -32,8 +31,8 @@ prog = fclCompileProgram(kernelSrc)
 sumKernel = fclGetProgramKernel(prog,'sum')
 
 ! Initialise device arrays
-array1_d = fclBufferFloat(Nelem,read=.true.,write=.false.)
-array2_d = fclBufferFloat(Nelem,read=.true.,write=.true.)
+call fclInitBuffer(array1_d,Nelem,access='r')
+call fclInitBuffer(array2_d,Nelem,access='rw')
 
 ! Initialise host array data
 do i=1,Nelem

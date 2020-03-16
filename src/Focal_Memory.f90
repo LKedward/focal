@@ -1,5 +1,34 @@
+! -----------------------------------------------------------------------------
+!  FOCAL
+!
+!   A modern Fortran abstraction layer for OpenCL
+!   https://lkedward.github.io/focal-docs
+!
+! -----------------------------------------------------------------------------
+!
+! Copyright (c) 2020 Laurence Kedward
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!
+! -----------------------------------------------------------------------------
+
 submodule (Focal) Focal_Memory
-  !! FOCAL: openCL abstraction layer for fortran
   !!  Implementation module
 
   !! @note This is an implementation submodule: it contains the code implementing the subroutines defined in the
@@ -35,94 +64,9 @@ submodule (Focal) Focal_Memory
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclBufferDouble_1 !(cmdq,dim,read,write,profileName) result(mem)
-
-    integer(c_size_t) :: nBytes
-    nBytes = c_sizeof(real(1.0d0,c_double))*dim
-    mem%cl_mem = fclBuffer(cmdq,nBytes,read,write)
-    mem%cmdq => cmdq
-    mem%nBytes = nBytes
-
-    if (present(profileName)) then
-      if (allocated(mem%profileName)) then
-        deallocate(mem%profileName)
-      end if
-      mem%profileName = profileName
-    end if
-
-  end procedure fclBufferDouble_1
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclBufferDouble_2 !(dim,read,write,profileName) result(mem)
-
-    mem = fclBufferDouble_1(fclDefaultCmdQ,dim,read,write,profileName)
-
-  end procedure fclBufferDouble_2
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclBufferFloat_1 !(cmdq,dim,read,write,profileName) result(mem)
-
-    integer(c_size_t) :: nBytes
-    nBytes = c_sizeof(real(1.0,c_float))*dim
-    mem%cl_mem = fclBuffer(cmdq,nBytes,read,write)
-    mem%cmdq => cmdq
-    mem%nBytes = nBytes
-
-    if (present(profileName)) then
-      if (allocated(mem%profileName)) then
-        deallocate(mem%profileName)
-      end if
-      mem%profileName = profileName
-    end if
-
-  end procedure fclBufferFloat_1
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclBufferFloat_2 !(dim,read,write,profileName) result(mem)
-
-    mem = fclBufferFloat_1(fclDefaultCmdQ,dim,read,write,profileName)
-
-  end procedure fclBufferFloat_2
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclBufferInt32_1 !(cmdq,dim,read,write,profileName) result(mem)
-
-    integer(c_size_t) :: nBytes
-    nBytes = c_sizeof(int(1,c_int32_t))*dim
-    mem%cl_mem = fclBuffer(cmdq,nBytes,read,write)
-    mem%cmdq => cmdq
-    mem%nBytes = nBytes
-
-    if (present(profileName)) then
-      if (allocated(mem%profileName)) then
-        deallocate(mem%profileName)
-      end if
-      mem%profileName = profileName
-    end if
-
-  end procedure fclBufferInt32_1
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclBufferInt32_2 !(dim,read,write,profileName) result(mem)
-
-    mem = fclBufferInt32_1(fclDefaultCmdQ,dim,read,write,profileName)
-
-  end procedure fclBufferInt32_2
-  ! ---------------------------------------------------------------------------
-
-
-  module procedure fclBuffer !(cmdq,nBytes,read,write) result(mem)
-
-    !! @note
-    !! "The memory associated with pattern can be reused or freed after the function returns."
-    !! https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueFillBuffer.html
-    !! @endnote
-
+  module procedure fclInitBufferUntyped_1 !(cmdq,buffer,nBytes,profileName,access)
+    !! Initialise untyped buffer object on specified command queue
+    use M_strings, only: upperStr=>upper
     integer(c_int32_t) :: errcode
     integer(c_int64_t) :: MEM_FLAGS
 
@@ -134,26 +78,253 @@ submodule (Focal) Focal_Memory
                   CL_QUEUE_CONTEXT,c_sizeof(cl_context), &
                   c_loc(cl_context), size_ret)
 
-    call fclErrorHandler(errcode,'fclBuffer','clGetCommandQueueInfo')
+    call fclErrorHandler(errcode,'fclInitBuffer','clGetCommandQueueInfo')
+
+    ! Check kernel access flags
+    if (present(access)) then
+      buffer%kernelRead = index(upperstr(access),'R') > 0
+      buffer%kernelWrite = index(upperstr(access),'W') > 0
+    else
+      buffer%kernelRead = .true.
+      buffer%kernelWrite = .true.
+    end if
 
     MEM_FLAGS = CL_MEM_READ_WRITE
-    if (.not.write.and..not.read) then
+    if (.not.buffer%kernelWrite.and..not.buffer%kernelRead) then
       call fclRuntimeError('fclBuffer: memory must be at least read or write.')
 
-    elseif (.not.write) then
+    elseif (.not.buffer%kernelWrite) then
       MEM_FLAGS = CL_MEM_READ_ONLY
 
-    elseif (.not.read) then
+    elseif (.not.buffer%kernelRead) then
       MEM_FLAGS = CL_MEM_WRITE_ONLY
 
     end if
 
-    cl_mem = clCreateBuffer(cl_context,MEM_FLAGS, &
+    buffer%cl_mem = clCreateBuffer(cl_context,MEM_FLAGS, &
                       nBytes,C_NULL_PTR,errcode)
 
-    call fclErrorHandler(errcode,'fclBuffer','clCreateBuffer')
+    call fclErrorHandler(errcode,'fclInitBuffer','clCreateBuffer')
 
-  end procedure fclBuffer
+    buffer%nBytes = nBytes
+    buffer%cmdq => cmdq
+
+    if (present(profileName)) then
+      if (allocated(buffer%profileName)) then
+        deallocate(buffer%profileName)
+      end if
+      buffer%profileName = profileName
+    end if
+
+  end procedure fclInitBufferUntyped_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitBufferUntyped_2 !(buffer,nBytes,profileName,access)
+    !! Initialise untyped buffer object on the default command queue
+
+    call fclInitBufferUntyped_1(fclDefaultCmdQ,buffer,nBytes,profileName,access)
+
+  end procedure fclInitBufferUntyped_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitBufferFloat_1 !(cmdq,buffer,dim,profileName,access)
+    !! Initialise float buffer object on specific command queue
+
+    integer(c_size_t) :: nBytes
+    nBytes = c_sizeof(real(1.0d0,c_float))*dim
+
+    call fclInitBufferUntyped_1(cmdq,buffer%fclDeviceBuffer,nBytes,profileName,access)
+
+  end procedure fclInitBufferFloat_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitBufferFloat_2 !(buffer,dim,profileName,access)
+    !! Initialise float buffer object on the default command queue
+
+    call fclInitBufferFloat_1(fclDefaultCmdQ,buffer,dim,profileName,access)
+    
+  end procedure fclInitBufferFloat_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitBufferDouble_1 !(cmdq,buffer,dim,profileName,access)
+    !! Initialise double buffer object on specific command queue
+
+    integer(c_size_t) :: nBytes
+    nBytes = c_sizeof(real(1.0d0,c_double))*dim
+
+    call fclInitBufferUntyped_1(cmdq,buffer%fclDeviceBuffer,nBytes,profileName,access)
+
+  end procedure fclInitBufferDouble_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitBufferDouble_2 !(buffer,dim,profileName,access)
+    !! Initialise double buffer object on the default command queue
+
+    call fclInitBufferDouble_1(fclDefaultCmdQ,buffer,dim,profileName,access)
+    
+  end procedure fclInitBufferDouble_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitBufferInt32_1 !(cmdq,buffer,dim,profileName,access)
+    !! Initialise 32bit integer buffer object on specific command queue
+
+    integer(c_size_t) :: nBytes
+    nBytes = c_sizeof(int(1,c_int32_t))*dim
+
+    call fclInitBufferUntyped_1(cmdq,buffer%fclDeviceBuffer,nBytes,profileName,access)
+
+  end procedure fclInitBufferInt32_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitBufferInt32_2 !(buffer,dim,profileName,access)
+    !! Initialise 32bit integer buffer object on the default command queue
+
+    call fclInitBufferInt32_1(fclDefaultCmdQ,buffer,dim,profileName,access)
+    
+  end procedure fclInitBufferInt32_2
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclInitSubBufferUntyped_1 !(cmdq,subbuffer,sourceBuffer,offset,size,profileName,access)
+    !! Initialise an untyped sub-buffer from an existing buffer
+    use M_strings, only: upperStr=>upper
+    integer(c_int32_t) :: errcode
+    integer(c_int64_t) :: MEM_FLAGS
+
+    integer(c_size_t), target :: info(2)
+
+    call fclDbgCheckBufferInit(sourceBuffer,'fclInitSubBuffer:sourceBuffer')
+
+    ! Check kernel access flags
+    if (present(access)) then
+      subbuffer%kernelRead = index(upperstr(access),'R') > 0
+      subbuffer%kernelWrite = index(upperstr(access),'W') > 0
+    else
+      subbuffer%kernelRead = .true.
+      subbuffer%kernelWrite = .true.
+    end if
+
+    MEM_FLAGS = CL_MEM_READ_WRITE
+    if (.not.subbuffer%kernelWrite.and..not.subbuffer%kernelRead) then
+      call fclRuntimeError('fclInitSubBuffer: memory must be at least read or write.')
+
+    elseif (.not.subbuffer%kernelWrite) then
+      MEM_FLAGS = CL_MEM_READ_ONLY
+
+    elseif (.not.subbuffer%kernelRead) then
+      MEM_FLAGS = CL_MEM_WRITE_ONLY
+
+    end if
+
+    ! Check for incompatible sub-buffer flags
+    if (.not.sourceBuffer%kernelRead .and. subBuffer%kernelRead) then
+      call fclRuntimeError('fclInitSubBuffer: sub-buffer cannot allow kernel read access if parent buffer does not.')
+    end if
+    if (.not.sourceBuffer%kernelWrite .and. subBuffer%kernelWrite) then
+      call fclRuntimeError('fclInitSubBuffer: sub-buffer cannot allow kernel write access if parent buffer does not.')
+    end if
+
+    info(1) = offset
+    info(2) = size
+
+    subBuffer%cl_mem = clCreateSubBuffer (sourceBuffer%cl_mem, MEM_FLAGS, &
+              CL_BUFFER_CREATE_TYPE_REGION, c_loc(info), errcode)
+
+    call fclErrorHandler(errcode,'fclInitSubBuffer','clCreateSubBuffer')
+
+    subBuffer%nBytes = size
+    subBuffer%cmdq => cmdq
+
+    if (present(profileName)) then
+      if (allocated(subBuffer%profileName)) then
+        deallocate(subBuffer%profileName)
+      end if
+      subBuffer%profileName = profileName
+    end if
+
+  end procedure fclInitSubBufferUntyped_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitSubBufferUntyped_2 !(subbuffer,sourceBuffer,offset,size,profileName,access)
+    !! Initialise an untyped sub-buffer from an existing buffer on the default command queue
+
+    call fclInitSubBufferUntyped_1(fclDefaultCmdQ,subbuffer,sourceBuffer,offset,size,profileName,access)
+
+  end procedure fclInitSubBufferUntyped_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitSubBufferFloat_1 !(cmdq,subbuffer,sourceBuffer,start,length,profileName,access)
+    !! Initialise a float sub-buffer from an existing float buffer
+
+    integer(c_size_t) :: offset, size
+    offset = start*c_sizeof(real(1.0,c_float))
+    size = length*c_sizeof(real(1.0,c_float))
+
+    call fclInitSubBufferUntyped_1(cmdq,subbuffer%fclDeviceBuffer,sourceBuffer,offset,size,profileName,access)
+
+  end procedure fclInitSubBufferFloat_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitSubBufferFloat_2 !(subbuffer,sourceBuffer,start,length,profileName,access)
+    !! Initialise a float sub-buffer from an existing float buffer on default command queue
+
+    call fclInitSubBufferFloat_1(fclDefaultCmdQ,subbuffer,sourceBuffer,start,length,profileName,access)
+
+  end procedure fclInitSubBufferFloat_2
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclInitSubBufferDouble_1 !(cmdq,subbuffer,sourceBuffer,start,length,profileName,access)
+    !! Initialise a float sub-buffer from an existing float buffer
+
+    integer(c_size_t) :: offset, size
+    offset = start*c_sizeof(real(1.0d0,c_double))
+    size = length*c_sizeof(real(1.0d0,c_double))
+
+    call fclInitSubBufferUntyped_1(cmdq,subbuffer%fclDeviceBuffer,sourceBuffer,offset,size,profileName,access)
+
+  end procedure fclInitSubBufferDouble_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitSubBufferDouble_2 !(subbuffer,sourceBuffer,start,length,profileName,access)
+    !! Initialise a float sub-buffer from an existing float buffer on default command queue
+
+    call fclInitSubBufferDouble_1(fclDefaultCmdQ,subbuffer,sourceBuffer,start,length,profileName,access)
+
+  end procedure fclInitSubBufferDouble_2
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclInitSubBufferint32_1 !(cmdq,subbuffer,sourceBuffer,start,length,profileName,access)
+    !! Initialise a 32bit integer sub-buffer from an existing float buffer
+
+    integer(c_size_t) :: offset, size
+    offset = start*c_sizeof(int(1,c_int32_t))
+    size = length*c_sizeof(int(1,c_int32_t))
+
+    call fclInitSubBufferUntyped_1(cmdq,subbuffer%fclDeviceBuffer,sourceBuffer,offset,size,profileName,access)
+
+  end procedure fclInitSubBufferint32_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclInitSubBufferint32_2 !(subbuffer,sourceBuffer,start,length,profileName,access)
+    !! Initialise a 32bit integer sub-buffer from an existing float buffer on default command queue
+
+    call fclInitSubBufferint32_1(fclDefaultCmdQ,subbuffer,sourceBuffer,start,length,profileName,access)
+
+  end procedure fclInitSubBufferint32_2
   ! ---------------------------------------------------------------------------
 
 
@@ -162,6 +333,12 @@ submodule (Focal) Focal_Memory
     integer(c_int32_t) :: errcode
 
     call fclDbgCheckBufferInit(memObject,'fclMemWriteScalar')
+
+    ! Decrement event reference counter
+    if (memObject%cmdq%lastWriteEvent%cl_event > 0) then
+      errcode = clReleaseEvent(memObject%cmdq%lastWriteEvent%cl_event)
+      call fclErrorHandler(errcode,'fclMemWriteScalar','clReleaseEvent') 
+    end if
 
     errcode = clEnqueueFillBuffer(memObject%cmdq%cl_command_queue, &
                 memObject%cl_mem, hostBufferPtr, nBytesPattern, &
@@ -222,6 +399,12 @@ submodule (Focal) Focal_Memory
       blocking_write = CL_TRUE
     else
       blocking_write = CL_FALSE
+    end if
+
+    ! Decrement event reference counter
+    if (memObject%cmdq%lastWriteEvent%cl_event > 0) then
+      errcode = clReleaseEvent(memObject%cmdq%lastWriteEvent%cl_event)
+      call fclErrorHandler(errcode,'fclMemWrite','clReleaseEvent') 
     end if
 
     errcode = clEnqueueWriteBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
@@ -285,6 +468,12 @@ submodule (Focal) Focal_Memory
       blocking_read = CL_TRUE
     else
       blocking_read = CL_FALSE
+    end if
+
+    ! Decrement event reference counter
+    if (memObject%cmdq%lastReadEvent%cl_event > 0) then
+      errcode = clReleaseEvent(memObject%cmdq%lastReadEvent%cl_event)
+      call fclErrorHandler(errcode,'fclMemRead','clReleaseEvent') 
     end if
 
     errcode = clEnqueueReadBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
@@ -369,6 +558,12 @@ submodule (Focal) Focal_Memory
       !  therefore perform a device-to-device copy
 
       call fclDbgCheckCopyBufferSize(memObject1,memObject2)
+
+      ! Decrement event reference counter
+      if (memObject1%cmdq%lastCopyEvent%cl_event > 0) then
+        errcode = clReleaseEvent(memObject1%cmdq%lastCopyEvent%cl_event)
+        call fclErrorHandler(errcode,'fclMemCopy','clReleaseEvent') 
+      end if
 
       errcode = clEnqueueCopyBuffer(memObject1%cmdq%cl_command_queue, &
                 memObject2%cl_mem, memObject1%cl_mem, &

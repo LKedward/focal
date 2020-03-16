@@ -1,5 +1,34 @@
+! -----------------------------------------------------------------------------
+!  FOCAL
+!
+!   A modern Fortran abstraction layer for OpenCL
+!   https://lkedward.github.io/focal-docs
+!
+! -----------------------------------------------------------------------------
+!
+! Copyright (c) 2020 Laurence Kedward
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!
+! -----------------------------------------------------------------------------
+
 submodule (Focal) Focal_Debug
-  !! FOCAL: openCL abstraction layer for fortran
   !!  Implementation module for focal debug routines.
   !!  This submodule is linked in the debug version of Focal build.
 
@@ -9,6 +38,56 @@ submodule (Focal) Focal_Debug
   implicit none
 
   contains
+
+  module procedure fclDbgCheckContext !(descrip,ctx)
+    !! Check the (default) context is initialised.
+    !! Assumes uninitialised contexts have cl_context = -1.
+
+    if (present(ctx)) then
+      if (ctx%cl_context == -1) then
+
+        write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+        write(*,*) ' Attempt to use uninitialised context at: ',descrip
+        write(*,*)
+
+        call fclRuntimeError('fclDbgCheckContext')
+
+      end if
+    else
+
+      if (fclDefaultCtx%cl_context == -1) then
+
+        write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+        write(*,*) ' The default context is uninitialised.'
+        write(*,*) '  but referenced at: ',descrip
+        write(*,*)
+
+        call fclRuntimeError('fclDbgCheckContext')
+
+      end if
+
+    end if
+
+  end procedure fclDbgCheckContext
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDbgCheckDevice !(device,descrip)
+    !! Check a device object is valid
+
+    if (device%cl_device_id < 0) then
+
+      write(*,*) '(!) Focal (debug build) runtime assertion failed.'
+      write(*,*) ' Attempt to use uninitialised device at: ',descrip
+      write(*,*)
+
+      call fclRuntimeError('fclDbgCheckDevice')
+
+    end if
+
+  end procedure fclDbgCheckDevice
+  ! ---------------------------------------------------------------------------
+
 
   module procedure fclDbgCheckBufferInit !(memObject,descrip)
     !! Check that a device buffer object has been initialised.

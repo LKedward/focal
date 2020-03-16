@@ -21,9 +21,10 @@ vpath %.f90 $(FOCAL_DIR)/src
 vpath %.f90 $(FOCAL_DIR)/external
 vpath %.f90 $(FOCAL_DIR)/external/clfortran
 vpath %.f90 $(FOCAL_DIR)/external/M_strings
+vpath %.f90 $(FOCAL_DIR)/external/fortran-utils
 
 # Source files
-FOCAL_BASE = Focal clfortran Quicksort M_strings
+FOCAL_BASE = Focal clfortran M_strings futils_sorting
 FOCAL_SRCS = Focal_Error Focal_Memory Focal_HostMemory \
              Focal_Query Focal_Setup Focal_Utils Focal_Profile \
              Focal_Debug Focal_NoDebug
@@ -42,7 +43,7 @@ include $(FOCAL_DIR)/make.compiler
 focal:  $(FOCAL_LIB_OBJS)
 
 focal_clean:
-	rm -f $(FOCAL_OBJDIR)*.o
+	rm -f $(FOCAL_OBJDIR)*
 	rm -f $(FOCAL_LIBDIR)*.a
 	rm -f $(FOCAL_MODDIR)*.mod
 	rm -f $(FOCAL_MODDIR)*.smod

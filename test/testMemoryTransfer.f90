@@ -27,23 +27,16 @@ integer :: i
 ! --- Initialise ---
 call fclTestInit()
 
-! --- Initialise typed device buffers ---
-deviceReal32_1 = fclBufferFloat(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceReal64_1 = fclBufferDouble(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceInt32_1 = fclBufferInt32(FCL_TEST_SIZE,read=.true.,write=.false.)
+! --- Initialise device buffers ---
+call fclInitBuffer(deviceInt32_1,FCL_TEST_SIZE,access='r')
+call fclInitBuffer(deviceReal32_1,FCL_TEST_SIZE,access='r')
+call fclInitBuffer(deviceReal64_1,FCL_TEST_SIZE,access='r')
+call fclInitBuffer(deviceBuffer_1,c_sizeof(hostChar_1),access='r')
 
-deviceReal32_2 = fclBufferFloat(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceReal64_2 = fclBufferDouble(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceInt32_2 = fclBufferInt32(FCL_TEST_SIZE,read=.true.,write=.false.)
-
-! --- Manually initialise un-typed buffer objects ---
-deviceBuffer_1%cmdq => fclDefaultCmdQ
-deviceBuffer_1%nBytes = c_sizeof(hostChar_1)
-deviceBuffer_1%cl_mem = fclBuffer(fclDefaultCmdQ,c_sizeof(hostChar_1),read=.true.,write=.true.)
-
-deviceBuffer_2%cmdq => fclDefaultCmdQ
-deviceBuffer_2%nBytes = c_sizeof(hostChar_1)
-deviceBuffer_2%cl_mem = fclBuffer(fclDefaultCmdQ,c_sizeof(hostChar_1),read=.true.,write=.true.)
+call fclInitBuffer(deviceInt32_2,FCL_TEST_SIZE,access='w')
+call fclInitBuffer(deviceReal32_2,FCL_TEST_SIZE,access='w')
+call fclInitBuffer(deviceReal64_2,FCL_TEST_SIZE,access='w')
+call fclInitBuffer(deviceBuffer_2,c_sizeof(hostChar_1),access='w')
 
 ! --- Setup host arrays ---
 do i=1,FCL_TEST_SIZE

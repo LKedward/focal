@@ -1,5 +1,34 @@
+! -----------------------------------------------------------------------------
+!  FOCAL
+!
+!   A modern Fortran abstraction layer for OpenCL
+!   https://lkedward.github.io/focal-docs
+!
+! -----------------------------------------------------------------------------
+!
+! Copyright (c) 2020 Laurence Kedward
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!
+! -----------------------------------------------------------------------------
+
 submodule (Focal) Focal_Profile
-  !! FOCAL: openCL abstraction layer for fortran
   !!  Implementation module for openCL profiling routines
 
   !! @note This is an implementation submodule: it contains the code implementing the subroutines defined in the
@@ -56,21 +85,23 @@ submodule (Focal) Focal_Profile
     container%profilingEnabled = .true.
 
     ! ------ Allocate space for event objects ------
-    if (allocated(container%profileEvents)) then
+    if (associated(container%profileEvents)) then
       deallocate(container%profileEvents)
     end if
-
     allocate(container%profileEvents(profileSize))
+
+    if (associated(container%nProfileEvent)) then
+      deallocate(container%nProfileEvent)
+    end if
+    allocate(container%nProfileEvent)
+
+    if (associated(container%profileEventType)) then
+      deallocate(container%profileEventType)
+    end if
+    allocate(container%profileEventType(profileSize))
+
     container%nProfileEvent = 0
     container%profileSize = profileSize
-
-    select type(b=>container)
-    class is (fclDeviceBuffer)
-      if (allocated(b%profileEventType)) then
-        deallocate(b%profileEventType)
-      end if
-      allocate(b%profileEventType(profileSize))
-    end select
 
     ! ------ Set profile name, if not specified ------
     if(.not.allocated(container%profileName)) then
@@ -145,7 +176,7 @@ submodule (Focal) Focal_Profile
   module procedure fclPushProfileEvent !(container,event,type)
     !! If profiling is enabled for the container, save an event to it
 
-    integer :: i
+    integer(c_int32_t) :: errcode
 
     if (.not.container%profilingEnabled) then
       return
@@ -154,19 +185,23 @@ submodule (Focal) Focal_Profile
     ! Increment number of events
     container%nProfileEvent = container%nProfileEvent + 1
 
-    ! Wrap index around
-    ! (Overwrite previous events if we exceed allocation size)
-    i = mod(container%nProfileEvent-1,container%profileSize) + 1
+    ! Don't save if exceeded profile size
+    !  (Only first profileSize events are saved)
+    if (container%nProfileEvent > container%profileSize) then
+      return
+    end if
+
+    ! Increment event reference counter
+    errcode = clRetainEvent(event%cl_event)
+    call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent')
 
     ! Save event
-    container%profileEvents(i) = event
+    container%profileEvents(container%nProfileEvent) = event
 
-    select type(c=>container)
-    class is (fclDeviceBuffer)
-      if (present(type)) then
-        c%profileEventType(i) = type
-      end if
-    end select
+    ! Save event type if specified
+    if (present(type)) then
+      container%profileEventType(container%nProfileEvent) = type
+    end if
 
   end procedure fclPushProfileEvent
   ! ---------------------------------------------------------------------------
@@ -211,6 +246,9 @@ submodule (Focal) Focal_Profile
 
     type(fclKernel), allocatable :: kernels(:)
     type(fclDeviceBuffer), allocatable :: buffers(:)
+
+    call fclDbgCheckDevice(profiler%device,'fclDumpProfileData. '// &
+        '(Has the profiler%device been set?)')
 
     if (.not.present(outputUnit)) then
       unit = stdout
@@ -301,6 +339,9 @@ submodule (Focal) Focal_Profile
 
         N = min(kern%profileSize,kern%nProfileEvent)
         durations(1:N) = fclGetEventDurations(kern%profileEvents(1:N))
+
+        ! Minimum of 100 nanosecond resolution
+        durations = max(durations,int(100,c_int64_t))
 
         ! Write to table
         if (N>0) then
@@ -410,6 +451,9 @@ submodule (Focal) Focal_Profile
           N = min(buff%profileSize,buff%nProfileEvent)
           durations(1:N) = fclGetEventDurations(buff%profileEvents(1:N))
 
+          ! Minimum of 100 nanosecond resolution
+          durations = max(durations,int(100,c_int64_t))
+
           ! Write to table, iterate over write,read,copy
           do i=1,3
 
@@ -458,6 +502,7 @@ submodule (Focal) Focal_Profile
   module procedure fclDumpTracingData !(profiler,filename)
 
     integer :: fh, kb, j, i, N, tid
+    integer(c_intptr_t), target :: qid
     integer(c_int32_t) :: errcode
     integer(c_int64_t), target :: startTime, endTime
     integer(c_size_t) :: size_ret
@@ -530,6 +575,11 @@ submodule (Focal) Focal_Profile
               CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
             call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
 
+            ! Get event command queue
+            errcode = clGetEventInfo(profileContainer%profileEvents(i)%cl_event, &
+              CL_EVENT_COMMAND_QUEUE, c_sizeof(qid), c_loc(qid), size_ret)
+            call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventInfo')
+
             if (.not.isFirstEvent) then
               write(fh,*) ','
             else
@@ -538,7 +588,7 @@ submodule (Focal) Focal_Profile
 
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
-            write(fh,*) '"pid": 1, "tid": ',tid,','
+            write(fh,*) '"pid": 1, "tid": ',qid,','
             write(fh,*) '"ts": ',startTime/1000,','
             write(fh,*) '"ph": "B",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'
@@ -546,7 +596,7 @@ submodule (Focal) Focal_Profile
 
             write(fh,*) '{'
             write(fh,*) '"cat": "Focal",'
-            write(fh,*) '"pid": 1, "tid": ',tid,','
+            write(fh,*) '"pid": 1, "tid": ',qid,','
             write(fh,*) '"ts": ',endTime/1000,','
             write(fh,*) '"ph": "E",'
             write(fh,*) '"name": "',profileContainer%profileName,'"'

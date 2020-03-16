@@ -37,6 +37,7 @@ do i=1,size(platforms,1)
                platforms(i)%devices(j)%global_memory/1024/1024,'MB, ', &
                platforms(i)%devices(j)%clock_freq, 'MHz, ',&
                platforms(i)%devices(j)%version
+    ! write(*,*) platforms(i)%devices(j)%extensions
 
   end do
 

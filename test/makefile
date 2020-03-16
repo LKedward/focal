@@ -1,7 +1,8 @@
 # --- Source names ---
 MODULES = Focal_Test_Utils
 PROGS = testExample testMemoryTransfer testPinnedMemory \
-        testKernelSetup testLocalMem
+        testKernelSetup testLocalMem testSubBuffers testQueuePool \
+		testEvents testProfiling testFileSource
 REPORT = testSummary
 
 # --- Output Directories ---
@@ -21,14 +22,15 @@ EXEC = $(addprefix $(BINDIR), $(PROGS))
 
 # --- Main build target ---
 all: $(EXEC) $(REPORT)
-	@sed '/Test outputs/q' $(REPORT)
-	@echo  \(Open file: $(REPORT) to see full test outputs\)
+	@cat $(REPORT)
+	@test $$(grep "EXIT_" test_outputs/* --binary-files=text | grep -c -v "EXIT_0\|EXIT_101") -eq 0
 
 BUILD:=debug
 include $(FOCAL_DIR)/make.include
 
 # --- Compiler Flags ---
-FFLAGS=$(FOCAL_FFLAGS)
+FFLAGS=$(FOCAL_FFLAGS) 
+
 
 # --- Link Flags ---
 ifeq ($(BUILD), release)
@@ -39,8 +41,7 @@ else
     $(error unrecognized build.)
 endif
 OPENCL_LFLAGS ?= -g -L$(OPENCL_DIR) -lOpenCL
-LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS)
-
+LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS) -fprofile-arcs -ftest-coverage
 
 # --- Cleanup (reset) ---
 clean:
@@ -51,7 +52,10 @@ clean:
 	rm -f $(TESTOUT)
 
 # Programs depend on modules
-$(PROGOBJS): $(FOCAL_LIB_OBJS) $(MODOBJS)
+$(PROGOBJS): $(MODOBJS)
+
+# Module depends on focal
+$(MODOBJS): $(FOCAL_LIB_OBJS)
 
 # Recipe to link executables
 $(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS) | $(BINDIR)
@@ -60,6 +64,11 @@ $(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS) | $(BINDIR)
 # Recipe to compile fortran objects
 $(OBJDIR)%.o: %.f90
 	$(FC) $(FFLAGS) -c $< -o $@
+
+# Recipe just for Focal library objects
+#  to include code coverage flags
+$(OBJDIR)Focal_%.o: Focal_%.f90
+	$(FC) $(FFLAGS) -fprofile-arcs -ftest-coverage -c $< -o $@
 
 # Recipe to 'compile' kernel source into a binary object
 $(OBJDIR)%.cl.o: %.cl
@@ -75,8 +84,14 @@ $(OUTDIR)/%.out: $(BINDIR)% | $(OUTDIR)
 
 $(REPORT): $(TESTOUT)
 	@echo Generating report...
-	@echo "------------------------------------------------------" > $@
+	@echo "*** Test outputs ***" > $@
+	@grep -T --binary-files=text . $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
+	@echo "------------------------------------------------------" >> $@
 	@echo "          Focal library test suite results" >> $@
+	@echo "------------------------------------------------------" >> $@
+	@echo "Test environment:" >> $@
+	@echo "$$(uname -a)" >> $@
+	@echo "$$($(FC) --version)" >> $@
 	@echo "------------------------------------------------------" >> $@
 	@echo "NO_OF_TESTS: $$(ls -A test_outputs/* | wc -l)" >> $@
 	@echo "TEST_SUCCESS: $$(cat $^ | grep -c EXIT_0)" >> $@
@@ -89,8 +104,6 @@ $(REPORT): $(TESTOUT)
 	@echo "*** Tests not run ***" >> $@
 	@grep -l EXIT_101 $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "" >> $@
-	@echo "*** Test outputs ***" >> $@
-	@grep -T --binary-files=text . $^ | sed 's/$(OUTDIR)//g;s/.out//g;s/\///g' >> $@
 	@echo "------------------------------------------------------" >> $@
 
 $(OUTDIR):

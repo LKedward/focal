@@ -20,11 +20,11 @@ integer, parameter :: Niter = 1000                  ! Number of iterations to pe
 character(*), parameter :: cl_vendor = 'nvidia,amd,intel'     ! Vendors for which to create OpenCL context in order of preference
 
 ! ---------Program variables  ---------
-integer :: i, nBlock
-integer :: kern1T, kern2T
+integer :: i
+integer(c_size_t) :: kern1T, kern2T
 real :: Tavg, perf
 character(:), allocatable :: kernelSrc              ! Kernel source string
-type(fclDevice), allocatable :: devices(:)          ! List of focal devices
+type(fclDevice) :: device                           ! OpenCL device on which to run
 type(fclProgram) :: prog                            ! Focal program object 
 type(fclKernel) :: kern1, kern2                     ! Focal kernel object
 type(fclEvent) :: e
@@ -40,32 +40,29 @@ write(*,'(A,I6,A,I6,A)') '                 ( NBody: ',N,'    NIteration: ',Niter
 write(*,*) ('-',i=1,72)
 write(*,*)
 
-! Create context with nvidia platform
-call fclSetDefaultContext(fclCreateContext(vendor=cl_vendor))
+! Initialise OpenCL context and select device with most cores 
+device = fclInit(vendor=cl_vendor,sortBy='cores')
 
-! Select device with most cores and create command queue
-devices = fclFindDevices(sortBy='cores')
-call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1),enableProfiling=.true., &
+call fclSetDefaultCommandQ(fclCreateCommandQ(device,enableProfiling=.true., &
            outOfOrderExec=.true.,blockingWrite=.false.))
 
-write(*,*) '  Created OpenCL command queue on device: "',devices(1)%name,'"'
-write(*,'(A,I6,A,I6,A,I4,A,A,A)') '    (', devices(1)%nComputeUnits,' cores, ', &
-    devices(1)%global_memory/1024/1024,'MB, ', &
-    devices(1)%clock_freq, 'MHz, ',&
-    devices(1)%version,')'
+write(*,*) '  Created OpenCL command queue on device: "',device%name,'"'
+write(*,'(A,I6,A,I6,A,I4,A,A,A)') '    (', device%nComputeUnits,' cores, ', &
+    device%global_memory/1024/1024,'MB, ', &
+    device%clock_freq, 'MHz, ',&
+    device%version,')'
 write(*,*) ''
 
 ! Set profiler device
-profiler%device = devices(1)
+profiler%device = device
 
 ! Load kernels from file and compile
 call fclGetKernelResource(kernelSrc)
 prog = fclCompileProgram(kernelSrc)
 
 ! Get kernel objects and set local/global work sizes
-nBlock = (N+blockSize-1)/blockSize
-kern1 = fclGetProgramKernel(prog,'bodyForces',[nBlock*blockSize],[blockSize])
-kern2 = fclGetProgramKernel(prog,'integrateBodies',[nBlock*blockSize],[blockSize])
+kern1 = fclGetProgramKernel(prog,'bodyForces',[N],[blockSize])
+kern2 = fclGetProgramKernel(prog,'integrateBodies',[N],[blockSize])
                               
 call fclProfilerAdd(profiler,Niter,kern1,kern2)
 
@@ -79,12 +76,12 @@ call random_number(py)
 call random_number(pz)
 
 ! Initialise device arrays
-pxd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pxd')
-pyd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pyd')
-pzd = fclBufferFloat(N,read=.true.,write=.true.,profileName='pzd')
-vxd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vxd')
-vyd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vyd')
-vzd = fclBufferFloat(N,read=.true.,write=.true.,profileName='vzd')
+call fclInitBuffer(pxd,N,profileName='pxd')
+call fclInitBuffer(pyd,N,profileName='pyd')
+call fclInitBuffer(pzd,N,profileName='pzd')
+call fclInitBuffer(vxd,N,profileName='vxd')
+call fclInitBuffer(vyd,N,profileName='vyd')
+call fclInitBuffer(vzd,N,profileName='vzd')
 
 call fclProfilerAdd(profiler,1,pxd,pyd,pzd,vxd,vyd,vzd)
 

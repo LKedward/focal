@@ -9,7 +9,10 @@ call fclTestInit()
 
 write(*,*) "This test will fail"
 
-stop FCL_TEST_FAILED
+
+!stop FCL_TEST_SUCCESS
+stop FCL_TEST_NOT_RUN
+!stop FCL_TEST_FAILED
 
 end program testExample
 ! -----------------------------------------------------------------------------

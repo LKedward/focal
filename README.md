@@ -2,19 +2,34 @@
 ## *A modern Fortran abstraction layer for openCL*
 Focal is a module library which wraps calls to the openCL runtime API (using [clfortran](https://github.com/cass-support/clfortran)) with a higher abstraction level appropriate to the Fortran language.
 
-__Project status:__ *Beta*
+The goal of Focal is to provide a concise and accessible Fortran interface to the OpenCL API while retaining the full functionality thereof.
+This is desirable in Fortran which as a language provides a higher level of abstraction than C; importantly this allows scientists and engineers to focus on their domain specific problem rather than details of low-level implementation.
+
+__Key features:__
+
+* Removes use of c pointers to call OpenCL API
+* Provides a level of type safety using typed buffer objects
+* Decreases verbosity of OpenCL API calls while still providing the same functionality
+* Abstracts away low level details, such as size in bytes
+* Contains built-in customisable error handling for all OpenCL API calls
+* Contains built-in 'debug' mode for checking program correctness
+* Contains build-in routines for collecting and presented profiling information
+
+__Project status:__ v1.0.0 stable release
 
 __Documentation__: [lkedward.github.io/focal-docs](https://lkedward.github.io/focal-docs/)
 
 __License__: [MIT](./LICENSE)
 
-__Key features:__
+__Prerequisites:__
 
- - Focal removes the need to use c pointers in Fortran to call the OpenCL API;
- - provides a level of type-safety through the use of typed buffer objects;
- - decreases the verbosity of OpenCL API calls while still providing the same functionality;
- - abstracts away low-level details, such as buffer size in bytes, not appropriate to Fortran;
- - makes it easier to write and debug OpenCL programs with customisable built-in runtime error checking.
+- [GNU make](https://www.gnu.org/software/make/) utility
+- Fortran compiler supporting the 2008 standard (tested regularly with `gfortran` 7.4.0 & 9.1.0 and `ifort` 19.1.0 )
+- An OpenCL development library (One of:
+[Intel OpenCL SDK](https://software.intel.com/en-us/opencl-sdk),
+[NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads),
+[AMD Radeon Software](https://www.amd.com/en/support) )
+
 
 ## Getting started
 
@@ -22,9 +37,10 @@ __Key features:__
 * [Using and linking Focal](https://lkedward.github.io/focal-docs/linking/)
 * [Quickstart programming guide](https://lkedward.github.io/focal-docs/quickstart/)
 * [Example programs](./examples)
+* [Lattice Boltzmann demo](https://github.com/LKedward/lbm2d_opencl)
 
-## Simple example
-The following fortran program calculates the sum of two large arrays using an openCL kernel.
+## Quick example
+The following fortran program calculates the sum of two large arrays using an OpenCL kernel.
 
 ```fortran
 program sum
@@ -38,20 +54,17 @@ real, parameter :: sumVal = 10.0            ! Target value for array sum
 
 integer :: i                                ! Counter variable
 character(:), allocatable :: kernelSrc      ! Kernel source string
-type(fclDevice), allocatable :: devices(:)  ! List of focal devices
+type(fclDevice) :: device                   ! Device object
 type(fclProgram) :: prog                    ! Focal program object
 type(fclKernel) :: sumKernel                ! Focal kernel object
-real(c_float) :: array1(Nelem)              ! Host array 1
-real(c_float) :: array2(Nelem)              ! Host array 2
+real :: array1(Nelem)                       ! Host array 1
+real :: array2(Nelem)                       ! Host array 2
 type(fclDeviceFloat) :: array1_d            ! Device array 1
 type(fclDeviceFloat) :: array2_d            ! Device array 2
 
-! Create context with nvidia platform
-call fclSetDefaultContext(fclCreateContext(vendor='nvidia'))
-
 ! Select device with most cores and create command queue
-devices = fclFindDevices(sortBy='cores')
-call fclSetDefaultCommandQ(fclCreateCommandQ(devices(1),enableProfiling=.true.))
+device = fclInit(vendor='nvidia',sortBy='cores')
+call fclSetDefaultCommandQ(fclCreateCommandQ(device,enableProfiling=.true.))
 
 ! Load kernel from file and compile
 call fclSourceFromFile('examples/sum.cl',kernelSrc)
@@ -59,8 +72,8 @@ prog = fclCompileProgram(kernelSrc)
 sumKernel = fclGetProgramKernel(prog,'sum')
 
 ! Initialise device arrays
-array1_d = fclBufferFloat(Nelem,read=.true.,write=.false.)
-array2_d = fclBufferFloat(Nelem,read=.true.,write=.true.)
+call fclInitBuffer(array1_d,Nelem)
+call fclInitBuffer(array2_d,Nelem)
 
 ! Initialise host array data
 do i=1,Nelem
@@ -90,3 +103,13 @@ __kernel void sum(const int nElem, const __global float * v1, __global float * v
   if(i < nElem) v2[i] += v1[i];
 }
 ```
+
+## Bundled third-party sources
+
+The following open source libraries are used as dependencies and bundled in the repository ([./external](https://github.com/LKedward/focal/tree/master/external)):
+
+* [fortran-utils](https://github.com/certik/fortran-utils)/[sorting](https://github.com/certik/fortran-utils/blob/master/src/sorting.f90) (MIT license)
+
+* [clfortran](https://github.com/cass-support/clfortran) (LGPL)
+
+* [M_strings](https://github.com/urbanjost/M_strings) (Unlicense/Public domain)

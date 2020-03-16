@@ -33,23 +33,16 @@ strNBytes = c_sizeof(cc)*len(test_string)
 ! --- Initialise ---
 call fclTestInit()
 
-! --- Initialise typed device buffers ---
-deviceReal32_1 = fclBufferFloat(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceReal64_1 = fclBufferDouble(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceInt32_1 = fclBufferInt32(FCL_TEST_SIZE,read=.true.,write=.false.)
+! --- Initialise device buffers ---
+call fclInitBuffer(deviceInt32_1,FCL_TEST_SIZE,access='r')
+call fclInitBuffer(deviceReal32_1,FCL_TEST_SIZE,access='r')
+call fclInitBuffer(deviceReal64_1,FCL_TEST_SIZE,access='r')
+call fclInitBuffer(deviceBuffer_1,strNBytes,access='r')
 
-deviceReal32_2 = fclBufferFloat(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceReal64_2 = fclBufferDouble(FCL_TEST_SIZE,read=.true.,write=.false.)
-deviceInt32_2 = fclBufferInt32(FCL_TEST_SIZE,read=.true.,write=.false.)
-
-! --- Manually initialise un-typed buffer objects ---
-deviceBuffer_1%cmdq => fclDefaultCmdQ
-deviceBuffer_1%nBytes = strNBytes
-deviceBuffer_1%cl_mem = fclBuffer(fclDefaultCmdQ,strNBytes,read=.true.,write=.true.)
-
-deviceBuffer_2%cmdq => fclDefaultCmdQ
-deviceBuffer_2%nBytes = strNBytes
-deviceBuffer_2%cl_mem = fclBuffer(fclDefaultCmdQ,strNBytes,read=.true.,write=.true.)
+call fclInitBuffer(deviceInt32_2,FCL_TEST_SIZE,access='w')
+call fclInitBuffer(deviceReal32_2,FCL_TEST_SIZE,access='w')
+call fclInitBuffer(deviceReal64_2,FCL_TEST_SIZE,access='w')
+call fclInitBuffer(deviceBuffer_2,strNBytes,access='w')
 
 ! --- Initialise host arrays (pinned) ---
 call fclAllocHost(hostReal32_1,FCL_TEST_SIZE)
@@ -59,10 +52,9 @@ call fclAllocHost(hostReal64_2,FCL_TEST_SIZE)
 call fclAllocHost(hostInt32_1,FCL_TEST_SIZE)
 call fclAllocHost(hostInt32_2,FCL_TEST_SIZE)
 
-char_ptr_1 = fclAllocHostPtr(fclDefaultCmdq,strNBytes)
-char_ptr_2 = fclAllocHostPtr(fclDefaultCmdq,strNBytes)
-
+call fclAllocHost(char_ptr_1,strNBytes)
 call c_f_pointer(char_ptr_1,hostChar_1,[len(test_string)])
+call fclAllocHost(char_ptr_2,strNBytes)
 call c_f_pointer(char_ptr_2,hostChar_2,[len(test_string)])
 
 ! --- Setup host arrays ---

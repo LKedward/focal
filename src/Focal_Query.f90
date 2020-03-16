@@ -1,5 +1,34 @@
+! -----------------------------------------------------------------------------
+!  FOCAL
+!
+!   A modern Fortran abstraction layer for OpenCL
+!   https://lkedward.github.io/focal-docs
+!
+! -----------------------------------------------------------------------------
+!
+! Copyright (c) 2020 Laurence Kedward
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!
+! -----------------------------------------------------------------------------
+
 submodule (Focal) Focal_Query
-  !! FOCAL: openCL abstraction layer for fortran
   !!  Implementation module for query routines
 
   !! @note This is an implementation submodule: it contains the code implementing the subroutines defined in the
@@ -245,19 +274,23 @@ submodule (Focal) Focal_Query
                                   C_LOC(platform%cl_device_ids), int32_ret)
     call fclErrorHandler(errcode,'fclGetPlatform','clGetDeviceIDs')
 
-    ! --- Populate fclDevice structure array ---
-    do i=1,platform%numDevice
-
-      platform%devices(i) = fclGetDevice(platform%cl_device_ids(i))
-
-    end do
-
     ! --- Populate fclPlatform info strings ---
     call fclGetPlatformInfo(platform,CL_PLATFORM_PROFILE,platform%profile)
     call fclGetPlatformInfo(platform,CL_PLATFORM_VERSION,platform%version)
     call fclGetPlatformInfo(platform,CL_PLATFORM_NAME,platform%name)
     call fclGetPlatformInfo(platform,CL_PLATFORM_VENDOR,platform%vendor)
     call fclGetPlatformInfo(platform,CL_PLATFORM_EXTENSIONS,platform%extensions)
+
+    ! --- Populate fclDevice structure array ---
+    do i=1,platform%numDevice
+
+      platform%devices(i) = fclGetDevice(platform%cl_device_ids(i))
+      platform%devices(i)%platformName = platform%name
+      platform%devices(i)%platformVendor = platform%vendor
+      platform%devices(i)%cl_platform_id = platform_id
+
+    end do
+
 
   end procedure fclGetPlatform
   ! ---------------------------------------------------------------------------
@@ -274,6 +307,7 @@ submodule (Focal) Focal_Query
     call fclGetDeviceInfo(device,CL_DEVICE_GLOBAL_MEM_SIZE,device%global_memory)
     call fclGetDeviceInfo(device,CL_DEVICE_MAX_CLOCK_FREQUENCY,device%clock_freq)
     call fclGetDeviceInfo(device,CL_DEVICE_VERSION,device%version)
+    call fclGetDeviceInfo(device,CL_DEVICE_EXTENSIONS,device%extensions)
 
   end procedure fclGetDevice
   ! ---------------------------------------------------------------------------
