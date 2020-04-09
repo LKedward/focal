@@ -294,6 +294,10 @@ module Focal
   procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
     !! Procedure pointer for custom OpenCL runtime error handler
 
+  integer(c_intptr_t), allocatable :: fclHostPtrMap(:,:)
+    !! Map allocated host pointers to cl_buffer pointers (needed for deallocation)
+
+
   ! ---------------------------- ERROR ROUTINES -------------------------------
 
   interface
@@ -334,6 +338,7 @@ module Focal
     !!
     !! Currently implements interfaces for 1D and 2D int32, float and double arrays.
     !!
+    !! @note This is a blocking command. Execution waits on host until map is complete @endnote
     !!
     !! __Example:__
     !!  Allocate a 1D integer array with 100 elements
@@ -380,24 +385,6 @@ module Focal
       integer, intent(in) :: dim
         !! Size of array to allocate
     end subroutine fclAllocHostInt32D1_2
-
-    module subroutine fclAllocHostInt32D2_1(cmdq,hostPtr,dim)
-      !! Allocate a 2D 'pinned' host array for 32bit integers
-      type(fclCommandQ), intent(in) :: cmdq
-        !! Command Q with which to associate the allocated device memory
-      integer(c_int32_t), intent(inout), pointer :: hostPtr(:,:)
-        !! Host array pointer to allocate
-      integer, intent(in) :: dim(2)
-        !! Size of array to allocate
-    end subroutine fclAllocHostInt32D2_1
-
-    module subroutine fclAllocHostInt32D2_2(hostPtr,dim)
-      !! Allocate a 2D 'pinned' host array for 32bit integers on default cmdq
-      integer(c_int32_t), intent(inout), pointer :: hostPtr(:,:)
-        !! Host array pointer to allocate
-      integer, intent(in) :: dim(2)
-        !! Size of array to allocate
-    end subroutine fclAllocHostInt32D2_2
     
     module subroutine fclAllocHostFloatD1_1(cmdq,hostPtr,dim)
       !! Allocate a 1D 'pinned' host array for 32bit reals
@@ -417,24 +404,6 @@ module Focal
         !! Size of array to allocate
     end subroutine fclAllocHostFloatD1_2
 
-    module subroutine fclAllocHostFloatD2_1(cmdq,hostPtr,dim)
-      !! Allocate a 2D 'pinned' host array for 32bit reals
-      type(fclCommandQ), intent(in) :: cmdq
-        !! Command Q with which to associate the allocated device memory
-      real(c_Float), intent(inout), pointer :: hostPtr(:,:)
-        !! Host array pointer to allocate
-      integer, intent(in) :: dim(2)
-        !! Size of array to allocate
-    end subroutine fclAllocHostFloatD2_1
-
-    module subroutine fclAllocHostFloatD2_2(hostPtr,dim)
-      !! Allocate a 2D 'pinned' host array for 32bit reals on default cmdq
-      real(c_Float), intent(inout), pointer :: hostPtr(:,:)
-        !! Host array pointer to allocate
-      integer, intent(in) :: dim(2)
-        !! Size of array to allocate
-    end subroutine fclAllocHostFloatD2_2
-
     module subroutine fclAllocHostDoubleD1_1(cmdq,hostPtr,dim)
       !! Allocate a 1D 'pinned' host array for 64bit reals
       type(fclCommandQ), intent(in) :: cmdq
@@ -453,26 +422,54 @@ module Focal
         !! Size of array to allocate
     end subroutine fclAllocHostDoubleD1_2
 
-    module subroutine fclAllocHostDoubleD2_1(cmdq,hostPtr,dim)
-      !! Allocate a 2D 'pinned' host array for 64bit reals
-      type(fclCommandQ), intent(in) :: cmdq
-        !! Command Q with which to associate the allocated device memory
-      real(c_Double), intent(inout), pointer :: hostPtr(:,:)
-        !! Host array pointer to allocate
-      integer, intent(in) :: dim(2)
-        !! Size of array to allocate
-    end subroutine fclAllocHostDoubleD2_1
-
-    module subroutine fclAllocHostDoubleD2_2(hostPtr,dim)
-      !! Allocate a 2D 'pinned' host array for 64bit reals on default cmdq
-      real(c_Double), intent(inout), pointer :: hostPtr(:,:)
-        !! Host array pointer to allocate
-      integer, intent(in) :: dim(2)
-        !! Size of array to allocate
-    end subroutine fclAllocHostDoubleD2_2
-
   end interface fclAllocHost
   
+
+  interface fclFreeHost
+    !! Generic interface to free pinned host pointer
+    !!
+    !! @note This is a blocking command. Execution waits on host until unmap is complete @endnote
+    !!
+
+    module subroutine fclFreeHostPtr_1(cmdq,hostPtr)
+      !! Enqueue unmap/free command to specific command queue
+      type(fclCommandQ), intent(in) :: cmdq
+      type(c_ptr), intent(in) :: hostPtr
+    end subroutine fclFreeHostPtr_1
+    
+    module subroutine fclFreeHostPtr_2(hostPtr)
+      !! Enqueue unmap/free command to default command queue
+      type(c_ptr), intent(inout) :: hostPtr
+    end subroutine fclFreeHostPtr_2
+
+    module subroutine fclFreeHostInt32_1(cmdq,hostPtr)
+      type(fclCommandQ), intent(in) :: cmdq
+      integer(c_int32_t), intent(inout), pointer :: hostPtr(:)
+    end subroutine fclFreeHostInt32_1
+
+    module subroutine fclFreeHostInt32_2(hostPtr)
+      integer(c_int32_t), intent(inout), pointer :: hostPtr(:)
+    end subroutine fclFreeHostInt32_2
+    
+    module subroutine fclFreeHostFloat_1(cmdq,hostPtr)
+      type(fclCommandQ), intent(in) :: cmdq
+      real(c_float), intent(inout), pointer :: hostPtr(:)
+    end subroutine fclFreeHostFloat_1
+
+    module subroutine fclFreeHostFloat_2(hostPtr)
+      real(c_float), intent(inout), pointer :: hostPtr(:)
+    end subroutine fclFreeHostFloat_2
+
+    module subroutine fclFreeHostDouble_1(cmdq,hostPtr)
+      type(fclCommandQ), intent(in) :: cmdq
+      real(c_double), intent(inout), pointer :: hostPtr(:)
+    end subroutine fclFreeHostDouble_1
+
+    module subroutine fclFreeHostDouble_2(hostPtr)
+      real(c_double), intent(inout), pointer :: hostPtr(:)
+    end subroutine fclFreeHostDouble_2
+
+  end interface fclFreeHost
 
   ! ---------------------------- MEMORY ROUTINES -------------------------------
   interface assignment(=)
