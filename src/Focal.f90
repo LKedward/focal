@@ -92,6 +92,8 @@ module Focal
     type :: fclEvent
     !! Type wrapper for OpenCL event pointers
     integer(c_intptr_t) :: cl_event = -1             !! OpenCL event pointer
+    contains
+      final :: fclReleaseEvent                       !! Decrement cl reference counter
   end type fclEvent
 
   type :: fclCommandQ
@@ -1394,6 +1396,31 @@ module Focal
     end subroutine fclWaitEventList
 
   end interface fclWait
+
+  interface assignment(=)
+
+    module subroutine fclEventCopy(target,source)
+      !! Overloaded assignment for event assignment.
+      !!  Handles opencl reference counting for the underlying event object
+      type(fclEvent), intent(inout) :: target
+      type(fclEvent), intent(in) :: source
+    end subroutine fclEventCopy
+
+  end interface
+    
+  interface 
+
+    module subroutine fclReleaseEvent(event)
+      !! Light weight wrapper for clReleaseEvent (decrement reference count)
+      type(fclEvent), intent(in) :: event               !! Focal event object to release
+    end subroutine fclReleaseEvent
+
+    module subroutine fclRetainEvent(event)
+      !! Light weight wrapper for clRetainEvent (increment reference count)
+      type(fclEvent), intent(in) :: event               !! Focal event object to retain
+    end subroutine fclRetainEvent
+
+  end interface
 
   interface fclSetDependency
     !! Generic interface to set pre-requisite events for the next enqueued action.
