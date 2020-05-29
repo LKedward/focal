@@ -20,7 +20,7 @@ __Key features:__
 * Contains built-in 'debug' mode for checking program correctness
 * Contains build-in routines for collecting and presented profiling information
 
-__Project status:__ v1.0.0 stable release
+__Project status:__ v1.0.1 stable release
 
 __Documentation__: [lkedward.github.io/focal-docs](https://lkedward.github.io/focal-docs/)
 
