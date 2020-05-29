@@ -84,6 +84,15 @@ call fclTestAssertEqual(hostReal64_1,hostReal64_2,'hostReal64_1 == hostReal64_2'
 call fclTestAssertEqual(hostInt32_1,hostInt32_2,'hostInt32_1 == hostInt32_2')
 call fclTestAssertEqual(hostChar_1,hostChar_2,'hostChar_1 == hostChar_2')
 
+call fclFreeBuffer(deviceInt32_1)
+call fclFreeBuffer(deviceInt32_2)
+call fclFreeBuffer(deviceReal32_1)
+call fclFreeBuffer(deviceReal32_2)
+call fclFreeBuffer(deviceReal64_1)
+call fclFreeBuffer(deviceReal64_2)
+call fclFreeBuffer(deviceBuffer_1)
+call fclFreeBuffer(deviceBuffer_2)
+
 call fclTestFinish()
 
 end program testSubBuffers

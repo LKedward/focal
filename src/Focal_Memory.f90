@@ -331,25 +331,21 @@ submodule (Focal) Focal_Memory
   module procedure fclMemWriteScalar !(memObject,hostBufferPtr,nBytesPattern)
 
     integer(c_int32_t) :: errcode
+    type(fclEvent), target :: writeEvent
 
     call fclDbgCheckBufferInit(memObject,'fclMemWriteScalar')
-
-    ! Decrement event reference counter
-    if (memObject%cmdq%lastWriteEvent%cl_event > 0) then
-      errcode = clReleaseEvent(memObject%cmdq%lastWriteEvent%cl_event)
-      call fclErrorHandler(errcode,'fclMemWriteScalar','clReleaseEvent') 
-    end if
 
     errcode = clEnqueueFillBuffer(memObject%cmdq%cl_command_queue, &
                 memObject%cl_mem, hostBufferPtr, nBytesPattern, &
                 int(0,c_size_t), memObject%nBytes, &
                 memObject%cmdq%nDependency, memObject%cmdq%dependencyListPtr, &
-                c_loc(memObject%cmdq%lastWriteEvent%cl_event))
+                c_loc(writeEvent%cl_event))
 
     call fclPopDependencies(memObject%cmdq)
-    fclLastWriteEvent = memObject%cmdq%lastWriteEvent
+    fclLastWriteEvent = writeEvent
+    memObject%cmdq%lastWriteEvent = writeEvent
 
-    call memObject%pushProfileEvent(memObject%cmdq%lastWriteEvent,1)
+    call memObject%pushProfileEvent(writeEvent,1)
 
     call fclErrorHandler(errcode,'fclMemWriteScalar','clEnqueueFillBuffer')
 
@@ -391,6 +387,7 @@ submodule (Focal) Focal_Memory
 
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_write
+    type(fclEvent), target :: writeEvent
 
     call fclDbgCheckBufferInit(memObject,'fclMemWrite')
     call fclDbgCheckBufferSize(memObject,nBytes,'fclMemWrite')
@@ -401,21 +398,16 @@ submodule (Focal) Focal_Memory
       blocking_write = CL_FALSE
     end if
 
-    ! Decrement event reference counter
-    if (memObject%cmdq%lastWriteEvent%cl_event > 0) then
-      errcode = clReleaseEvent(memObject%cmdq%lastWriteEvent%cl_event)
-      call fclErrorHandler(errcode,'fclMemWrite','clReleaseEvent') 
-    end if
-
     errcode = clEnqueueWriteBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
           blocking_write,int(0,c_size_t),nBytes,hostBufferPtr, &
           memObject%cmdq%nDependency, memObject%cmdq%dependencyListPtr, &
-          c_loc(memObject%cmdq%lastWriteEvent%cl_event))
+          c_loc(writeEvent%cl_event))
 
     call fclPopDependencies(memObject%cmdq)
-    fclLastWriteEvent = memObject%cmdq%lastWriteEvent
+    fclLastWriteEvent = writeEvent
+    memObject%cmdq%lastWriteEvent = writeEvent
 
-    call memObject%pushProfileEvent(memObject%cmdq%lastWriteEvent,1)
+    call memObject%pushProfileEvent(writeEvent,1)
 
     call fclErrorHandler(errcode,'fclMemWrite','clEnqueueWriteBuffer')
 
@@ -460,6 +452,7 @@ submodule (Focal) Focal_Memory
 
     integer(c_int32_t) :: errcode
     integer(c_int32_t) :: blocking_read
+    type(fclEvent), target :: readEvent
 
     call fclDbgCheckBufferInit(memObject,'fclMemRead')
     call fclDbgCheckBufferSize(memObject,nBytes,'fclMemRead')
@@ -470,21 +463,16 @@ submodule (Focal) Focal_Memory
       blocking_read = CL_FALSE
     end if
 
-    ! Decrement event reference counter
-    if (memObject%cmdq%lastReadEvent%cl_event > 0) then
-      errcode = clReleaseEvent(memObject%cmdq%lastReadEvent%cl_event)
-      call fclErrorHandler(errcode,'fclMemRead','clReleaseEvent') 
-    end if
-
     errcode = clEnqueueReadBuffer(memObject%cmdq%cl_command_queue,memObject%cl_mem, &
           blocking_read,int(0,c_size_t),nBytes,hostBufferPtr, &
           memObject%cmdq%nDependency, memObject%cmdq%dependencyListPtr, &
-          c_loc(memObject%cmdq%lastReadEvent%cl_event))
+          c_loc(readEvent%cl_event))
 
     call fclPopDependencies(memObject%cmdq)
-    fclLastReadEvent = memObject%cmdq%lastReadEvent
+    fclLastReadEvent = readEvent
+    memObject%cmdq%lastReadEvent = readEvent
 
-    call memObject%pushProfileEvent(memObject%cmdq%lastReadEvent,2)
+    call memObject%pushProfileEvent(readEvent,2)
 
     call fclErrorHandler(errcode,'fclMemRead','clEnqueueReadBuffer')
 
@@ -528,6 +516,7 @@ submodule (Focal) Focal_Memory
   module procedure fclMemCopy !(memObject1,memObject2)
 
     integer(c_int32_t) :: errcode
+    type(fclEvent), target :: copyEvent
 
     if (memObject2%nBytes < 0) then
       ! Source object is uninitialised: nothing to copy
@@ -559,23 +548,18 @@ submodule (Focal) Focal_Memory
 
       call fclDbgCheckCopyBufferSize(memObject1,memObject2)
 
-      ! Decrement event reference counter
-      if (memObject1%cmdq%lastCopyEvent%cl_event > 0) then
-        errcode = clReleaseEvent(memObject1%cmdq%lastCopyEvent%cl_event)
-        call fclErrorHandler(errcode,'fclMemCopy','clReleaseEvent') 
-      end if
-
       errcode = clEnqueueCopyBuffer(memObject1%cmdq%cl_command_queue, &
                 memObject2%cl_mem, memObject1%cl_mem, &
                 int(0,c_size_t), int(0,c_size_t), &
                 memObject2%nBytes, &
                 memObject1%cmdq%nDependency, memObject1%cmdq%dependencyListPtr, &
-                c_loc(memObject1%cmdq%lastCopyEvent%cl_event))
+                c_loc(copyEvent%cl_event))
 
       call fclPopDependencies(memObject1%cmdq)
-      fclLastCopyEvent = memObject1%cmdq%lastCopyEvent
+      fclLastCopyEvent = copyEvent
+      memObject1%cmdq%lastCopyEvent = copyEvent
 
-      call memObject1%pushProfileEvent(memObject1%cmdq%lastCopyEvent,3)
+      call memObject1%pushProfileEvent(copyEvent,3)
 
       call fclErrorHandler(errcode,'fclMemCopy','clEnqueueCopyBuffer')
 

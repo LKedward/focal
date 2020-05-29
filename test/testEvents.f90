@@ -2,12 +2,13 @@ program testKernelSetup
 !! Focal test program
 !!
 !! Based on testKernelSetup, this test uses a command queue pool with
-!!  4 queues to test setting event dependencies.
+!!  4 queues to test setting event dependencies and user events.
 !!
 
 use Focal
 use Focal_Test_Utils
 use iso_fortran_env, only: sp=>real32, dp=>real64
+use clfortran, only: CL_EVENT_REFERENCE_COUNT
 implicit none
 
 type(fclCommandQPool) :: qPool
@@ -28,6 +29,7 @@ type(fclDeviceInt32) :: deviceInt32
 type(fclDeviceBuffer) :: deviceBuffer
 
 integer :: i
+integer(c_int32_t) :: n
 
 ! --- Initialise ---
 call fclTestInit()
@@ -44,8 +46,6 @@ call fclInitBuffer(deviceReal32,FCL_TEST_SIZE)
 call fclInitBuffer(deviceReal64,FCL_TEST_SIZE)
 call fclInitBuffer(deviceBuffer,c_sizeof(hostChar))
 
-
-
 ! --- Initialise kernels ---
 call fclGetKernelResource(kernelSrc)
 prog = fclCompileProgram(kernelSrc)
@@ -57,7 +57,27 @@ setChar_k = fclGetProgramKernel(prog,'setCharTest',[FCL_TEST_SIZE])
 ! Launch first kernel
 call fclSetDependency(ue)
 call setInt_k%launch(qPool%next(),FCL_TEST_SIZE,deviceInt32)
+
+cmdq => qPool%current()
+call fclTestAssert(cmdq%lastKernelEvent%cl_event > 0,'cmdq%lastKernelEvent%cl_event > 0')
+call fclTestAssert(fclLastKernelEvent%cl_event == cmdq%lastKernelEvent%cl_event, &
+                    'fclLastKernelEvent%cl_event == cmdq%lastKernelEvent%cl_event')
+
+call fclGetEventInfo(fclLastKernelEvent,CL_EVENT_REFERENCE_COUNT,n)
+call fclTestAssert(n==2,'fclLastKernelEvent == 2')
+
 e(1) = fclLastKernelEvent
+
+call fclGetEventInfo(fclLastKernelEvent,CL_EVENT_REFERENCE_COUNT,n)
+call fclTestAssert(n==3,'fclLastKernelEvent == 3')
+
+! ReLaunch first kernel
+call fclSetDependency(ue)
+call setInt_k%launch(qPool%current(),FCL_TEST_SIZE,deviceInt32)
+
+call fclGetEventInfo(e(1),CL_EVENT_REFERENCE_COUNT,n)
+call fclTestAssert(n==1,'e(1) == 1')
+write(*,*) n
 
 ! Launch second kernel: dependency on first
 call fclSetDependency(qPool%next(),fclLastKernelEvent)

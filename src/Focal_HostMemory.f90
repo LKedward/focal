@@ -47,7 +47,39 @@ submodule (Focal) Focal_HostMemory
     integer(c_intptr_t), target :: cl_context
     integer(c_size_t) :: size_ret
 
+    integer :: n, i
     integer(c_intptr_t) :: devicePtr
+    integer(c_intptr_t), allocatable :: mapTemp(:,:)
+    integer(c_intptr_t), target :: mapEvent
+
+    ! Find space to store device pointer map
+    if (.not.allocated(fclHostPtrMap)) then
+      !! Allocate for first time
+      allocate(fclHostPtrMap(fclAllocationSize,2))
+      fclHostPtrMap = -1
+      n = 1
+
+    else
+      
+      n = minloc([(i,i=1,size(fclHostPtrMap,1))],dim=1,mask=fclHostPtrMap(:,1)==-1)
+      if (n == 0) then
+
+        allocate(mapTemp(size(fclHostPtrMap,1),2))
+        mapTemp = fclHostPtrMap
+
+        n = fclAllocationSize*(1+(size(fclHostPtrMap,1)/fclAllocationSize))
+        deallocate(fclHostPtrMap)
+        allocate(fclHostPtrMap(n,2))
+
+        fclHostPtrMap(1:size(mapTemp,1),:) = mapTemp
+        fclHostPtrMap(size(mapTemp,1)+1:,:) = -1
+        n = size(mapTemp,1) + 1
+
+        deallocate(mapTemp)
+
+      end if
+
+    end if
 
     ! Get command queue context
     errcode = clGetCommandQueueInfo(cmdq%cl_command_queue, &
@@ -61,14 +93,21 @@ submodule (Focal) Focal_HostMemory
 
     call fclErrorhandler(errcode,'fclAllocHostPtr','clCreateBuffer')
 
+    fclHostPtrMap(n,2) = devicePtr
 
     hostPtr = clEnqueueMapBuffer(cmdq%cl_command_queue,&
             devicePtr, CL_TRUE,&
             ior(CL_MAP_WRITE,CL_MAP_READ), int(0,c_int64_t), nBytes, 0,&
-            C_NULL_PTR, C_NULL_PTR, errcode)
+            C_NULL_PTR, c_loc(mapEvent), errcode)
 
     call fclErrorhandler(errcode,'fclAllocHostPtr','clEnqueueMapBuffer')
 
+    errcode = clWaitForEvents(1,c_loc(mapEvent))
+
+    call fclErrorhandler(errcode,'fclAllocHostPtr','clWaitForEvents')
+
+    fclHostPtrMap(n,1) = transfer(hostPtr,deviceptr)
+    
   end procedure fclAllocHostPtr_1
   ! ---------------------------------------------------------------------------
   
@@ -143,6 +182,97 @@ submodule (Focal) Focal_HostMemory
     call fclAllocHostDoubleD1_1 (fclDefaultCmdQ,hostPtr,dim)
 
   end procedure fclAllocHostDoubleD1_2
+  ! ---------------------------------------------------------------------------
+
+  
+  module procedure fclFreeHostPtr_1 !(cmdq,hostPtr)
+
+    integer(c_int32_t) :: errcode
+    integer(c_intptr_t) :: deviceptr
+    integer(c_intptr_t), target :: unmapEvent
+
+    integer :: i, n
+
+    n = minloc([(i,i=1,size(fclHostPtrMap,1))],dim=1, &
+             mask=fclHostPtrMap(:,1)==transfer(hostPtr,deviceptr))
+
+    devicePtr = fclHostPtrMap(n,2)
+
+    errcode = clEnqueueUnmapMemObject(cmdq%cl_command_queue, devicePtr, &
+                 hostPtr,0,C_NULL_PTR,c_loc(unmapEvent))
+    call fclErrorHandler(errcode,'fclFreeHostPtr','clEnqueueUnmapMemObject')
+
+    errcode = clWaitForEvents(1,c_loc(unmapEvent))
+    call fclErrorhandler(errcode,'fclFreeHostPtr','clWaitForEvents')
+
+    errcode = clReleaseMemObject(devicePtr)
+    call fclErrorHandler(errcode,'fclFreeBuffer','clReleaseMemObject')
+
+    fclHostPtrMap(n,:) = -1
+
+  end procedure fclFreeHostPtr_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFreeHostPtr_2 !(hostPtr)
+
+    call fclFreeHostPtr_1(fclDefaultCmdQ,hostPtr)
+
+  end procedure fclFreeHostPtr_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFreeHostInt32_1 !(cmdq,hostPtr)
+
+    call fclFreeHostPtr_1(cmdq,c_loc(hostPtr))
+
+    hostPtr => NULL()
+
+  end procedure fclFreeHostInt32_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFreeHostInt32_2 !(hostPtr)
+
+    call fclFreeHostInt32_1(fclDefaultCmdQ,hostPtr)
+
+  end procedure fclFreeHostInt32_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFreeHostFloat_1 !(cmdq,hostPtr)
+
+    call fclFreeHostPtr_1(cmdq,c_loc(hostPtr))
+
+    hostPtr => NULL()
+
+  end procedure fclFreeHostFloat_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFreeHostFloat_2 !(hostPtr)
+
+    call fclFreeHostFloat_1(fclDefaultCmdQ,hostPtr)
+
+  end procedure fclFreeHostFloat_2
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFreeHostDouble_1 !(cmdq,hostPtr)
+
+    call fclFreeHostPtr_1(cmdq,c_loc(hostPtr))
+
+    hostPtr => NULL()
+
+  end procedure fclFreeHostDouble_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclFreeHostDouble_2 !(hostPtr)
+
+    call fclFreeHostDouble_1(fclDefaultCmdQ,hostPtr)
+
+  end procedure fclFreeHostDouble_2
   ! ---------------------------------------------------------------------------
 
 

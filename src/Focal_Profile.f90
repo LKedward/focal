@@ -191,10 +191,6 @@ submodule (Focal) Focal_Profile
       return
     end if
 
-    ! Increment event reference counter
-    errcode = clRetainEvent(event%cl_event)
-    call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent')
-
     ! Save event
     container%profileEvents(container%nProfileEvent) = event
 

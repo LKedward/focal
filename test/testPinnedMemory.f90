@@ -92,6 +92,25 @@ call fclTestAssertEqual(hostReal64_1,hostReal64_2,'hostReal64_1 == hostReal64_2 
 call fclTestAssertEqual(hostInt32_1,hostInt32_2,'hostInt32_1 == hostInt32_2 (1)')
 call fclTestAssertEqual(hostChar_1,hostChar_2,'hostChar_1 == hostChar_2 (1)')
 
+! --- Deallocate device memory ---
+call fclFreeBuffer(deviceInt32_1)
+call fclFreeBuffer(deviceInt32_2)
+call fclFreeBuffer(deviceReal32_1)
+call fclFreeBuffer(deviceReal32_2)
+call fclFreeBuffer(deviceReal64_1)
+call fclFreeBuffer(deviceReal64_2)
+call fclFreeBuffer(deviceBuffer_1)
+call fclFreeBuffer(deviceBuffer_2)
+
+! --- Deallocate pinned memory ---
+call fclFreeHost(hostReal32_1)
+call fclFreeHost(hostReal32_2)
+call fclFreeHost(hostReal64_1)
+call fclFreeHost(hostReal64_2)
+call fclFreeHost(hostInt32_1)
+call fclFreeHost(hostInt32_2)
+call fclFreeHost(char_ptr_1)
+call fclFreeHost(char_ptr_2)
 call fclTestFinish()
 
 end program testPinnedMemory
