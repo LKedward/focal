@@ -663,7 +663,8 @@ submodule (Focal) Focal_Setup
 
 
   module procedure fclLaunchKernel !(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,&
-                                      ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                                      ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                      ! a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
 
     integer(c_size_t) :: i, nBlocki
     integer(c_int32_t) :: errcode
@@ -697,7 +698,8 @@ submodule (Focal) Focal_Setup
 
     ! Set arguments and parse (get number of args and cmdq if specified)
     call fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,&
-                                a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                                a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
 
     errcode = clEnqueueNDRangeKernel(cmdq%cl_command_queue, &
                 kernel%cl_kernel, kernel%work_dim, &
@@ -720,7 +722,8 @@ submodule (Focal) Focal_Setup
 
 
   module procedure fclProcessKernelArgs !(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                            ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                                            ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                            !  a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
     !! Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments
 
     integer :: i0
@@ -823,6 +826,46 @@ submodule (Focal) Focal_Setup
       call fclSetKernelArg(kernel,i0+18,a19)
       nArg = nArg + 1
     end if
+    if (present(a20)) then
+      call fclSetKernelArg(kernel,i0+19,a20)
+      nArg = nArg + 1
+    end if
+    if (present(a21)) then
+      call fclSetKernelArg(kernel,i0+20,a21)
+      nArg = nArg + 1
+    end if
+    if (present(a22)) then
+      call fclSetKernelArg(kernel,i0+21,a22)
+      nArg = nArg + 1
+    end if
+    if (present(a23)) then
+      call fclSetKernelArg(kernel,i0+22,a23)
+      nArg = nArg + 1
+    end if
+    if (present(a24)) then
+      call fclSetKernelArg(kernel,i0+23,a24)
+      nArg = nArg + 1
+    end if
+    if (present(a25)) then
+      call fclSetKernelArg(kernel,i0+24,a25)
+      nArg = nArg + 1
+    end if
+    if (present(a26)) then
+      call fclSetKernelArg(kernel,i0+25,a26)
+      nArg = nArg + 1
+    end if
+    if (present(a27)) then
+      call fclSetKernelArg(kernel,i0+26,a27)
+      nArg = nArg + 1
+    end if
+    if (present(a28)) then
+      call fclSetKernelArg(kernel,i0+27,a28)
+      nArg = nArg + 1
+    end if
+    if (present(a29)) then
+      call fclSetKernelArg(kernel,i0+28,a29)
+      nArg = nArg + 1
+    end if
 
     if (nArg > 0) then
       ! If any kernel arguments are specified, check that they are all present
@@ -834,14 +877,16 @@ submodule (Focal) Focal_Setup
 
 
   module procedure fclSetKernelArgs !(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                    ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                                    ! a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                    ! a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
     !! Set all kernel arguments at once without launching kernel.
 
     type(fclCommandQ), pointer :: cmdq
     integer :: nArg
 
     call fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                               a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
 
   end procedure fclSetKernelArgs
   ! ---------------------------------------------------------------------------

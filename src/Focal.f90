@@ -1284,19 +1284,22 @@ module Focal
 
   interface
     module subroutine fclLaunchKernel(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                        a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                                        a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                        a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
       !! Enqueue a kernel with command arguments
       class(fclKernel), intent(inout), target :: kernel   !! Focal kernel object
       class(*), intent(in), optional, target :: a0
         !! Focal command queue or first kernel argument
       class(*), intent(in), optional, target :: a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19
+                                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                               a20,a21,a22,a23,a24,a25,a26,a27,a28,a29
         !! Subsequent kernel arguments.
         !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclLaunchKernel
 
     module subroutine fclProcessKernelArgs(kernel,cmdq,narg,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                              a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                                              a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                              a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
       !! Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments.
       !! @note This is helper routine used internally by focal.  If you just want set kernel arguments
       !!  without launching a kernel, use `fclSetKernelArgs`. @endnote
@@ -1308,17 +1311,20 @@ module Focal
       class(*), intent(in), optional, target :: a0
         !! Focal command queue or first kernel argument
       class(*), intent(in), optional, target :: a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19
+                                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                               a20,a21,a22,a23,a24,a25,a26,a27,a28,a29
         !! Subsequent kernel arguments.
         !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclProcessKernelArgs
 
     module subroutine fclSetKernelArgs(kernel,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                         a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)
+                                         a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                         a20,a21,a22,a23,a24,a25,a26,a27,a28,a29)
       !! Set all kernel arguments at once without launching kernel.
       class(fclKernel), intent(in), target :: kernel    !! Focal kernel object
       class(*), intent(in), optional, target :: a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
-                                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19
+                                               a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, &
+                                               a20,a21,a22,a23,a24,a25,a26,a27,a28,a29
         !! Kernel arguments.
         !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclSetKernelArgs
