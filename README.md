@@ -118,3 +118,10 @@ The following open source libraries are used as dependencies and bundled in the 
 * [clfortran](https://github.com/cass-support/clfortran) (LGPL)
 
 * [M_strings](https://github.com/urbanjost/M_strings) (Unlicense/Public domain)
+
+## Acknowledgement
+
+_This work was funded by the MENtOR project, a UKVLN project
+supported by the Engineering and Physical Sciences Research
+Council (EPSRC) of the UK. Grant reference number
+EP/S010378/1_
