@@ -503,7 +503,7 @@
 <a name="ln-236"></a>
 <a name="ln-237"></a>  <span class="k">module procedure </span><span class="n">fclDumpProfileData</span> <span class="c">!(profiler,outputUnit)</span>
 <a name="ln-238"></a>    <span class="c">!! Dump summary of profiler data for list of kernels to specific output unit</span>
-<a name="ln-239"></a>    <span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span> <span class="n">only</span><span class="p">:</span> <span class="n">stdout</span><span class="o">=&gt;</span><span class="n">output_unit</span>
+<a name="ln-239"></a>    <span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span> <span class="k">only</span><span class="p">:</span> <span class="n">stdout</span><span class="o">=&gt;</span><span class="n">output_unit</span>
 <a name="ln-240"></a>
 <a name="ln-241"></a>    <span class="kt">integer</span> <span class="kd">::</span> <span class="n">i</span><span class="p">,</span> <span class="n">unit</span>
 <a name="ln-242"></a>
@@ -551,7 +551,7 @@
 <a name="ln-284"></a>
 <a name="ln-285"></a>  <span class="k">module procedure </span><span class="n">fclDumpKernelProfileData</span> <span class="c">!(outputUnit,kernelList,device)</span>
 <a name="ln-286"></a>    <span class="c">!! Dump summary of profile data for list of kernels to specific output unit</span>
-<a name="ln-287"></a>    <span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span> <span class="n">only</span><span class="p">:</span> <span class="n">sp</span><span class="o">=&gt;</span><span class="n">real32</span>
+<a name="ln-287"></a>    <span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span> <span class="k">only</span><span class="p">:</span> <span class="n">sp</span><span class="o">=&gt;</span><span class="n">real32</span>
 <a name="ln-288"></a>
 <a name="ln-289"></a>    <span class="kt">integer</span> <span class="kd">::</span> <span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">N</span>
 <a name="ln-290"></a>    <span class="kt">integer</span><span class="p">(</span><span class="kt">c_int64_t</span><span class="p">),</span> <span class="k">allocatable</span> <span class="kd">::</span> <span class="n">durations</span><span class="p">(:)</span>
@@ -643,7 +643,7 @@
 <a name="ln-376"></a>
 <a name="ln-377"></a>  <span class="k">module procedure </span><span class="n">fclDumpBufferProfileData</span> <span class="c">!(outputUnit,bufferList1,bufferList2,bufferList3)</span>
 <a name="ln-378"></a>    <span class="c">!! Dump summary of profile data for list of buffers to specific output unit</span>
-<a name="ln-379"></a>    <span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span> <span class="n">only</span><span class="p">:</span> <span class="n">sp</span><span class="o">=&gt;</span><span class="n">real32</span>
+<a name="ln-379"></a>    <span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span> <span class="k">only</span><span class="p">:</span> <span class="n">sp</span><span class="o">=&gt;</span><span class="n">real32</span>
 <a name="ln-380"></a>
 <a name="ln-381"></a>    <span class="kt">integer</span> <span class="kd">::</span> <span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">bl</span>
 <a name="ln-382"></a>    <span class="kt">integer</span><span class="p">(</span><span class="kt">c_int64_t</span><span class="p">),</span> <span class="k">allocatable</span> <span class="kd">::</span> <span class="n">durations</span><span class="p">(:)</span>
@@ -913,7 +913,7 @@
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-4"><p>&copy; 2020 
+        <div class="col-xs-6 col-md-4"><p>&copy; 2021 
                                           </p></div>
         <div class="col-xs-6 col-md-4 col-md-push-4">
           <p class="text-right">
