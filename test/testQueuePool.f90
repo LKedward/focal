@@ -64,6 +64,8 @@ call setFloat_k%launch(qPool%next(),FCL_TEST_SIZE,deviceReal32)
 call setDouble_k%launch(qPool%next(),FCL_TEST_SIZE,deviceReal64)
 call setChar_k%launch(qPool%next(),FCL_TEST_SIZE,deviceBuffer)
 
+call fclWait(qPool) ! All queues in queue pool
+
 ! --- Transfer device buffers to host ---
 hostInt32 = deviceInt32
 hostReal32 = deviceReal32
