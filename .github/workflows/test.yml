@@ -10,7 +10,7 @@ on:
 jobs:
   gfortran-nix:
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v1
@@ -36,9 +36,13 @@ jobs:
 
     - name: Run tests (debug)
       run: |
+        gfortran --version
         make -j test BUILD=debug
-        make clean
+        pushd test
         bash <(curl -s https://codecov.io/bash)
+        make clean
+        popd
+        make clean
 
     - name: Run tests (release)
       run: |
