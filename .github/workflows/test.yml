@@ -113,12 +113,12 @@ jobs:
         make -j test BUILD=release FC=ifort
         make clean
 
-    # - name: Run example programs
-    #   run: |
-    #     pushd examples
-    #     make FC=ifort
-    #     popd
-    #     ./bin/platform_query
-    #     ./bin/sum
-    #     ./bin/nbody
+    - name: Run example programs
+      run: |
+        pushd examples
+        make FC=ifort
+        popd
+        ./bin/platform_query
+        ./bin/sum
+        ./bin/nbody
           

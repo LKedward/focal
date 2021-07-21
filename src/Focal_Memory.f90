@@ -78,7 +78,7 @@ submodule (Focal) Focal_Memory
                   CL_QUEUE_CONTEXT,c_sizeof(cl_context), &
                   c_loc(cl_context), size_ret)
 
-    call fclErrorHandler(errcode,'fclInitBuffer','clGetCommandQueueInfo')
+    call fclHandleError(errcode,'fclInitBuffer','clGetCommandQueueInfo')
 
     ! Check kernel access flags
     if (present(access)) then
@@ -104,7 +104,7 @@ submodule (Focal) Focal_Memory
     buffer%cl_mem = clCreateBuffer(cl_context,MEM_FLAGS, &
                       nBytes,C_NULL_PTR,errcode)
 
-    call fclErrorHandler(errcode,'fclInitBuffer','clCreateBuffer')
+    call fclHandleError(errcode,'fclInitBuffer','clCreateBuffer')
 
     buffer%nBytes = nBytes
     buffer%cmdq => cmdq
@@ -237,7 +237,7 @@ submodule (Focal) Focal_Memory
     subBuffer%cl_mem = clCreateSubBuffer (sourceBuffer%cl_mem, MEM_FLAGS, &
               CL_BUFFER_CREATE_TYPE_REGION, c_loc(info), errcode)
 
-    call fclErrorHandler(errcode,'fclInitSubBuffer','clCreateSubBuffer')
+    call fclHandleError(errcode,'fclInitSubBuffer','clCreateSubBuffer')
 
     subBuffer%nBytes = size
     subBuffer%cmdq => cmdq
@@ -347,7 +347,7 @@ submodule (Focal) Focal_Memory
 
     call memObject%pushProfileEvent(writeEvent,1)
 
-    call fclErrorHandler(errcode,'fclMemWriteScalar','clEnqueueFillBuffer')
+    call fclHandleError(errcode,'fclMemWriteScalar','clEnqueueFillBuffer')
 
   end procedure fclMemWriteScalar
   ! ---------------------------------------------------------------------------
@@ -409,7 +409,7 @@ submodule (Focal) Focal_Memory
 
     call memObject%pushProfileEvent(writeEvent,1)
 
-    call fclErrorHandler(errcode,'fclMemWrite','clEnqueueWriteBuffer')
+    call fclHandleError(errcode,'fclMemWrite','clEnqueueWriteBuffer')
 
   end procedure fclMemWrite
   ! ---------------------------------------------------------------------------
@@ -474,7 +474,7 @@ submodule (Focal) Focal_Memory
 
     call memObject%pushProfileEvent(readEvent,2)
 
-    call fclErrorHandler(errcode,'fclMemRead','clEnqueueReadBuffer')
+    call fclHandleError(errcode,'fclMemRead','clEnqueueReadBuffer')
 
   end procedure fclMemRead
   ! ---------------------------------------------------------------------------
@@ -561,7 +561,7 @@ submodule (Focal) Focal_Memory
 
       call memObject1%pushProfileEvent(copyEvent,3)
 
-      call fclErrorHandler(errcode,'fclMemCopy','clEnqueueCopyBuffer')
+      call fclHandleError(errcode,'fclMemCopy','clEnqueueCopyBuffer')
 
     end if
 
@@ -596,7 +596,7 @@ submodule (Focal) Focal_Memory
 
     errcode = clReleaseMemObject(memObject%cl_mem)
 
-    call fclErrorHandler(errcode,'fclFreeBuffer','clReleaseMemObject')
+    call fclHandleError(errcode,'fclFreeBuffer','clReleaseMemObject')
 
     memObject%nBytes = -1
 

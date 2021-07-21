@@ -218,12 +218,12 @@ submodule (Focal) Focal_Profile
       ! Get event start time
       errcode = clGetEventProfilingInfo(eventList(i)%cl_event, &
         CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
-      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+      call fclHandleError(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
 
       ! Get event end time
       errcode = clGetEventProfilingInfo(eventList(i)%cl_event, &
         CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
-      call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+      call fclHandleError(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
 
       ! Save duration (nanoseconds)
       durations(i) = endTime - startTime
@@ -564,17 +564,17 @@ submodule (Focal) Focal_Profile
             ! Get event start time
             errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
               CL_PROFILING_COMMAND_START, c_sizeof(startTime), c_loc(startTime), size_ret)
-            call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+            call fclHandleError(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
 
             ! Get event end time
             errcode = clGetEventProfilingInfo(profileContainer%profileEvents(i)%cl_event, &
               CL_PROFILING_COMMAND_END, c_sizeof(endTime), c_loc(endTime), size_ret)
-            call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
+            call fclHandleError(errcode,'fclGetProfileEventDurations','clGetEventProfilingInfo')
 
             ! Get event command queue
             errcode = clGetEventInfo(profileContainer%profileEvents(i)%cl_event, &
               CL_EVENT_COMMAND_QUEUE, c_sizeof(qid), c_loc(qid), size_ret)
-            call fclErrorHandler(errcode,'fclGetProfileEventDurations','clGetEventInfo')
+            call fclHandleError(errcode,'fclGetProfileEventDurations','clGetEventInfo')
 
             if (.not.isFirstEvent) then
               write(fh,*) ','
