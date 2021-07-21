@@ -258,12 +258,12 @@ module Focal
   ! ---------------------------- ABSTRACT INTERFACES --------------------------
 
   abstract interface
-    subroutine fclErrorHandlerInterface(errcode,focalCall,oclCall)
+    subroutine fclHandleErrorInterface(errcode,focalCall,oclCall)
       use iso_c_binding
       integer(c_int32_t), intent(in) :: errcode
       character(*), intent(in) :: focalCall
       character(*), intent(in) :: oclCall
-    end subroutine fclErrorHandlerInterface
+    end subroutine fclHandleErrorInterface
   end interface
 
   ! ---------------------------- GLOBAL PARAMETERS ----------------------------
@@ -293,7 +293,7 @@ module Focal
   character(len=1,kind=c_char), target, bind(C,name="_binary_fclKernels_cl_end") :: fclKernelEnd
     !! c interoperable character for sendtart of fclKernels binary resource
 
-  procedure(fclErrorHandlerInterface), pointer :: fclErrorHandler => fclDefaultErrorHandler
+  procedure(fclHandleErrorInterface), pointer :: fclErrorHandler => NULL() !fclDefaultErrorHandler
     !! Procedure pointer for custom OpenCL runtime error handler
 
   integer(c_intptr_t), allocatable :: fclHostPtrMap(:,:)
@@ -303,6 +303,13 @@ module Focal
   ! ---------------------------- ERROR ROUTINES -------------------------------
 
   interface
+
+    module subroutine fclHandleError(errcode,focalCall,oclCall)
+      !! Wrapper to invoke fclErrorHandle procedure pointer (fixes issue with ifort)
+      integer(c_int32_t), intent(in) :: errcode
+      character(*), intent(in) :: focalCall
+      character(*), intent(in) :: oclCall
+    end subroutine fclHandleError
 
     module subroutine fclHandleBuildError(builderrcode,prog,ctx)
       !! Check an openCL error code and print build log if necessary

@@ -45,6 +45,18 @@ submodule (Focal) Focal_Error
   end interface
 
   contains
+  
+
+  module procedure fclHandleError
+    
+    if (associated(fclErrorHandler)) then 
+      call fclErrorHandler(errcode,focalCall,oclCall)
+    else
+      call fclDefaultErrorHandler(errcode,focalCall,oclCall)
+    end if
+
+  end procedure fclHandleError
+  ! ---------------------------------------------------------------------------
 
   module procedure fclDefaultErrorHandler
 

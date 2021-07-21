@@ -3,6 +3,7 @@
 *.mod
 *.smod
 *.a
+*.gcov
 doc/*
 bin/*
 obj/*

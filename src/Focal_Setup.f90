@@ -55,7 +55,7 @@ submodule (Focal) Focal_Setup
                 platform%numDevice, c_loc(platform%cl_device_ids), &
                 C_NULL_FUNPTR, C_NULL_PTR, errcode)
 
-    call fclErrorHandler(errcode,'fclCreateContextWithPlatform','clCreateContext')
+    call fclHandleError(errcode,'fclCreateContextWithPlatform','clCreateContext')
 
     ! platform%ctx = ctx
     ctx%platform = platform
@@ -379,7 +379,7 @@ submodule (Focal) Focal_Setup
     cmdq%cl_command_queue = clCreateCommandQueue(ctx%cl_context, device%cl_device_id, &
                                   properties ,errcode)
 
-    call fclErrorHandler(errcode,'fclCreateDeviceCommandQWithDevice','clCreateCommandQueue')
+    call fclHandleError(errcode,'fclCreateDeviceCommandQWithDevice','clCreateCommandQueue')
 
   end procedure fclCreateCommandQ_1
   ! ---------------------------------------------------------------------------
@@ -484,7 +484,7 @@ submodule (Focal) Focal_Setup
     prog%cl_program = clCreateProgramWithSource(ctx%cl_context,1, &
                           C_LOC(c_source_p),C_NULL_PTR,errcode)
 
-    call fclErrorHandler(errcode,'fclCompileProgram','clCreateProgramWithSource')
+    call fclHandleError(errcode,'fclCompileProgram','clCreateProgramWithSource')
 
     if (present(options)) then
       options_temp = options//' '//fclDbgOptions()
@@ -538,7 +538,7 @@ submodule (Focal) Focal_Setup
     errcode = clGetProgramBuildInfo(prog%cl_program, device%cl_device_id, &
           CL_PROGRAM_BUILD_LOG, int(0,c_size_t), C_NULL_PTR, buffLen)
 
-    call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
+    call fclHandleError(errcode,'fclCompileProgram','clGetProgramBuildInfo')
 
     allocate(buildLogBuffer(buffLen))
     buffLen = size(buildLogBuffer,1)
@@ -546,7 +546,7 @@ submodule (Focal) Focal_Setup
     errcode = clGetProgramBuildInfo(prog%cl_program, device%cl_device_id, &
       CL_PROGRAM_BUILD_LOG, buffLen, c_loc(buildLogBuffer), int32_ret)
 
-    call fclErrorHandler(errcode,'fclCompileProgram','clGetProgramBuildInfo')
+    call fclHandleError(errcode,'fclCompileProgram','clGetProgramBuildInfo')
 
     write(*,*) ' fclDumpBuildLog: Build log for context device: ',device%name
     write(out,*) buildLogBuffer
@@ -582,7 +582,7 @@ submodule (Focal) Focal_Setup
 
     kern%cl_kernel = clCreateKernel(prog%cl_program,C_LOC(c_name),errcode)
 
-    call fclErrorHandler(errcode,'fclGetProgramKernel','clCreateKernel')
+    call fclHandleError(errcode,'fclGetProgramKernel','clCreateKernel')
 
     allocate(character(len=len(kernelName)) :: kern%name)
     kern%name = kernelName
@@ -708,7 +708,7 @@ submodule (Focal) Focal_Setup
 
     call fclDbgWait(kernelEvent)
     call fclPopDependencies(cmdq)
-    call fclErrorHandler(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
+    call fclHandleError(errcode,'fclLaunchKernel','clEnqueueNDRangeKernel')
 
     fclLastKernelEvent = kernelEvent
     cmdQ%lastKernelEvent = kernelEvent
@@ -943,7 +943,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clSetKernelArg(kernel%cl_kernel,argIndex,argSize,argPtr)
 
-    call fclErrorHandler(errcode,'fclSetKernelArg','clSetKernelArg')
+    call fclHandleError(errcode,'fclSetKernelArg','clSetKernelArg')
 
   end procedure fclSetKernelArg
   ! ---------------------------------------------------------------------------
@@ -983,7 +983,7 @@ submodule (Focal) Focal_Setup
                   c_loc(barrierEvent%cl_event))
 
     call fclPopDependencies(cmdq)
-    call fclErrorHandler(errcode,'fclBarrierAll','clEnqueueBarrierWithWaitList')
+    call fclHandleError(errcode,'fclBarrierAll','clEnqueueBarrierWithWaitList')
 
     fclLastBarrierEvent = barrierEvent
     cmdq%lastBarrierEvent = barrierEvent
@@ -1006,7 +1006,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clFinish(cmdq%cl_command_queue)
 
-    call fclErrorHandler(errcode,'fclFinish','clFinish')
+    call fclHandleError(errcode,'fclFinish','clFinish')
 
   end procedure fclFinish_1
   ! ---------------------------------------------------------------------------
@@ -1039,7 +1039,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clWaitForEvents ( 1, c_loc(event%cl_event) )
 
-    call fclErrorHandler(errcode,'fclWaitEvent','clWaitForEvents')
+    call fclHandleError(errcode,'fclWaitEvent','clWaitForEvents')
 
   end procedure fclWaitEvent
   ! ---------------------------------------------------------------------------
@@ -1056,7 +1056,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clWaitForEvents ( size(eventList,1), c_loc(cl_eventList) )
 
-    call fclErrorHandler(errcode,'fclWaitEventList','clWaitForEvents')
+    call fclHandleError(errcode,'fclWaitEventList','clWaitForEvents')
 
   end procedure fclWaitEventList
   ! ---------------------------------------------------------------------------
@@ -1087,7 +1087,7 @@ submodule (Focal) Focal_Setup
     if (event%cl_event > 0) then
 
       errcode = clReleaseEvent(event%cl_event)
-      call fclErrorHandler(errcode,'fclReleaseEvent','clReleaseEvent')
+      call fclHandleError(errcode,'fclReleaseEvent','clReleaseEvent')
 
     end if
 
@@ -1103,7 +1103,7 @@ submodule (Focal) Focal_Setup
     if (event%cl_event > 0) then
 
       errcode = clRetainEvent(event%cl_event)
-      call fclErrorHandler(errcode,'fclRetainEvent','clRetainEvent')
+      call fclHandleError(errcode,'fclRetainEvent','clRetainEvent')
 
     end if
 
@@ -1128,7 +1128,7 @@ submodule (Focal) Focal_Setup
 
     ! Explicitly increment event reference counter
     errcode = clRetainEvent(event%cl_event)
-    call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent')
+    call fclHandleError(errcode,'fclSetDependencyEvent','clRetainEvent')
 
     if (present(hold)) then
       cmdq%holdDependencies = hold
@@ -1173,7 +1173,7 @@ submodule (Focal) Focal_Setup
     ! Explicitly increment event reference counters
     do i=1,nEvent
       errcode = clRetainEvent(eventList(i)%cl_event)
-      call fclErrorHandler(errcode,'fclSetDependencyEvent','clRetainEvent') 
+      call fclHandleError(errcode,'fclSetDependencyEvent','clRetainEvent') 
     end do
 
     if (present(hold)) then
@@ -1214,7 +1214,7 @@ submodule (Focal) Focal_Setup
     ! Explicitly decrement event reference counters
     do i=1,cmdq%nDependency
       errcode = clReleaseEvent(cmdq%dependencyList(i))
-      call fclErrorHandler(errcode,'fclClearDependencies','clReleaseEvent') 
+      call fclHandleError(errcode,'fclClearDependencies','clReleaseEvent') 
     end do
 
     cmdq%nDependency = 0
@@ -1240,7 +1240,7 @@ submodule (Focal) Focal_Setup
 
     userEvent%cl_event = clCreateUserEvent(ctx%cl_context,errcode)
 
-    call fclErrorHandler(errcode,'fclCreateUserEvent','clCreateUserEvent') 
+    call fclHandleError(errcode,'fclCreateUserEvent','clCreateUserEvent') 
 
   end procedure fclCreateUserEvent_1
   ! ---------------------------------------------------------------------------
@@ -1268,7 +1268,7 @@ submodule (Focal) Focal_Setup
 
     errcode = clSetUserEventStatus(event%cl_event, eStatus)
     
-    call fclErrorHandler(errcode,'fclSetUserEvent','clSetUserEventStatus') 
+    call fclHandleError(errcode,'fclSetUserEvent','clSetUserEventStatus') 
 
   end procedure fclSetUserEvent
   ! ---------------------------------------------------------------------------

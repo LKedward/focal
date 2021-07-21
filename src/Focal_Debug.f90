@@ -296,7 +296,7 @@ submodule (Focal) Focal_Debug
         else
 
           ! Error is in api calls
-          call fclErrorHandler(errcode,'fclDbgWait','clWaitForEvents|clGetEventInfo')
+          call fclHandleError(errcode,'fclDbgWait','clWaitForEvents|clGetEventInfo')
 
         end if
 
