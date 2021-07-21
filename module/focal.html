@@ -136,7 +136,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title="31.6% of total for modules and submodules.">916 statements</a>
+    title="31.7% of total for modules and submodules.">921 statements</a>
      </li> 
      
      
@@ -227,6 +227,8 @@
     <div class="list-group">
       
       <a class="list-group-item" href="../module/focal.html#interface-fclgeterrorstring">fclGetErrorString</a>
+      
+      <a class="list-group-item" href="../module/focal.html#interface-fclhandleerror">fclHandleError</a>
       
       <a class="list-group-item" href="../module/focal.html#interface-fclhandlebuilderror">fclHandleBuildError</a>
       
@@ -415,7 +417,7 @@
   <div id="absints-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../module/focal.html#interface-fclerrorhandlerinterface">fclErrorHandlerInterface</a>
+      <a class="list-group-item" href="../module/focal.html#interface-fclhandleerrorinterface">fclHandleErrorInterface</a>
       
     </div>
   </div>
@@ -621,6 +623,8 @@
       
       <a class="list-group-item" href="../module/focal.html#interface-fclgeterrorstring">fclGetErrorString</a>
       
+      <a class="list-group-item" href="../module/focal.html#interface-fclhandleerror">fclHandleError</a>
+      
       <a class="list-group-item" href="../module/focal.html#interface-fclhandlebuilderror">fclHandleBuildError</a>
       
       <a class="list-group-item" href="../module/focal.html#interface-fcldefaulterrorhandler">fclDefaultErrorHandler</a>
@@ -808,7 +812,7 @@
   <div id="absints-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../module/focal.html#interface-fclerrorhandlerinterface">fclErrorHandlerInterface</a>
+      <a class="list-group-item" href="../module/focal.html#interface-fclhandleerrorinterface">fclHandleErrorInterface</a>
       
     </div>
   </div>
@@ -1082,11 +1086,11 @@
   
 <tr>
   
-  <td><span class="anchor" id="variable-fclerrorhandler"></span>procedure(<a href='../interface/fclerrorhandlerinterface.html'>fclErrorHandlerInterface</a>),</td>
+  <td><span class="anchor" id="variable-fclerrorhandler"></span>procedure(<a href='../interface/fclhandleerrorinterface.html'>fclHandleErrorInterface</a>),</td>
   
   <td>public,</td>
   <td>pointer</td><td>::</td>
-  <td><strong>fclErrorHandler</strong></td><td>=> </td><td>fclDefaultErrorHandler</td><td><p>Procedure pointer for custom OpenCL runtime error handler</p></td>
+  <td><strong>fclErrorHandler</strong></td><td>=> </td><td>NULL()</td><td><p>Procedure pointer for custom OpenCL runtime error handler</p></td>
   
 </tr>
 
@@ -1182,6 +1186,100 @@ public module function fclGetErrorString(errcode) result(errstr)
      <h4>Return Value <small>character(len=errStringLen)
   </small></h4>
   <p>Returns OpenCL error string</p>
+    
+
+    </li>
+  
+  </ul>
+</div>
+
+    
+     
+<div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="interface-fclhandleerror"></span><h3>interface 
+    
+  </h3></div>
+  
+  <ul class="list-group">
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+public module subroutine fclHandleError(errcode, focalCall, oclCall)
+    
+    
+   
+</h3>
+    
+
+
+
+<p>Wrapper to invoke fclErrorHandle procedure pointer (fixes issue with ifort)</p>
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=c_int32_t),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>errcode</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>character(len=*),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>focalCall</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>character(len=*),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>oclCall</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
     
 
     </li>
@@ -14489,7 +14587,7 @@ public module function strStripNum(linei)
    
      
 <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="interface-fclerrorhandlerinterface"></span><h3>abstract interface
+  <div class="panel-heading codesum"><span class="anchor" id="interface-fclhandleerrorinterface"></span><h3>abstract interface
     
   </h3></div>
   
@@ -14498,7 +14596,7 @@ public module function strStripNum(linei)
     
     
     <h3>
-public subroutine fclErrorHandlerInterface(errcode, focalCall, oclCall)
+public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
     
     
    

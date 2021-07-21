@@ -48,12 +48,12 @@ submodule (Focal) Focal_Query
     integer(c_size_t) :: temp_size, size_ret
 
     errcode = clGetPlatformInfo(platform%cl_platform_id, key, zero_size, C_NULL_PTR, temp_size)
-    call fclErrorHandler(errcode,'fclGetPlatformInfo','clGetPlatformInfo')
+    call fclHandleError(errcode,'fclGetPlatformInfo','clGetPlatformInfo')
 
     allocate(character(len=temp_size) :: value)
 
     errcode = clGetPlatformInfo(platform%cl_platform_id, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetPlatformInfo','clGetPlatformInfo')
+    call fclHandleError(errcode,'fclGetPlatformInfo','clGetPlatformInfo')
 
     ! Remove non-printable characters (terminating null char)
     value = str_noesc(value)
@@ -70,11 +70,11 @@ submodule (Focal) Focal_Query
     integer(c_size_t) :: temp_size, size_ret
 
     errcode = clGetDeviceInfo(device%cl_device_id, key, zero_size, C_NULL_PTR, temp_size)
-    call fclErrorHandler(errcode,'fclGetDeviceInfoString','clGetDeviceInfo')
+    call fclHandleError(errcode,'fclGetDeviceInfoString','clGetDeviceInfo')
 
     allocate( character(len=temp_size) :: value)
     errcode = clGetDeviceInfo(device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetDeviceInfoString','clGetDeviceInfo')
+    call fclHandleError(errcode,'fclGetDeviceInfoString','clGetDeviceInfo')
 
     ! Remove non-printable characters (terminating null char)
     value = str_noesc(value)
@@ -91,7 +91,7 @@ submodule (Focal) Focal_Query
 
     temp_size = c_sizeof(int(1,c_int32_t))
     errcode = clGetDeviceInfo(device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetDeviceInfoInt32','clGetDeviceInfo')
+    call fclHandleError(errcode,'fclGetDeviceInfoInt32','clGetDeviceInfo')
 
   end procedure fclGetDeviceInfoInt32
   ! ---------------------------------------------------------------------------
@@ -105,7 +105,7 @@ submodule (Focal) Focal_Query
 
     temp_size = c_sizeof(int(1,c_int64_t))
     errcode = clGetDeviceInfo(device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetDeviceInfoInt64','clGetDeviceInfo')
+    call fclHandleError(errcode,'fclGetDeviceInfoInt64','clGetDeviceInfo')
 
   end procedure fclGetDeviceInfoInt64
   ! ---------------------------------------------------------------------------
@@ -120,11 +120,11 @@ submodule (Focal) Focal_Query
     integer(c_size_t) :: temp_size, size_ret
 
     errcode = clGetKernelInfo(kernel%cl_kernel, key, zero_size, C_NULL_PTR, temp_size)
-    call fclErrorHandler(errcode,'fclGetKernelInfoString','clGetKernelInfo')
+    call fclHandleError(errcode,'fclGetKernelInfoString','clGetKernelInfo')
 
     allocate( character(len=temp_size) :: value)
     errcode = clGetKernelInfo(kernel%cl_kernel, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetKernelInfoString','clGetKernelInfo')
+    call fclHandleError(errcode,'fclGetKernelInfoString','clGetKernelInfo')
 
     ! Remove non-printable characters (terminating null char)
     value = str_noesc(value)
@@ -142,7 +142,7 @@ submodule (Focal) Focal_Query
 
     temp_size = c_sizeof(int(1,c_int32_t))
     errcode = clGetKernelInfo(kernel%cl_kernel, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetKernelInfoInt32','clGetKernelInfo')
+    call fclHandleError(errcode,'fclGetKernelInfoInt32','clGetKernelInfo')
 
   end procedure fclGetKernelInfoInt32
   ! ---------------------------------------------------------------------------
@@ -157,7 +157,7 @@ submodule (Focal) Focal_Query
 
     temp_size = c_sizeof(int(1,c_int64_t))
     errcode = clGetKernelWorkGroupInfo(kernel%cl_kernel, device%cl_device_id, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetKernelWorkGroupInfoInt64','clGetKernelWorkGroupInfo')
+    call fclHandleError(errcode,'fclGetKernelWorkGroupInfoInt64','clGetKernelWorkGroupInfo')
 
   end procedure fclGetKernelWorkGroupInfoInt64
   ! ---------------------------------------------------------------------------
@@ -172,11 +172,11 @@ submodule (Focal) Focal_Query
     integer(c_size_t) :: temp_size, size_ret
 
     errcode = clGetKernelArgInfo(kernel%cl_kernel, argNo, key, zero_size, C_NULL_PTR, temp_size)
-    call fclErrorHandler(errcode,'fclGetKernelArgInfoString','clGetKernelArgInfo')
+    call fclHandleError(errcode,'fclGetKernelArgInfoString','clGetKernelArgInfo')
 
     allocate( character(len=temp_size) :: value)
     errcode = clGetKernelArgInfo(kernel%cl_kernel, argNo, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetKernelArgInfoString','clGetKernelArgInfo')
+    call fclHandleError(errcode,'fclGetKernelArgInfoString','clGetKernelArgInfo')
 
     ! Remove non-printable characters (terminating null char)
     value = str_noesc(value)
@@ -194,7 +194,7 @@ submodule (Focal) Focal_Query
 
     temp_size = c_sizeof(int(1,c_int32_t))
     errcode = clGetKernelArgInfo(kernel%cl_kernel, argNo, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetKernelInfoInt32','clGetKernelInfo')
+    call fclHandleError(errcode,'fclGetKernelInfoInt32','clGetKernelInfo')
 
   end procedure fclGetKernelArgInfoInt32
   ! ---------------------------------------------------------------------------
@@ -209,7 +209,7 @@ submodule (Focal) Focal_Query
 
     temp_size = c_sizeof(int(1,c_int32_t))
     errcode = clGetEventInfo(event%cl_event, key, temp_size, C_LOC(value), size_ret)
-    call fclErrorHandler(errcode,'fclGetEventInfo','clGetEventInfo')
+    call fclHandleError(errcode,'fclGetEventInfo','clGetEventInfo')
 
   end procedure fclGetEventInfo
   ! ---------------------------------------------------------------------------
@@ -225,14 +225,14 @@ submodule (Focal) Focal_Query
 
     ! Get number of platforms
     errcode = clGetPlatformIDs(0,C_NULL_PTR,num_platforms)
-    call fclErrorHandler(errcode,'fclGetPlatforms','clGetPlatformIDs')
+    call fclHandleError(errcode,'fclGetPlatforms','clGetPlatformIDs')
 
     ! Allocate platform_ids array
     allocate(platform_ids(num_platforms))
 
     ! Populate platform_ids array
     errcode = clGetPlatformIDs(num_platforms,c_loc(platform_ids),int32_ret)
-    call fclErrorHandler(errcode,'fclGetPlatforms','clGetPlatformIDs')
+    call fclHandleError(errcode,'fclGetPlatforms','clGetPlatformIDs')
 
     ! Populate output fclPlatform structure array
     allocate(platforms(num_platforms))
@@ -264,7 +264,7 @@ submodule (Focal) Focal_Query
 
     ! --- Get number of devices ---
     errcode = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_ALL, 0, C_NULL_PTR, platform%numDevice)
-    call fclErrorHandler(errcode,'fclGetPlatform','clGetDeviceIDs')
+    call fclHandleError(errcode,'fclGetPlatform','clGetDeviceIDs')
 
     allocate(platform%devices(platform%numDevice))
     allocate(platform%cl_device_ids(platform%numDevice))
@@ -272,7 +272,7 @@ submodule (Focal) Focal_Query
     ! --- Get device ids ---
     errcode = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_ALL, platform%numDevice, &
                                   C_LOC(platform%cl_device_ids), int32_ret)
-    call fclErrorHandler(errcode,'fclGetPlatform','clGetDeviceIDs')
+    call fclHandleError(errcode,'fclGetPlatform','clGetDeviceIDs')
 
     ! --- Populate fclPlatform info strings ---
     call fclGetPlatformInfo(platform,CL_PLATFORM_PROFILE,platform%profile)

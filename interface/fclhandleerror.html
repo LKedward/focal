@@ -11,7 +11,7 @@
     <meta name="author" content="L. Kedward" >
     <link rel="icon" href="../favicon.png">
 
-    <title>fclErrorHandlerInterface &ndash; Focal API Reference</title>
+    <title>fclHandleError &ndash; Focal API Reference</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -118,8 +118,8 @@
     
   
   <div class="row">
-    <h1>fclErrorHandlerInterface
-   <small>Abstract Interface</small>
+    <h1>fclHandleError
+   <small>Interface</small>
     
     </h1>
     
@@ -138,7 +138,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title="100.0% of total for abstract interfaces.">8 statements</a>
+    title=" 0.8% of total for procedures.">24 statements</a>
      </li> 
      
      
@@ -155,7 +155,7 @@
      <li><a href='../module/focal.html'>Focal</a></li>
     
   
-     <li class="active">fclErrorHandlerInterface</li>
+     <li class="active">fclHandleError</li>
   </ol>
 </div>
 </div>
@@ -207,9 +207,9 @@
     <div class="col-md-9" id='text'>
     
     
-      <h2>abstract interface <br>
+      <h2>interface <br>
       
-public subroutine fclErrorHandlerInterface(errcode, focalCall, oclCall)
+public module subroutine fclHandleError(errcode, focalCall, oclCall)
     
     
    
@@ -238,7 +238,7 @@ public subroutine fclErrorHandlerInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-errcode"></span>integer(kind=c_int32_t),</td>
+  <td><span class="anchor" id="variable-errcode~3"></span>integer(kind=c_int32_t),</td>
   <td>intent(in)</td>
   <td></td>
   
@@ -253,7 +253,7 @@ public subroutine fclErrorHandlerInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-focalcall"></span>character(len=*),</td>
+  <td><span class="anchor" id="variable-focalcall~2"></span>character(len=*),</td>
   <td>intent(in)</td>
   <td></td>
   
@@ -268,7 +268,7 @@ public subroutine fclErrorHandlerInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-oclcall"></span>character(len=*),</td>
+  <td><span class="anchor" id="variable-oclcall~2"></span>character(len=*),</td>
   <td>intent(in)</td>
   <td></td>
   
@@ -282,6 +282,9 @@ public subroutine fclErrorHandlerInterface(errcode, focalCall, oclCall)
 
     
     
+    
+    <h3>Description</h3>
+    <p>Wrapper to invoke fclErrorHandle procedure pointer (fixes issue with ifort)</p>
     
     <br>
 
