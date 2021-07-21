@@ -1,7 +1,7 @@
 # Focal
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://travis-ci.org/LKedward/focal.svg?branch=master)](https://travis-ci.org/LKedward/focal)
+[![fpm test](https://github.com/LKedward/focal/actions/workflows/test.yml/badge.svg)](https://github.com/LKedward/focal/actions)
 [![codecov](https://codecov.io/gh/LKedward/focal/branch/v1.0rc/graph/badge.svg)](https://codecov.io/gh/LKedward/focal)
 
 ## *A modern Fortran abstraction layer for openCL*
