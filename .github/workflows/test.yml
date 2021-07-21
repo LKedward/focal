@@ -1,0 +1,117 @@
+name: fpm test
+
+on: [push, pull_request]
+
+jobs:
+  gfortran-nix:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Get Intel OpenCL SDK from cache
+      id: cache-intel
+      uses: actions/cache@v2
+      with:
+        path: |
+          /opt/intel/oneapi/compiler
+          /opt/intel/oneapi/setvars.sh
+          /tmp/opencl_runtime.tgz
+        key: intel-cache-v1
+
+    - name: Download Intel OpenCL SDK
+      if: steps.cache-intel.outputs.cache-hit != 'true'
+      run: |
+        wget -q http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/16284/intel_sdk_for_opencl_applications_2020.0.270.tar.gz -O /tmp/opencl_runtime.tgz
+    
+    - name: Install Intel OpenCL SDK
+      run: |
+        tar -xzf /tmp/opencl_runtime.tgz -C /tmp
+        sed 's/decline/accept/g' -i /tmp/intel_sdk_for_opencl_applications_2020.0.270/silent.cfg
+        sudo /tmp/intel_sdk_for_opencl_applications_2020.0.270/install.sh -s /tmp/intel_sdk_for_opencl_applications_2020.0.270/silent.cfg
+
+    - name: Run tests (debug)
+      run: |
+        make -j test BUILD=debug
+        make clean
+        bash <(curl -s https://codecov.io/bash)
+
+    - name: Run tests (release)
+      run: |
+        make -j test BUILD=release
+        make clean
+
+    - name: Run example programs
+      run: |
+        pushd examples
+        make
+        popd
+        ./bin/platform_query
+        ./bin/sum
+        ./bin/nbody
+
+  Intel:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Install ifort from cache
+      id: cache-intel
+      uses: actions/cache@v2
+      with:
+        path: |
+          /opt/intel/oneapi/compiler
+          /opt/intel/oneapi/setvars.sh
+          /tmp/opencl_runtime.tgz
+        key: intel-cache-v1
+
+    - name: Download Intel OpenCL SDK
+      if: steps.cache-intel.outputs.cache-hit != 'true'
+      run: |
+        wget -q http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/16284/intel_sdk_for_opencl_applications_2020.0.270.tar.gz -O /tmp/opencl_runtime.tgz
+    
+    - name: Install Intel OpenCL SDK
+      run: |
+        tar -xzf /tmp/opencl_runtime.tgz -C /tmp
+        sed 's/decline/accept/g' -i /tmp/intel_sdk_for_opencl_applications_2020.0.270/silent.cfg
+        sudo /tmp/intel_sdk_for_opencl_applications_2020.0.270/install.sh -s /tmp/intel_sdk_for_opencl_applications_2020.0.270/silent.cfg
+
+    - name: Install ifort with apt
+      if: steps.cache-intel.outputs.cache-hit != 'true'
+      run: |
+        wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+        sudo apt-get update
+        sudo apt-get install intel-oneapi-ifort
+        sudo rm -rf /opt/intel/oneapi/compiler/latest/linux/lib/emu
+        sudo rm -rf /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga
+
+    - name: Setup ifort env
+      run: |
+        source /opt/intel/oneapi/setvars.sh
+        printenv >> $GITHUB_ENV
+        ifort --version
+
+    - name: Run tests (debug)
+      run: |
+        make -j test BUILD=debug FC=ifort
+        make clean
+
+    - name: Run tests (release)
+      run: |
+        make -j test BUILD=release FC=ifort
+        make clean
+
+    # - name: Run example programs
+    #   run: |
+    #     pushd examples
+    #     make FC=ifort
+    #     popd
+    #     ./bin/platform_query
+    #     ./bin/sum
+    #     ./bin/nbody
+          
