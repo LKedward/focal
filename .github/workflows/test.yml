@@ -16,17 +16,15 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Get Intel OpenCL SDK from cache
-      id: cache-intel
+      id: cache-intel-opencl
       uses: actions/cache@v2
       with:
         path: |
-          /opt/intel/oneapi/compiler
-          /opt/intel/oneapi/setvars.sh
           /tmp/opencl_runtime.tgz
-        key: intel-cache-v1
+        key: cache-intel-opencl-v1
 
     - name: Download Intel OpenCL SDK
-      if: steps.cache-intel.outputs.cache-hit != 'true'
+      if: steps.cache-intel-opencl.outputs.cache-hit != 'true'
       run: |
         wget -q http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/16284/intel_sdk_for_opencl_applications_2020.0.270.tar.gz -O /tmp/opencl_runtime.tgz
     
@@ -70,7 +68,7 @@ jobs:
           /opt/intel/oneapi/compiler
           /opt/intel/oneapi/setvars.sh
           /tmp/opencl_runtime.tgz
-        key: intel-cache-v1
+        key: intel-cache-v2
 
     - name: Download Intel OpenCL SDK
       if: steps.cache-intel.outputs.cache-hit != 'true'
