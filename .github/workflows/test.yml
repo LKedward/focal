@@ -1,6 +1,11 @@
 name: fpm test
 
-on: [push, pull_request]
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   gfortran-nix:
