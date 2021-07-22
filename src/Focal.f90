@@ -56,7 +56,7 @@ module Focal
   ! ---------------------------- FOCAL TYPES ----------------------------------
   type :: fclDevice
     !! Type wrapper for openCL device objects
-    integer(c_intptr_t) :: cl_device_id = -1         !! OpenCL device pointer
+    integer(c_intptr_t), private :: cl_device_id = -1!! OpenCL device pointer
     integer(c_int64_t) :: cl_device_type             !! Device type
     character(:), allocatable :: name                !! Device name
     integer(c_int32_t) :: nComputeUnits              !! Number of device compute units
@@ -65,22 +65,22 @@ module Focal
     character(:), allocatable :: version             !! OpenCL version
     character(:), allocatable :: extensions          !! Supported OpenCL extensions
     type(fclPlatform), pointer :: platform           !! Pointer to containing platform
-    integer(c_intptr_t) :: cl_platform_id            !! OpenCL platform pointer
+    integer(c_intptr_t), private :: cl_platform_id   !! OpenCL platform pointer
     character(:), allocatable :: platformName        !! Name of containing platform
     character(:), allocatable :: platformVendor      !! Vendor of containing platform
   end type fclDevice
 
   type :: fclPlatform
     !! Type wrapper for openCL platform objects
-    integer(c_intptr_t) :: cl_platform_id            !! OpenCL platform pointer
+    integer(c_intptr_t), private :: cl_platform_id   !! OpenCL platform pointer
     character(:), allocatable :: profile             !! OpenCL Profile string
     character(:), allocatable :: version             !! OpenCL Version
     character(:), allocatable :: name                !! Platform name
     character(:), allocatable :: vendor              !! Platform vendor
     character(:), allocatable :: extensions          !! Platform extensions
     integer :: numDevice                             !! No. of devices
-    type(fclDevice), allocatable :: devices(:)           !! Focal device objects
-    integer(c_intptr_t), allocatable :: cl_device_ids(:) !! openCL device pointers
+    type(fclDevice), allocatable :: devices(:)       !! Focal device objects
+    integer(c_intptr_t), allocatable, private :: cl_device_ids(:) !! openCL device pointers
   end type fclPlatform
 
   type :: fclContext
@@ -98,7 +98,7 @@ module Focal
 
   type :: fclCommandQ
     !! Type wrapper for openCL command queue objects
-    integer(c_intptr_t) :: cl_command_queue          !! openCL command Q pointer
+    integer(c_intptr_t), private :: cl_command_queue !! openCL command Q pointer
     logical :: blockingWrite = .true.
       !! Enable/disable blocking writes when copying from host to device
     logical :: blockingRead = .true.
@@ -146,16 +146,19 @@ module Focal
 
   type :: fclProgram
     !! Type wrapper for openCL program objects
+    private
     integer(c_intptr_t) :: cl_program                !! openCL program pointer
   end type fclProgram
 
  type :: fclKernelPointer
     !! Wrapper type for implementing an array of pointers to kernel objects
+    private
     class(fclKernel), pointer :: target
   end type fclKernelPointer
 
   type :: fclBufferPointer
     !! Wrapper type for implementing an array of pointers to buffer objects
+    private
     class(fclDeviceBuffer), pointer :: target
   end type fclBufferPointer
 
@@ -163,7 +166,8 @@ module Focal
   type :: fclProfiler
     !! Helper type to collect objects (kernels and buffers) that
     !!  are profiled to simply user code.
-    type(fclDevice) :: device
+    private
+    type(fclDevice), public :: device
       !! Device for which to dump profile data
     type(fclKernelPointer), allocatable :: kernels(:)
       !! List of pointers to kernels to be profiled
@@ -198,7 +202,7 @@ module Focal
 
   type, extends(fclProfileContainer) :: fclKernel
     !! Type wrapper for openCL kernel objects
-    integer(c_intptr_t) :: cl_kernel                 !! openCL kernel pointer
+    integer(c_intptr_t), private :: cl_kernel        !! openCL kernel pointer
     character(:), allocatable :: name                !! Kernel name
     integer(c_int32_t) :: work_dim = 1               !! Number of work-range dimensions
     integer(c_size_t) :: global_work_offset(3) = 0   !! Global work dimension offsets
@@ -218,9 +222,10 @@ module Focal
 
   type, extends(fclProfileContainer) :: fclDeviceBuffer
     !! Type wrapper for openCL memory objects
+    private
     integer(c_intptr_t) :: cl_mem                    !! openCL memory pointer
     type(fclCommandQ), pointer :: cmdq               !! Focal commandQ object
-    integer(c_size_t) :: nBytes = -1                 !! Size of buffer in bytes
+    integer(c_size_t), public :: nBytes = -1         !! Size of buffer in bytes
     logical :: kernelRead                            !! Indicates kernel read access
     logical :: kernelWrite                           !! Indicate kernel write access
   end type fclDeviceBuffer
