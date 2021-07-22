@@ -136,7 +136,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title="31.7% of total for modules and submodules.">921 statements</a>
+    title="31.8% of total for modules and submodules.">926 statements</a>
      </li> 
      
      
@@ -509,9 +509,9 @@
       <li class="list-group-item">
   <ul class="list-inline">
     
-    <li><a href="http://fortranwiki.org/fortran/show/iso_fortran_env">iso_fortran_env</a></li>
-    
     <li><a href="http://fortranwiki.org/fortran/show/iso_c_binding">iso_c_binding</a></li>
+    
+    <li><a href="http://fortranwiki.org/fortran/show/iso_fortran_env">iso_fortran_env</a></li>
     
   </ul>
       </li>
@@ -14709,20 +14709,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-cl_device_id"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_device_id</strong></td><td> =</td><td>-1</td><td><p>OpenCL device pointer</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-cl_device_type"></span>integer(kind=c_int64_t),</td>
   
   <td>public</td>
@@ -14835,20 +14821,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-cl_platform_id"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_platform_id</strong></td><td></td><td></td><td><p>OpenCL platform pointer</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-platformname"></span>character(len=:),</td>
   
   <td>public,</td>
@@ -14903,20 +14875,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
 
 
 <tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cl_platform_id~2"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_platform_id</strong></td><td></td><td></td><td><p>OpenCL platform pointer</p></td>
-  
-</tr>
 
   
   
@@ -15013,20 +14971,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   <td>public,</td>
   <td>allocatable</td><td>::</td>
   <td><strong>devices</strong>(:)</td><td></td><td></td><td><p>Focal device objects</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cl_device_ids"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public,</td>
-  <td>allocatable</td><td>::</td>
-  <td><strong>cl_device_ids</strong>(:)</td><td></td><td></td><td><p>openCL device pointers</p></td>
   
 </tr>
 
@@ -15179,20 +15123,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
 
 
 <tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cl_command_queue"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_command_queue</strong></td><td></td><td></td><td><p>openCL command Q pointer</p></td>
-  
-</tr>
 
   
   
@@ -15464,35 +15394,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
     <p>Type wrapper for openCL program objects</p>
     
      
-     <h4>Components</h4>
-    
-<table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Visibility</th>
-
-<th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
-
-
-
-<tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cl_program"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_program</strong></td><td></td><td></td><td><p>openCL program pointer</p></td>
-  
-</tr>
-
-</tbody>
-</table>
-
-     
      
           
      
@@ -15511,35 +15412,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
     <p>Wrapper type for implementing an array of pointers to kernel objects</p>
     
      
-     <h4>Components</h4>
-    
-<table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Visibility</th>
-
-<th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
-
-
-
-<tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-target"></span>class(<a href='../type/fclkernel.html'>fclKernel</a>),</td>
-  
-  <td>public,</td>
-  <td>pointer</td><td>::</td>
-  <td><strong>target</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-</tbody>
-</table>
-
-     
      
           
      
@@ -15557,35 +15429,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
     
     <p>Wrapper type for implementing an array of pointers to buffer objects</p>
     
-     
-     <h4>Components</h4>
-    
-<table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Visibility</th>
-
-<th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
-
-
-
-<tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-target~2"></span>class(<a href='../type/fcldevicebuffer.html'>fclDeviceBuffer</a>),</td>
-  
-  <td>public,</td>
-  <td>pointer</td><td>::</td>
-  <td><strong>target</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-</tbody>
-</table>
-
      
      
           
@@ -15628,62 +15471,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   <td>public</td>
   <td></td><td>::</td>
   <td><strong>device</strong></td><td></td><td></td><td><p>Device for which to dump profile data</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernels"></span>type(<a href='../type/fclkernelpointer.html'>fclKernelPointer</a>),</td>
-  
-  <td>public,</td>
-  <td>allocatable</td><td>::</td>
-  <td><strong>kernels</strong>(:)</td><td></td><td></td><td><p>List of pointers to kernels to be profiled</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-nkernels"></span>integer,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>nKernels</strong></td><td> =</td><td>0</td><td><p>Number of kernels in kernels array</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-buffers"></span>type(<a href='../type/fclbufferpointer.html'>fclBufferPointer</a>),</td>
-  
-  <td>public,</td>
-  <td>allocatable</td><td>::</td>
-  <td><strong>buffers</strong>(:)</td><td></td><td></td><td><p>List of pointers to buffers to be profiled</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-nbuffers"></span>integer,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>nBuffers</strong></td><td> =</td><td>0</td><td><p>Number of buffers in buffers array</p></td>
   
 </tr>
 
@@ -15947,20 +15734,6 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-cl_kernel"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_kernel</strong></td><td></td><td></td><td><p>openCL kernel pointer</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-name~3"></span>character(len=:),</td>
   
   <td>public,</td>
@@ -16167,67 +15940,11 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-cl_mem"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_mem</strong></td><td></td><td></td><td><p>openCL memory pointer</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cmdq"></span>type(<a href='../type/fclcommandq.html'>fclCommandQ</a>),</td>
-  
-  <td>public,</td>
-  <td>pointer</td><td>::</td>
-  <td><strong>cmdq</strong></td><td></td><td></td><td><p>Focal commandQ object</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-nbytes"></span>integer(kind=c_size_t),</td>
   
   <td>public</td>
   <td></td><td>::</td>
   <td><strong>nBytes</strong></td><td> =</td><td>-1</td><td><p>Size of buffer in bytes</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelread"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelRead</strong></td><td></td><td></td><td><p>Indicates kernel read access</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelwrite"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelWrite</strong></td><td></td><td></td><td><p>Indicate kernel write access</p></td>
   
 </tr>
 
@@ -16364,67 +16081,11 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-cl_mem"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_mem</strong></td><td></td><td></td><td><p>openCL memory pointer</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cmdq"></span>type(<a href='../type/fclcommandq.html'>fclCommandQ</a>),</td>
-  
-  <td>public,</td>
-  <td>pointer</td><td>::</td>
-  <td><strong>cmdq</strong></td><td></td><td></td><td><p>Focal commandQ object</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-nbytes"></span>integer(kind=c_size_t),</td>
   
   <td>public</td>
   <td></td><td>::</td>
   <td><strong>nBytes</strong></td><td> =</td><td>-1</td><td><p>Size of buffer in bytes</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelread"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelRead</strong></td><td></td><td></td><td><p>Indicates kernel read access</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelwrite"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelWrite</strong></td><td></td><td></td><td><p>Indicate kernel write access</p></td>
   
 </tr>
 
@@ -16561,67 +16222,11 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-cl_mem"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_mem</strong></td><td></td><td></td><td><p>openCL memory pointer</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cmdq"></span>type(<a href='../type/fclcommandq.html'>fclCommandQ</a>),</td>
-  
-  <td>public,</td>
-  <td>pointer</td><td>::</td>
-  <td><strong>cmdq</strong></td><td></td><td></td><td><p>Focal commandQ object</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-nbytes"></span>integer(kind=c_size_t),</td>
   
   <td>public</td>
   <td></td><td>::</td>
   <td><strong>nBytes</strong></td><td> =</td><td>-1</td><td><p>Size of buffer in bytes</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelread"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelRead</strong></td><td></td><td></td><td><p>Indicates kernel read access</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelwrite"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelWrite</strong></td><td></td><td></td><td><p>Indicate kernel write access</p></td>
   
 </tr>
 
@@ -16758,67 +16363,11 @@ public subroutine fclHandleErrorInterface(errcode, focalCall, oclCall)
   
 <tr>
   
-  <td><span class="anchor" id="variable-cl_mem"></span>integer(kind=c_intptr_t),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>cl_mem</strong></td><td></td><td></td><td><p>openCL memory pointer</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-cmdq"></span>type(<a href='../type/fclcommandq.html'>fclCommandQ</a>),</td>
-  
-  <td>public,</td>
-  <td>pointer</td><td>::</td>
-  <td><strong>cmdq</strong></td><td></td><td></td><td><p>Focal commandQ object</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-nbytes"></span>integer(kind=c_size_t),</td>
   
   <td>public</td>
   <td></td><td>::</td>
   <td><strong>nBytes</strong></td><td> =</td><td>-1</td><td><p>Size of buffer in bytes</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelread"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelRead</strong></td><td></td><td></td><td><p>Indicates kernel read access</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-kernelwrite"></span>logical,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>kernelWrite</strong></td><td></td><td></td><td><p>Indicate kernel write access</p></td>
   
 </tr>
 
