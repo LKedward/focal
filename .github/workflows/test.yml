@@ -38,10 +38,6 @@ jobs:
       run: |
         gfortran --version
         make -j test BUILD=debug
-        pushd test
-        bash <(curl -s https://codecov.io/bash)
-        make clean
-        popd
         make clean
 
     - name: Run tests (release)
@@ -49,11 +45,16 @@ jobs:
         make -j test BUILD=release
         make clean
 
+    - name: Run tests (code coverage)
+      working-directory: test
+      run: |
+         make -j coverage BUILD=debug
+         bash <(curl -s https://codecov.io/bash)
+         make -C .. clean
+
     - name: Run example programs
       run: |
-        pushd examples
-        make
-        popd
+        make examples
         ./bin/platform_query
         ./bin/sum
         ./bin/nbody

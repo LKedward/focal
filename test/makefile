@@ -25,11 +25,13 @@ all: $(EXEC) $(REPORT)
 	@cat $(REPORT)
 	@test $$(grep "EXIT_" test_outputs/* --binary-files=text | grep -c -v "EXIT_0\|EXIT_101") -eq 0
 
+coverage: all
+
 BUILD:=debug
 include $(FOCAL_DIR)/make.include
 
 # --- Compiler Flags ---
-FFLAGS=$(FOCAL_FFLAGS) 
+FFLAGS:=$(FOCAL_FFLAGS) 
 
 
 # --- Link Flags ---
@@ -41,7 +43,12 @@ else
     $(error unrecognized build.)
 endif
 OPENCL_LFLAGS ?= -g -L$(OPENCL_DIR) -lOpenCL
-LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS) -fprofile-arcs -ftest-coverage
+LFLAGS = $(FOCAL_LFLAGS) $(OPENCL_LFLAGS)
+
+coverage: FOCAL_FFLAGS+=--coverage
+coverage: LFLAGS+=--coverage
+
+
 
 # --- Cleanup (reset) ---
 clean:
@@ -65,10 +72,11 @@ $(BINDIR)%: $(addprefix $(OBJDIR), %.o %.cl.o) $(MODOBJS) | $(BINDIR)
 $(OBJDIR)%.o: %.f90
 	$(FC) $(FFLAGS) -c $< -o $@
 
-# Recipe just for Focal library objects
-#  to include code coverage flags
+# Separate recipe for Focal library objects
+# (needed for coverage flags)
 $(OBJDIR)Focal_%.o: Focal_%.f90
-	$(FC) $(FFLAGS) -fprofile-arcs -ftest-coverage -c $< -o $@
+	$(FC) $(FOCAL_FFLAGS) -c $< -o $@
+
 
 # Recipe to 'compile' kernel source into a binary object
 $(OBJDIR)%.cl.o: %.cl
@@ -114,3 +122,5 @@ $(BINDIR):
 
 # Don't cleanup kernels object
 .SECONDARY: $(KERNELOBJS)
+
+.PHONY: all coverage clean
