@@ -13,6 +13,7 @@ PROGOBJS =$(addprefix $(OBJDIR), $(addsuffix .o, $(PROGS)))
 KERNELOBJS = $(addprefix $(OBJDIR), $(addsuffix .cl.o, $(PROGS)) )
 EXEC = $(addprefix $(BINDIR), $(PROGS))
 
+.NOTPARALLEL:
 
 # --- Main build target ---
 all: $(EXEC)
