@@ -11,9 +11,9 @@ include $(FOCAL_DIR)/make.include
 clean: focal_clean
 
 examples: $(LIB_OBJS)
-	cd examples; make
+	$(MAKE) -C examples
 
 test: $(LIB_OBJS)
-	cd test; make
+	$(MAKE) -C test
 
 .PHONY: all clean examples test
