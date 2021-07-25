@@ -4,8 +4,8 @@
 [![fpm test](https://github.com/LKedward/focal/actions/workflows/test.yml/badge.svg)](https://github.com/LKedward/focal/actions)
 [![codecov](https://codecov.io/gh/LKedward/focal/branch/v1.0rc/graph/badge.svg)](https://codecov.io/gh/LKedward/focal)
 
-## *A modern Fortran abstraction layer for openCL*
-Focal is a module library which wraps calls to the openCL runtime API (using [clfortran](https://github.com/cass-support/clfortran)) with a higher abstraction level appropriate to the Fortran language.
+## *A modern Fortran abstraction layer for OpenCL*
+Focal is a module library which wraps calls to the OpenCL runtime API (using [clfortran](https://github.com/cass-support/clfortran)) with a higher abstraction level appropriate to the Fortran language.
 
 The goal of Focal is to provide a concise and accessible Fortran interface to the OpenCL API while retaining the full functionality thereof.
 This is desirable in Fortran which as a language provides a higher level of abstraction than C; importantly this allows scientists and engineers to focus on their domain specific problem rather than details of low-level implementation.
@@ -49,7 +49,7 @@ The following fortran program calculates the sum of two large arrays using an Op
 
 ```fortran
 program sum
-!! Focal example program: calculate the sum of two arrays on an openCL device
+!! Focal example program: calculate the sum of two arrays on an OpenCL device
 
 use Focal
 implicit none
