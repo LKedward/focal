@@ -29,7 +29,7 @@ __License__: [MIT](./LICENSE)
 __Prerequisites:__
 
 - [GNU make](https://www.gnu.org/software/make/) utility
-- Fortran compiler supporting the 2008 standard (tested regularly with `gfortran` 7.4.0 & 9.1.0 and `ifort` 19.1.0 )
+- Fortran compiler supporting the 2008 standard (tested in the CI with `gfortran` 9.3.0 and `ifort` (oneAPI) 21.3.0 )
 - An OpenCL development library (One of:
 [Intel OpenCL SDK](https://software.intel.com/en-us/opencl-sdk),
 [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads),
@@ -124,4 +124,4 @@ The following open source libraries are used as dependencies and bundled in the 
 _This work was funded by the MENtOR project, a UKVLN project
 supported by the Engineering and Physical Sciences Research
 Council (EPSRC) of the UK. Grant reference number
-EP/S010378/1_
+EP/S010378/1_.
