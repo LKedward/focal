@@ -107,16 +107,19 @@ jobs:
 
     - name: Run tests (debug)
       run: |
+        export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/libOpenCL.so.1
         make -j test BUILD=debug FC=ifort
         make clean
 
     - name: Run tests (release)
       run: |
+        export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/libOpenCL.so.1
         make -j test BUILD=release FC=ifort
         make clean
 
     - name: Run example programs
       run: |
+        export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/libOpenCL.so.1
         pushd examples
         make FC=ifort
         popd
