@@ -118,6 +118,7 @@ jobs:
     - name: Run example programs
       run: |
         pushd examples
+        ls -al /lib/x86_64-linux-gnu/
         export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
         make FC=ifort
         popd
