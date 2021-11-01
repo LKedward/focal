@@ -55,6 +55,7 @@ jobs:
     - name: Run example programs
       run: |
         make examples
+        ldd bin/platform_query
         ./bin/platform_query
         ./bin/sum
         ./bin/nbody
@@ -119,6 +120,7 @@ jobs:
         pushd examples
         make FC=ifort
         popd
+        ldd bin/platform_query
         ./bin/platform_query
         ./bin/sum
         ./bin/nbody
