@@ -94,6 +94,17 @@ jobs:
         printenv >> $GITHUB_ENV
         ifort --version
 
+    - name: Download Intel OpenCL SDK
+      if: steps.cache-intel.outputs.cache-hit != 'true'
+      run: |
+        wget -q https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/17206/intel_sdk_for_opencl_applications_2020.3.494.tar.gz -O /tmp/opencl_runtime.tgz
+    
+    - name: Install Intel OpenCL SDK
+      run: |
+        tar -xzf /tmp/opencl_runtime.tgz -C /tmp
+        sed 's/decline/accept/g' -i /tmp/intel_sdk_for_opencl_applications_2020.3.494/silent.cfg
+        sudo /tmp/intel_sdk_for_opencl_applications_2020.3.494/install.sh -s /tmp/intel_sdk_for_opencl_applications_2020.3.494/silent.cfg
+        
     - name: Run tests (debug)
       run: |
         make -j test BUILD=debug FC=ifort
