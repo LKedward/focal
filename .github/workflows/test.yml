@@ -87,6 +87,7 @@ jobs:
         sudo apt-get install intel-oneapi-ifort
         sudo rm -rf /opt/intel/oneapi/compiler/latest/linux/lib/emu
         sudo rm -rf /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga
+        sudo rm -rf /opt/intel/oneapi/compiler/2021.4.0/linux/lib/libOpenCL.so.1
         
     - name: Setup ifort env
       run: |
@@ -118,8 +119,6 @@ jobs:
     - name: Run example programs
       run: |
         pushd examples
-        ls -al /lib/x86_64-linux-gnu/
-        export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
         make FC=ifort
         popd
         ldd bin/platform_query
