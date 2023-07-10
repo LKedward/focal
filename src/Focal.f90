@@ -148,6 +148,8 @@ module Focal
     !! Type wrapper for openCL program objects
     private
     integer(c_intptr_t) :: cl_program                !! openCL program pointer
+    contains
+    final :: fclReleaseProgram
   end type fclProgram
 
  type :: fclKernelPointer
@@ -1261,6 +1263,11 @@ module Focal
       integer, intent(in), optional :: global_work_offset(:) !! Global work group offsets, default zeros
       type(fclKernel) :: kern                                !! Returns fclKernel object for execution
     end function fclGetProgramKernel
+
+    module subroutine fclReleaseProgram(prog)
+      !! Release underlying memory associated with OpenCL program pointer
+      type(fclProgram), intent(in) :: prog                   !! Compiled program object containing kernel
+    end subroutine fclReleaseProgram
 
   end interface
 
