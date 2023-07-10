@@ -628,8 +628,11 @@ submodule (Focal) Focal_Setup
     !! Release underlying memory associated with OpenCL program pointer
 
     integer :: errcode
-    errcode = clReleaseProgram(prog%cl_program)
-    call fclHandleError(errcode,'fclReleaseProgram','clReleaseProgram')
+
+    if (prog%cl_program /= -1) then
+      errcode = clReleaseProgram(prog%cl_program)
+      call fclHandleError(errcode,'fclReleaseProgram','clReleaseProgram')
+    end if
 
   end procedure fclReleaseProgram
   ! ---------------------------------------------------------------------------
@@ -1347,8 +1350,11 @@ submodule (Focal) Focal_Setup
   module procedure fclReleaseKernel !(kernel)
     !! Release OpenCL memory associated with underlying kernel pointer
     integer :: errcode
-    errcode = clReleaseKernel(kernel%cl_kernel)
-    call fclHandleError(errcode,'fclReleaseKernel','clReleaseKernel')
+
+    if (kernel%cl_kernel /= -1) then
+      errcode = clReleaseKernel(kernel%cl_kernel)
+      call fclHandleError(errcode,'fclReleaseKernel','clReleaseKernel')
+    end if
 
   end procedure fclReleaseKernel
   ! ---------------------------------------------------------------------------
