@@ -147,7 +147,7 @@ module Focal
   type :: fclProgram
     !! Type wrapper for openCL program objects
     private
-    integer(c_intptr_t) :: cl_program                !! openCL program pointer
+    integer(c_intptr_t) :: cl_program = -1                !! openCL program pointer
     contains
     final :: fclReleaseProgram
   end type fclProgram
@@ -204,7 +204,7 @@ module Focal
 
   type, extends(fclProfileContainer) :: fclKernel
     !! Type wrapper for openCL kernel objects
-    integer(c_intptr_t), private :: cl_kernel        !! openCL kernel pointer
+    integer(c_intptr_t), private :: cl_kernel = -1        !! openCL kernel pointer
     character(:), allocatable :: name                !! Kernel name
     integer(c_int32_t) :: work_dim = 1               !! Number of work-range dimensions
     integer(c_size_t) :: global_work_offset(3) = 0   !! Global work dimension offsets
