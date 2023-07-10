@@ -624,6 +624,16 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclReleaseProgram !(prog)
+    !! Release underlying memory associated with OpenCL program pointer
+
+    integer :: errcode
+    errcode = clReleaseProgram(prog%cl_program)
+    
+  end procedure fclReleaseProgram
+  ! ---------------------------------------------------------------------------
+
+
   module procedure fclLaunchKernelAfterEvent_1 !(kernel,cmdQ,event)
     !! Specific interface for a single event dependency on a specific command queue
 

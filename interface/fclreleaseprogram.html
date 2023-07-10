@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,7 +9,7 @@
     <meta name="author" content="L. Kedward" >
     <link rel="icon" href="../favicon.png">
 
-    <title>Focal_Query &ndash; Focal API Reference</title>
+    <title>fclReleaseProgram &ndash; Focal API Reference</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -88,8 +89,8 @@
 
     <div class="container">
   <div class="row">
-    <h1>Focal_Query
-      <small>Submodule</small>
+    <h1>fclReleaseProgram
+      <small>Interface</small>
       
     </h1>
       <div class="row" id="info-bar">
@@ -100,17 +101,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 4.3% of total for modules and submodules.">141 statements</a>
+               title=" 0.5% of total for procedures.">14 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Focal_Query.f90"> Source File</a>
+              <a href="../src/Focal.f90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/focal_query.f90.html'>Focal_Query.f90</a></li>
-          <li class="active">Focal_Query</li>
+              <li><a href='../sourcefile/focal.f90.html'>Focal.f90</a></li>
+              <li><a href='../module/focal.html'>Focal</a></li>
+          <li class="active">fclReleaseProgram</li>
         </ol>
       </div>
     </div>
@@ -122,10 +124,10 @@
   </script>
 
   </div>
-
+  
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-        <div id="sidebar">
+      <div id="sidebar">
       <h3>Contents</h3>
   
   
@@ -152,74 +154,49 @@
   </div>
 
     </div>
-
+    
     <div class="col-md-9" id='text'>
-      <p>Implementation module for query routines</p>
-<p></p><div class="alert alert-info" role="alert"><h4>Note</h4><p>This is an implementation submodule: it contains the code implementing the subroutines defined in the
- corresponding header module file. See header module file (Focal.f90) for interface definitions. </p></div>
-<p>
-<br>          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li>clfortran</li>
-                <li>M_Strings</li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <ul class="list-inline">
-              <li><h5>Ancestors:</h5></li>
-                <li><a href='../module/focal.html'>Focal</a></li>
-            </ul>
-          </li>
-      </ul>
-    </div>
+      <h2>interface <br>
+      public module subroutine fclReleaseProgram(prog)  
+</h2>    
 
-      
-      <br>
+    
 
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-prog~3"></span>
+              type(<a href='../type/fclprogram.html'>fclProgram</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>prog</strong></td>
+            <td>
+                <p>Compiled program object containing kernel</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
-    <em>None</em>
+    <h3>Description</h3>
+    <p>Release underlying memory associated with OpenCL program pointer</p>
+    <br>
 
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
-
-
-
-
-
-
-
-
-
-
-
-    </div>
-  </div>
+ </div>
+</div>
 
       <hr>
     </div> <!-- /container -->
