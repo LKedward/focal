@@ -218,6 +218,7 @@ module Focal
     generic :: launchAfter => launchKernelAfterEvent_1, launchKernelAfterEvent_2, &
            launchKernelAfterEventList_1, launchKernelAfterEventList_2
       !! Launch a kernel with event dependencies
+    final :: fclReleaseKernel
   end type fclKernel
 
   type, extends(fclProfileContainer) :: fclDeviceBuffer
@@ -1409,6 +1410,11 @@ module Focal
       integer, intent(in) :: nElem                   !! No of array elements
       type(fclLocalArgDouble) :: localArg            !! Returns local argument object
     end function fclLocalDouble
+
+    module subroutine fclReleaseKernel(kernel)
+      !! Release OpenCL memory associated with underlying kernel pointer
+      type(fclKernel), intent(inout) :: kernel          !! Focal kernel object
+    end subroutine fclReleaseKernel
 
   end interface
 

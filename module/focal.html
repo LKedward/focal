@@ -100,7 +100,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title="28.6% of total for modules and submodules.">926 statements</a>
+               title="28.7% of total for modules and submodules.">930 statements</a>
           </li>
 
             <li id="source-file">
@@ -228,6 +228,7 @@
             <a class="list-group-item" href="../module/focal.html#interface-fclprocesskernelargs">fclProcessKernelArgs</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsetkernelargs">fclSetKernelArgs</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsetkernelarg">fclSetKernelArg</a>
+            <a class="list-group-item" href="../module/focal.html#interface-fclreleasekernel">fclReleaseKernel</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclbarrier">fclBarrier</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclwait">fclWait</a>
             <a class="list-group-item" href="../module/focal.html#interface-assignment%28%3D%29~2">assignment(=)</a>
@@ -471,6 +472,7 @@ Subroutine implementation (code) is found in the corresponding submodule files. 
             <a class="list-group-item" href="../module/focal.html#interface-fclprocesskernelargs">fclProcessKernelArgs</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsetkernelargs">fclSetKernelArgs</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsetkernelarg">fclSetKernelArg</a>
+            <a class="list-group-item" href="../module/focal.html#interface-fclreleasekernel">fclReleaseKernel</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclbarrier">fclBarrier</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclwait">fclWait</a>
             <a class="list-group-item" href="../module/focal.html#interface-assignment%28%3D%29~2">assignment(=)</a>
@@ -13338,6 +13340,54 @@ Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
 
               <div class="panel panel-default">
     <div class="panel-heading codesum">
+      <span class="anchor" id="interface-fclreleasekernel"></span>
+      <h3>        interface
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+              <h3>
+    public module subroutine fclReleaseKernel(kernel)  
+
+    </h3>
+  <p>Release OpenCL memory associated with underlying kernel pointer</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/fclkernel.html'>fclKernel</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kernel</strong></td>
+            <td>
+                <p>Focal kernel object</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+              <div class="panel panel-default">
+    <div class="panel-heading codesum">
       <span class="anchor" id="interface-fclbarrier"></span>
       <h3>public        interface <a href='../interface/fclbarrier.html'>fclBarrier</a> 
       </h3>
@@ -17173,6 +17223,15 @@ Use fclClearDependencies to clear and reset.</p>
 
 
 
+        <h4>Finalizations Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>final :: <strong>fclReleaseKernel</strong></td>
+                <td></td>
+              </tr>
+          </tbody>
+        </table>
 
         <h4>Type-Bound Procedures</h4>
         <table class="table table-striped varlist">

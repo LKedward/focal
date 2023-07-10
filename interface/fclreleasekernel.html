@@ -9,7 +9,7 @@
     <meta name="author" content="L. Kedward" >
     <link rel="icon" href="../favicon.png">
 
-    <title>fclMemReadFloat &ndash; Focal API Reference</title>
+    <title>fclReleaseKernel &ndash; Focal API Reference</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -89,7 +89,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>fclMemReadFloat
+    <h1>fclReleaseKernel
       <small>Interface</small>
       
     </h1>
@@ -101,7 +101,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 2.3% of total for procedures.">72 statements</a>
+               title=" 1.2% of total for procedures.">38 statements</a>
           </li>
 
             <li id="source-file">
@@ -112,7 +112,7 @@
         <ol class="breadcrumb in-well text-right">
               <li><a href='../sourcefile/focal.f90.html'>Focal.f90</a></li>
               <li><a href='../module/focal.html'>Focal</a></li>
-          <li class="active">fclMemReadFloat</li>
+          <li class="active">fclReleaseKernel</li>
         </ol>
       </div>
     </div>
@@ -157,7 +157,7 @@
     
     <div class="col-md-9" id='text'>
       <h2>interface <br>
-      public module subroutine fclMemReadFloat(hostBuffer, memObject)  
+      public module subroutine fclReleaseKernel(kernel)  
 </h2>    
 
     
@@ -175,40 +175,24 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-hostbuffer~5"></span>
-              real(kind=c_float),
+              <span class="anchor" id="variable-kernel~5"></span>
+              type(<a href='../type/fclkernel.html'>fclKernel</a>),
             </td>
-<td>intent(inout),</td>
-              <td></td>            <td>
-              target
-            </td>
-            <td>::</td>
-            <td><strong>hostBuffer</strong>(:)</td>
-            <td>
-                <p>Host array (target)</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-memobject~11"></span>
-              class(<a href='../type/fcldevicefloat.html'>fclDeviceFloat</a>),
-            </td>
-<td>intent(in)</td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>memObject</strong></td>
+            <td><strong>kernel</strong></td>
             <td>
-                <p>Focal memory object (source)</p>
+                <p>Focal kernel object</p>
             </td>
         </tr>
     </tbody>
   </table>
 
     <h3>Description</h3>
-    <p>Transfer device float array to host float array
- Called by operator-overloading of assignment(=)</p>
+    <p>Release OpenCL memory associated with underlying kernel pointer</p>
     <br>
 
  </div>
