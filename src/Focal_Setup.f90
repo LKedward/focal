@@ -1333,6 +1333,12 @@ submodule (Focal) Focal_Setup
   end procedure fclLocalDouble
   ! ---------------------------------------------------------------------------
 
+  module procedure fclReleaseKernel !(kernel)
+    !! Release OpenCL memory associated with underlying kernel pointer
+    integer :: errcode
+    errcode = clReleaseKernel(kernel%cl_kernel)
+  end procedure fclReleaseKernel
+  ! ---------------------------------------------------------------------------
 
   module procedure fclBarrier_1 !(cmdq)
     !! Enqueue barrier on all events in command queue
