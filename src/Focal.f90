@@ -1315,7 +1315,10 @@ module Focal
                                         a60,a61,a62,a63,a64,a65,a66,a67,a68,a69, &
                                         a70,a71,a72,a73,a74,a75,a76,a77,a78,a79, &
                                         a80,a81,a82,a83,a84,a85,a86,a87,a88,a89, &
-                                        a90,a91,a92,a93,a94,a95,a96,a97,a98,a99)
+                                        a90,a91,a92,a93,a94,a95,a96,a97,a98,a99, &
+                                        a100,a101,a102,a103,a104,a105,a106,a107,a108,a109, &
+                                        a110,a111,a112,a113,a114,a115,a116,a117,a118,a119, &
+                                        a120,a121,a122,a123,a124,a125,a126,a127,a128,a129)
       !! Enqueue a kernel with command arguments
       class(fclKernel), intent(inout), target :: kernel   !! Focal kernel object
       class(*), intent(in), optional, target :: a0
@@ -1329,7 +1332,10 @@ module Focal
                                                a60,a61,a62,a63,a64,a65,a66,a67,a68,a69, &
                                                a70,a71,a72,a73,a74,a75,a76,a77,a78,a79, &
                                                a80,a81,a82,a83,a84,a85,a86,a87,a88,a89, &
-                                               a90,a91,a92,a93,a94,a95,a96,a97,a98,a99
+                                               a90,a91,a92,a93,a94,a95,a96,a97,a98,a99, &
+                                               a100,a101,a102,a103,a104,a105,a106,a107,a108,a109, &
+                                               a110,a111,a112,a113,a114,a115,a116,a117,a118,a119, &
+                                               a120,a121,a122,a123,a124,a125,a126,a127,a128,a129
         !! Subsequent kernel arguments.
         !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclLaunchKernel
@@ -1343,7 +1349,10 @@ module Focal
                                               a60,a61,a62,a63,a64,a65,a66,a67,a68,a69, &
                                               a70,a71,a72,a73,a74,a75,a76,a77,a78,a79, &
                                               a80,a81,a82,a83,a84,a85,a86,a87,a88,a89, &
-                                              a90,a91,a92,a93,a94,a95,a96,a97,a98,a99)
+                                              a90,a91,a92,a93,a94,a95,a96,a97,a98,a99, &
+                                              a100,a101,a102,a103,a104,a105,a106,a107,a108,a109, &
+                                              a110,a111,a112,a113,a114,a115,a116,a117,a118,a119, &
+                                              a120,a121,a122,a123,a124,a125,a126,a127,a128,a129)
       !! Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments.
       !! @note This is helper routine used internally by focal.  If you just want set kernel arguments
       !!  without launching a kernel, use `fclSetKernelArgs`. @endnote
@@ -1363,7 +1372,10 @@ module Focal
                                                a60,a61,a62,a63,a64,a65,a66,a67,a68,a69, &
                                                a70,a71,a72,a73,a74,a75,a76,a77,a78,a79, &
                                                a80,a81,a82,a83,a84,a85,a86,a87,a88,a89, &
-                                               a90,a91,a92,a93,a94,a95,a96,a97,a98,a99
+                                               a90,a91,a92,a93,a94,a95,a96,a97,a98,a99, &
+                                               a100,a101,a102,a103,a104,a105,a106,a107,a108,a109, &
+                                               a110,a111,a112,a113,a114,a115,a116,a117,a118,a119, &
+                                               a120,a121,a122,a123,a124,a125,a126,a127,a128,a129
         !! Subsequent kernel arguments.
         !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclProcessKernelArgs
@@ -1377,7 +1389,10 @@ module Focal
                                          a60,a61,a62,a63,a64,a65,a66,a67,a68,a69, &
                                          a70,a71,a72,a73,a74,a75,a76,a77,a78,a79, &
                                          a80,a81,a82,a83,a84,a85,a86,a87,a88,a89, &
-                                         a90,a91,a92,a93,a94,a95,a96,a97,a98,a99)
+                                         a90,a91,a92,a93,a94,a95,a96,a97,a98,a99, &
+                                         a100,a101,a102,a103,a104,a105,a106,a107,a108,a109, &
+                                         a110,a111,a112,a113,a114,a115,a116,a117,a118,a119, &
+                                         a120,a121,a122,a123,a124,a125,a126,a127,a128,a129)
       !! Set all kernel arguments at once without launching kernel.
       class(fclKernel), intent(in), target :: kernel    !! Focal kernel object
       class(*), intent(in), optional, target :: a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, &
@@ -1389,7 +1404,10 @@ module Focal
                                                a60,a61,a62,a63,a64,a65,a66,a67,a68,a69, &
                                                a70,a71,a72,a73,a74,a75,a76,a77,a78,a79, &
                                                a80,a81,a82,a83,a84,a85,a86,a87,a88,a89, &
-                                               a90,a91,a92,a93,a94,a95,a96,a97,a98,a99
+                                               a90,a91,a92,a93,a94,a95,a96,a97,a98,a99, &
+                                               a100,a101,a102,a103,a104,a105,a106,a107,a108,a109, &
+                                               a110,a111,a112,a113,a114,a115,a116,a117,a118,a119, &
+                                               a120,a121,a122,a123,a124,a125,a126,a127,a128,a129
         !! Kernel arguments.
         !! Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument
     end subroutine fclSetKernelArgs
