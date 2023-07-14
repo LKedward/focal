@@ -315,6 +315,9 @@ submodule (Focal) Focal_Setup
     ! Create context and set as default
     call fclSetDefaultContext(fclCreateContext(chosenPlatform))
 
+    ! Add device to the default profiler
+    fclDefaultProfiler%device = device
+
   end procedure fclInit
   ! ---------------------------------------------------------------------------
 

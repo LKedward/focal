@@ -180,7 +180,7 @@ module Focal
     integer :: nBuffers = 0
       !! Number of buffers in buffers array
     contains
-      procedure, pass :: add => fclProfilerAdd
+      procedure, pass :: add => fclProfilerAdd_1
   end type fclProfiler
 
    type :: fclProfileContainer
@@ -284,6 +284,9 @@ module Focal
 
   type(fclContext), target :: fclDefaultCtx
     !! Default context: used when context is omittetd in focal api calls
+
+  type(fclProfiler) :: fclDefaultProfiler
+    !! Default profiler: used when profile is omitted in focal api calls
 
   type(fclEvent), target :: fclLastWriteEvent
     !! Focal event object for the most recent write event (host-to-device) to be enqueued
@@ -1585,9 +1588,9 @@ module Focal
 
   ! ------------------------- PROFILING  ROUTINES -----------------------------
 
-  interface
+  interface fclProfilerAdd
 
-    module subroutine fclProfilerAdd(profiler,profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+    module subroutine fclProfilerAdd_1(profiler,profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
       !! Enable profiling for multiple container (kernel/buffer) and add to profiler collection
       class(fclProfiler), intent(inout) :: profiler
         !! Profiler - collection of objects to profile
@@ -1597,7 +1600,21 @@ module Focal
         !! Object (kernel/buffer) for which to enable profiling
       class(fclProfileContainer), intent(inout), target, optional :: c1, c2, c3,c4,c5,c6,c7,c8,c9
         !! Subsequent objects (kernel/buffer) for which to enable profiling
-    end subroutine fclProfilerAdd
+    end subroutine fclProfilerAdd_1
+
+    module subroutine fclProfilerAdd_2(profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+      !! Enable profiling for multiple container (kernel/buffer) and add to the default profiler
+      integer, intent(in) :: profileSize
+        !! Number of events to save for profiling (allocation size)
+      class(fclProfileContainer), intent(inout), target :: c0
+        !! Object (kernel/buffer) for which to enable profiling
+      class(fclProfileContainer), intent(inout), target, optional :: c1, c2, c3,c4,c5,c6,c7,c8,c9
+        !! Subsequent objects (kernel/buffer) for which to enable profiling
+    end subroutine fclProfilerAdd_2
+
+  end interface fclProfilerAdd
+
+  interface
 
     module subroutine fclEnableProfiling(container,profileSize,profiler)
       !! Enable profiling on a specific container by allocating space to save events
@@ -1624,14 +1641,28 @@ module Focal
       type(fclEvent), intent(in) :: eventList(:)
       integer(c_int64_t) :: durations(size(eventList,1))
     end function fclGetEventDurations
-    
-    module subroutine fclDumpProfileData(profiler,outputUnit)
+
+  end interface
+
+  interface fclDumpProfileData
+
+    module subroutine fclDumpProfileData_1(profiler,outputUnit)
       !! Dump summary of profiler data for list of kernels to specific output unit
       class(fclProfiler), intent(in) :: profiler
         !! Profiler object containing collection of kernels & buffers to profile
       integer, intent(in), optional :: outputUnit
         !! Output unit to write summary data
-    end subroutine fclDumpProfileData
+    end subroutine fclDumpProfileData_1
+
+    module subroutine fclDumpProfileData_2(outputUnit)
+      !! Dump summary of default profiler data for list of kernels to specific output unit
+      integer, intent(in), optional :: outputUnit
+        !! Output unit to write summary data
+    end subroutine fclDumpProfileData_2
+
+  end interface fclDumpProfileData
+
+  interface
 
     module subroutine fclDumpKernelProfileData(outputUnit,kernelList,device)
       !! Dump summary of profile data for list of kernels to specific output unit
@@ -1658,15 +1689,25 @@ module Focal
         !! List of buffers for which to dump profile data
     end subroutine fclDumpBufferProfileData
 
-    module subroutine fclDumpTracingData(profiler, filename)
+  end interface
+
+  interface fclDumpTracingData
+
+    module subroutine fclDumpTracingData_1(profiler, filename)
       !! Writes a chrome://tracing data format for profiled events
       class(fclProfiler), intent(in) :: profiler
         !! Profiler collection object containing kernels/buffers that have been profiled
       character(*), intent(in) :: filename
         !! Filename to which to write chrome://tracing format
-    end subroutine fclDumpTracingData
+    end subroutine fclDumpTracingData_1
 
-  end interface
+    module subroutine fclDumpTracingData_2(filename)
+      !! Writes a chrome://tracing data format for the default profiler
+      character(*), intent(in) :: filename
+        !! Filename to which to write chrome://tracing format
+    end subroutine fclDumpTracingData_2
+
+  end interface fclDumpTracingData
 
 
   ! ---------------------------- DEBUG ROUTINES -------------------------------
