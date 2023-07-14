@@ -35,7 +35,6 @@ submodule (Focal) Focal_Setup
   !!  corresponding header module file. See header module file (Focal.f90) for interface definitions. @endnote
 
   use clfortran
-  use M_strings, only: upperStr=>upper, splitStr=>split
   implicit none
 
   contains

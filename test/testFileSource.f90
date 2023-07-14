@@ -5,8 +5,6 @@ program testFileSource
 
 use Focal
 use Focal_Test_Utils
-use M_Strings, only: strCrop => crop, strReplace => replace, &
-                     cr => ascii_cr, nl => ascii_lf
 use iso_fortran_env, only: sp=>real32, dp=>real64
 implicit none
 

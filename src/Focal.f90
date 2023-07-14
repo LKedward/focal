@@ -1847,6 +1847,30 @@ module Focal
         !! Converted string output
     end function strStripNum
 
+    elemental pure module function upperStr(str) result (string)
+      !! Convert string to uppercase (for case-insensitive comparison)
+      character(*), intent(in)      :: str
+      character(len(str))           :: string
+    end function upperStr
+
+    module subroutine splitStr(input_line,array,delimiters,order,nulls)
+      !! parse string into an array using specified delimiters
+      !! AUTHOR:  John S. Urban       LICENSE: Public Domain
+      character(len=*),intent(in)              :: input_line  ! input string to tokenize
+      character(len=*),optional,intent(in)     :: delimiters  ! list of delimiter characters
+      character(len=*),optional,intent(in)     :: order       ! order of output array sequential|[reverse|right]
+      character(len=*),optional,intent(in)     :: nulls       ! return strings composed of delimiters or not ignore|return|ignoreend
+      character(len=:),allocatable,intent(out) :: array(:)    ! output array of tokens
+    end subroutine splitStr
+
+    elemental module function str_noesc(INSTR)
+      !! convert non-printable characters to a space.
+      !! AUTHOR:  John S. Urban       LICENSE: Public Domain
+      character(len=*),intent(in) :: INSTR
+        !! string that might contain nonprintable characters
+      character(len=len(instr))   :: str_noesc
+    end function str_noesc
+
   end interface
 
 end module Focal

@@ -66,7 +66,6 @@ submodule (Focal) Focal_Memory
 
   module procedure fclInitBufferUntyped_1 !(cmdq,buffer,nBytes,profileName,access)
     !! Initialise untyped buffer object on specified command queue
-    use M_strings, only: upperStr=>upper
     integer(c_int32_t) :: errcode
     integer(c_int64_t) :: MEM_FLAGS
 
@@ -194,7 +193,6 @@ submodule (Focal) Focal_Memory
   
   module procedure fclInitSubBufferUntyped_1 !(cmdq,subbuffer,sourceBuffer,offset,size,profileName,access)
     !! Initialise an untyped sub-buffer from an existing buffer
-    use M_strings, only: upperStr=>upper
     integer(c_int32_t) :: errcode
     integer(c_int64_t) :: MEM_FLAGS
 
