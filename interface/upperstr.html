@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,7 +9,7 @@
     <meta name="author" content="L. Kedward" >
     <link rel="icon" href="../favicon.png">
 
-    <title>Focal_Setup &ndash; Focal API Reference</title>
+    <title>upperStr &ndash; Focal API Reference</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -88,8 +89,8 @@
 
     <div class="container">
   <div class="row">
-    <h1>Focal_Setup
-      <small>Submodule</small>
+    <h1>upperStr
+      <small>Interface</small>
       
     </h1>
       <div class="row" id="info-bar">
@@ -100,17 +101,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title="32.7% of total for modules and submodules.">1160 statements</a>
+               title=" 0.7% of total for procedures.">21 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Focal_Setup.f90"> Source File</a>
+              <a href="../src/Focal.f90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/focal_setup.f90.html'>Focal_Setup.f90</a></li>
-          <li class="active">Focal_Setup</li>
+              <li><a href='../sourcefile/focal.f90.html'>Focal.f90</a></li>
+              <li><a href='../module/focal.html'>Focal</a></li>
+          <li class="active">upperStr</li>
         </ol>
       </div>
     </div>
@@ -122,10 +124,10 @@
   </script>
 
   </div>
-
+  
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-        <div id="sidebar">
+      <div id="sidebar">
       <h3>Contents</h3>
   
   
@@ -152,73 +154,51 @@
   </div>
 
     </div>
-
+    
     <div class="col-md-9" id='text'>
-      <p>Implementation module for openCL setup routines: context, command queues and programs.</p>
-<p></p><div class="alert alert-info" role="alert"><h4>Note</h4><p>This is an implementation submodule: it contains the code implementing the subroutines defined in the
- corresponding header module file. See header module file (Focal.f90) for interface definitions. </p></div>
-<p>
-<br>          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li>clfortran</li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <ul class="list-inline">
-              <li><h5>Ancestors:</h5></li>
-                <li><a href='../module/focal.html'>Focal</a></li>
-            </ul>
-          </li>
-      </ul>
-    </div>
+      <h2>interface <br>
+      public pure elemental module function upperStr(str) result(string)  
+</h2>    
 
-      
-      <br>
+    
 
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-str"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>str</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
-    <em>None</em>
+      <h3>Return Value <span class="anchor" id="variable-string"></span><small>character(len=len(str))</small></h3>
+    
+    <h3>Description</h3>
+    <p>Convert string to uppercase (for case-insensitive comparison)</p>
+    <br>
 
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
-
-
-
-
-
-
-
-
-
-
-
-    </div>
-  </div>
+ </div>
+</div>
 
       <hr>
     </div> <!-- /container -->

@@ -100,7 +100,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title="28.7% of total for modules and submodules.">935 statements</a>
+               title="27.4% of total for modules and submodules.">970 statements</a>
           </li>
 
             <li id="source-file">
@@ -142,6 +142,7 @@
             <a class="list-group-item" href="../module/focal.html#variable-nv_illegal_buffer_read_write">NV_ILLEGAL_BUFFER_READ_WRITE</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcldefaultcmdq">fclDefaultCmdQ</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcldefaultctx">fclDefaultCtx</a>
+            <a class="list-group-item" href="../module/focal.html#variable-fcldefaultprofiler">fclDefaultProfiler</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcllastwriteevent">fclLastWriteEvent</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcllastreadevent">fclLastReadEvent</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcllastcopyevent">fclLastCopyEvent</a>
@@ -240,8 +241,8 @@
             <a class="list-group-item" href="../module/focal.html#interface-fclcleardependencies">fclClearDependencies</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclcreateuserevent">fclCreateUserEvent</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsetuserevent">fclSetUserEvent</a>
-            <a class="list-group-item" href="../module/focal.html#interface-fclgeteventdurations">fclGetEventDurations</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclprofileradd">fclProfilerAdd</a>
+            <a class="list-group-item" href="../module/focal.html#interface-fclgeteventdurations">fclGetEventDurations</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclenableprofiling">fclEnableProfiling</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclpushprofileevent">fclPushProfileEvent</a>
             <a class="list-group-item" href="../module/focal.html#interface-fcldumpprofiledata">fclDumpProfileData</a>
@@ -261,6 +262,9 @@
             <a class="list-group-item" href="../module/focal.html#interface-fclgetkernelresource">fclGetKernelResource</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsourcefromfile">fclSourceFromFile</a>
             <a class="list-group-item" href="../module/focal.html#interface-strstripnum">strStripNum</a>
+            <a class="list-group-item" href="../module/focal.html#interface-upperstr">upperStr</a>
+            <a class="list-group-item" href="../module/focal.html#interface-str_noesc">str_noesc</a>
+            <a class="list-group-item" href="../module/focal.html#interface-splitstr">splitStr</a>
         </div>
       </div>
     </div>
@@ -387,6 +391,7 @@ Subroutine implementation (code) is found in the corresponding submodule files. 
             <a class="list-group-item" href="../module/focal.html#variable-nv_illegal_buffer_read_write">NV_ILLEGAL_BUFFER_READ_WRITE</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcldefaultcmdq">fclDefaultCmdQ</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcldefaultctx">fclDefaultCtx</a>
+            <a class="list-group-item" href="../module/focal.html#variable-fcldefaultprofiler">fclDefaultProfiler</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcllastwriteevent">fclLastWriteEvent</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcllastreadevent">fclLastReadEvent</a>
             <a class="list-group-item" href="../module/focal.html#variable-fcllastcopyevent">fclLastCopyEvent</a>
@@ -485,8 +490,8 @@ Subroutine implementation (code) is found in the corresponding submodule files. 
             <a class="list-group-item" href="../module/focal.html#interface-fclcleardependencies">fclClearDependencies</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclcreateuserevent">fclCreateUserEvent</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsetuserevent">fclSetUserEvent</a>
-            <a class="list-group-item" href="../module/focal.html#interface-fclgeteventdurations">fclGetEventDurations</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclprofileradd">fclProfilerAdd</a>
+            <a class="list-group-item" href="../module/focal.html#interface-fclgeteventdurations">fclGetEventDurations</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclenableprofiling">fclEnableProfiling</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclpushprofileevent">fclPushProfileEvent</a>
             <a class="list-group-item" href="../module/focal.html#interface-fcldumpprofiledata">fclDumpProfileData</a>
@@ -506,6 +511,9 @@ Subroutine implementation (code) is found in the corresponding submodule files. 
             <a class="list-group-item" href="../module/focal.html#interface-fclgetkernelresource">fclGetKernelResource</a>
             <a class="list-group-item" href="../module/focal.html#interface-fclsourcefromfile">fclSourceFromFile</a>
             <a class="list-group-item" href="../module/focal.html#interface-strstripnum">strStripNum</a>
+            <a class="list-group-item" href="../module/focal.html#interface-upperstr">upperStr</a>
+            <a class="list-group-item" href="../module/focal.html#interface-str_noesc">str_noesc</a>
+            <a class="list-group-item" href="../module/focal.html#interface-splitstr">splitStr</a>
         </div>
       </div>
     </div>
@@ -681,6 +689,23 @@ parameter
                 <td></td>
             <td>
                 <p>Default context: used when context is omittetd in focal api calls</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fcldefaultprofiler"></span>
+              type(<a href='../type/fclprofiler.html'>fclProfiler</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fclDefaultProfiler</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Default profiler: used when profile is omitted in focal api calls</p>
             </td>
         </tr>
         <tr>
@@ -8343,7 +8368,7 @@ Extensions specified are requirements: devices are filtered-out if they don't su
     <ul class="list-group">
         <li class="list-group-item">
               <h3>
-    public module subroutine fclLaunchKernel(kernel, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, a32, a33, a34, a35, a36, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a49, a50, a51, a52, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a73, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99)  
+    public module subroutine fclLaunchKernel(kernel, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, a32, a33, a34, a35, a36, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a49, a50, a51, a52, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a73, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99, a100, a101, a102, a103, a104, a105, a106, a107, a108, a109, a110, a111, a112, a113, a114, a115, a116, a117, a118, a119, a120, a121, a122, a123, a124, a125, a126, a127, a128, a129)  
 
     </h3>
   <p>Enqueue a kernel with command arguments</p>
@@ -9973,6 +9998,486 @@ Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
 Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
             </td>
         </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a100</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a101</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a102</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a103</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a104</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a105</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a106</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a107</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a108</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a109</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a110</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a111</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a112</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a113</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a114</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a115</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a116</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a117</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a118</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a119</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a120</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a121</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a122</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a123</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a124</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a125</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a126</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a127</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a128</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a129</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
     </tbody>
   </table>
 
@@ -9990,7 +10495,7 @@ Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
     <ul class="list-group">
         <li class="list-group-item">
               <h3>
-    public module subroutine fclProcessKernelArgs(kernel, cmdq, narg, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, a32, a33, a34, a35, a36, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a49, a50, a51, a52, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a73, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99)  
+    public module subroutine fclProcessKernelArgs(kernel, cmdq, narg, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, a32, a33, a34, a35, a36, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a49, a50, a51, a52, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a73, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99, a100, a101, a102, a103, a104, a105, a106, a107, a108, a109, a110, a111, a112, a113, a114, a115, a116, a117, a118, a119, a120, a121, a122, a123, a124, a125, a126, a127, a128, a129)  
 
     </h3>
   <p>Sets kernel arguments and parses argument list for optional cmdq and actual number of arguments.
@@ -11653,6 +12158,486 @@ Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
 Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
             </td>
         </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a100</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a101</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a102</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a103</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a104</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a105</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a106</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a107</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a108</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a109</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a110</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a111</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a112</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a113</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a114</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a115</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a116</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a117</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a118</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a119</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a120</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a121</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a122</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a123</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a124</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a125</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a126</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a127</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a128</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a129</strong></td>
+            <td>
+                <p>Subsequent kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
     </tbody>
   </table>
 
@@ -11670,7 +12655,7 @@ Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
     <ul class="list-group">
         <li class="list-group-item">
               <h3>
-    public module subroutine fclSetKernelArgs(kernel, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, a32, a33, a34, a35, a36, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a49, a50, a51, a52, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a73, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99)  
+    public module subroutine fclSetKernelArgs(kernel, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, a32, a33, a34, a35, a36, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a49, a50, a51, a52, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a73, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99, a100, a101, a102, a103, a104, a105, a106, a107, a108, a109, a110, a111, a112, a113, a114, a115, a116, a117, a118, a119, a120, a121, a122, a123, a124, a125, a126, a127, a128, a129)  
 
     </h3>
   <p>Set all kernel arguments at once without launching kernel.</p>
@@ -13301,6 +14286,486 @@ Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
 Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
             </td>
         </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a100</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a101</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a102</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a103</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a104</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a105</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a106</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a107</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a108</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a109</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a110</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a111</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a112</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a113</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a114</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a115</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a116</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a117</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a118</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a119</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a120</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a121</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a122</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a123</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a124</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a125</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a126</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a127</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a128</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a129</strong></td>
+            <td>
+                <p>Kernel arguments.
+Can be a scalar, an fclDeviceBuffer object, or an fclLocalArgument</p>
+            </td>
+        </tr>
     </tbody>
   </table>
 
@@ -14345,67 +15810,14 @@ Clear dependencies unless dependency hold is .true.</p>
 
               <div class="panel panel-default">
     <div class="panel-heading codesum">
-      <span class="anchor" id="interface-fclgeteventdurations"></span>
-      <h3>        interface
-      </h3>
-    </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-              <h3>
-    public module function fclGetEventDurations(eventList) result(durations)  
-
-    </h3>
-  
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/fclevent.html'>fclEvent</a>),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>eventList</strong>(:)</td>
-            <td>
-                
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-    <h4>
-    Return Value
-    <small>integer(kind=c_int64_t), (size(eventList,1))</small>
-    </h4>
-    
-
-        </li>
-    </ul>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
       <span class="anchor" id="interface-fclprofileradd"></span>
-      <h3>        interface
+      <h3>public        interface <a href='../interface/fclprofileradd.html'>fclProfilerAdd</a> 
       </h3>
     </div>
     <ul class="list-group">
-        <li class="list-group-item">
-              <h3>
-    public module subroutine fclProfilerAdd(profiler, profileSize, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9)  
+          <li class="list-group-item">
+                <h3>
+    public module subroutine fclProfilerAdd_1(profiler, profileSize, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9)  
 
     </h3>
   <p>Enable profiling for multiple container (kernel/buffer) and add to profiler collection</p>
@@ -14605,6 +16017,247 @@ Clear dependencies unless dependency hold is .true.</p>
   </table>
 
 
+          </li>
+          <li class="list-group-item">
+                <h3>
+    public module subroutine fclProfilerAdd_2(profileSize, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9)  
+
+    </h3>
+  <p>Enable profiling for multiple container (kernel/buffer) and add to the default profiler</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>profileSize</strong></td>
+            <td>
+                <p>Number of events to save for profiling (allocation size)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c0</strong></td>
+            <td>
+                <p>Object (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c1</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c2</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c3</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c4</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c5</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c6</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c7</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c8</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/fclprofilecontainer.html'>fclProfileContainer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>c9</strong></td>
+            <td>
+                <p>Subsequent objects (kernel/buffer) for which to enable profiling</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="interface-fclgeteventdurations"></span>
+      <h3>        interface
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+              <h3>
+    public module function fclGetEventDurations(eventList) result(durations)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/fclevent.html'>fclEvent</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>eventList</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=c_int64_t), (size(eventList,1))</small>
+    </h4>
+    
+
         </li>
     </ul>
   </div>
@@ -14769,13 +16422,13 @@ Clear dependencies unless dependency hold is .true.</p>
               <div class="panel panel-default">
     <div class="panel-heading codesum">
       <span class="anchor" id="interface-fcldumpprofiledata"></span>
-      <h3>        interface
+      <h3>public        interface <a href='../interface/fcldumpprofiledata.html'>fclDumpProfileData</a> 
       </h3>
     </div>
     <ul class="list-group">
-        <li class="list-group-item">
-              <h3>
-    public module subroutine fclDumpProfileData(profiler, outputUnit)  
+          <li class="list-group-item">
+                <h3>
+    public module subroutine fclDumpProfileData_1(profiler, outputUnit)  
 
     </h3>
   <p>Dump summary of profiler data for list of kernels to specific output unit</p>
@@ -14825,7 +16478,45 @@ Clear dependencies unless dependency hold is .true.</p>
   </table>
 
 
-        </li>
+          </li>
+          <li class="list-group-item">
+                <h3>
+    public module subroutine fclDumpProfileData_2(outputUnit)  
+
+    </h3>
+  <p>Dump summary of default profiler data for list of kernels to specific output unit</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>outputUnit</strong></td>
+            <td>
+                <p>Output unit to write summary data</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
     </ul>
   </div>
 
@@ -15005,13 +16696,13 @@ Needed for kernel work group info.</p>
               <div class="panel panel-default">
     <div class="panel-heading codesum">
       <span class="anchor" id="interface-fcldumptracingdata"></span>
-      <h3>        interface
+      <h3>public        interface <a href='../interface/fcldumptracingdata.html'>fclDumpTracingData</a> 
       </h3>
     </div>
     <ul class="list-group">
-        <li class="list-group-item">
-              <h3>
-    public module subroutine fclDumpTracingData(profiler, filename)  
+          <li class="list-group-item">
+                <h3>
+    public module subroutine fclDumpTracingData_1(profiler, filename)  
 
     </h3>
   <p>Writes a chrome://tracing data format for profiled events</p>
@@ -15061,7 +16752,45 @@ Needed for kernel work group info.</p>
   </table>
 
 
-        </li>
+          </li>
+          <li class="list-group-item">
+                <h3>
+    public module subroutine fclDumpTracingData_2(filename)  
+
+    </h3>
+  <p>Writes a chrome://tracing data format for the default profiler</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+                <p>Filename to which to write chrome://tracing format</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
     </ul>
   </div>
 
@@ -15889,6 +17618,222 @@ Then link resulting object file as normal</p>
     <small>character(len=len)</small>
     </h4>
     <p>Converted string output</p>
+
+        </li>
+    </ul>
+  </div>
+
+              <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="interface-upperstr"></span>
+      <h3>        interface
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+              <h3>
+    public pure elemental module function upperStr(str) result(string)  
+
+    </h3>
+  <p>Convert string to uppercase (for case-insensitive comparison)</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>str</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>character(len=len(str))</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+              <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="interface-str_noesc"></span>
+      <h3>        interface
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+              <h3>
+    public elemental module function str_noesc(INSTR)  
+
+    </h3>
+  <p>convert non-printable characters to a space.
+AUTHOR:  John S. Urban       LICENSE: Public Domain</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INSTR</strong></td>
+            <td>
+                <p>string that might contain nonprintable characters</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>character(len=len)</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+              <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="interface-splitstr"></span>
+      <h3>        interface
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+              <h3>
+    public module subroutine splitStr(input_line, array, delimiters, order, nulls)  
+
+    </h3>
+  <p>parse string into an array using specified delimiters
+AUTHOR:  John S. Urban       LICENSE: Public Domain</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>input_line</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=:),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>array</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>delimiters</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>order</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nulls</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
 
         </li>
     </ul>
@@ -16909,8 +18854,8 @@ Use fclClearDependencies to clear and reset.</p>
                     ,                  public
 , pass                  :: <strong><a href='../type/fclprofiler.html#boundprocedure-add'>add</a></strong>
  =>
-                    <a href='../interface/fclprofileradd.html'>fclProfilerAdd</a>
-<small>Interface</small>                </td>
+                    fclProfilerAdd_1
+<small>Subroutine</small>                </td>
                 <td></td>
               </tr>
           </tbody>
@@ -16994,7 +18939,7 @@ Use fclClearDependencies to clear and reset.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-profilesize~3"></span>
+              <span class="anchor" id="variable-profilesize~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -17143,7 +19088,7 @@ Use fclClearDependencies to clear and reset.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-profilesize~3"></span>
+              <span class="anchor" id="variable-profilesize~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -17416,7 +19361,7 @@ generic,
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-profilesize~3"></span>
+              <span class="anchor" id="variable-profilesize~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -17582,7 +19527,7 @@ generic,
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-profilesize~3"></span>
+              <span class="anchor" id="variable-profilesize~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -17748,7 +19693,7 @@ generic,
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-profilesize~3"></span>
+              <span class="anchor" id="variable-profilesize~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -17914,7 +19859,7 @@ generic,
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-profilesize~3"></span>
+              <span class="anchor" id="variable-profilesize~2"></span>
               integer,
             </td>
               <td>public</td>

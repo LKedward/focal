@@ -35,7 +35,6 @@ submodule (Focal) Focal_Query
   !!  corresponding header module file. See header module file (Focal.f90) for interface definitions. @endnote
 
   use clfortran
-  use M_Strings, only: str_noesc=>noesc
   implicit none
 
   contains

@@ -39,7 +39,7 @@ submodule (Focal) Focal_Profile
 
   contains
 
-  module procedure fclProfilerAdd !(profiler,profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+  module procedure fclProfilerAdd_1 !(profiler,profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
     !! Enable profiling for multiple containers (kernel/buffer) and add to profiler collection
 
     call fclEnableProfiling(c0,profileSize,profiler)
@@ -72,7 +72,16 @@ submodule (Focal) Focal_Profile
       call fclEnableProfiling(c9,profileSize,profiler)
     end if
 
-  end procedure fclProfilerAdd
+  end procedure fclProfilerAdd_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclProfilerAdd_2 !(profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+    !! Enable profiling for multiple containers (kernel/buffer) and add to the default profiler
+
+    call fclProfilerAdd_1(fclDefaultProfiler,profileSize,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+
+  end procedure fclProfilerAdd_2
   ! ---------------------------------------------------------------------------
 
 
@@ -234,7 +243,7 @@ submodule (Focal) Focal_Profile
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclDumpProfileData !(profiler,outputUnit)
+  module procedure fclDumpProfileData_1 !(profiler,outputUnit)
     !! Dump summary of profiler data for list of kernels to specific output unit
     use iso_fortran_env, only: stdout=>output_unit
 
@@ -278,7 +287,16 @@ submodule (Focal) Focal_Profile
 
     end if
 
-  end procedure fclDumpProfileData
+  end procedure fclDumpProfileData_1
+  ! ---------------------------------------------------------------------------
+
+
+  module procedure fclDumpProfileData_2 !(outputUnit)
+    !! Dump summary of default profiler data for list of kernels to specific output unit
+
+    call fclDumpProfileData_1(fclDefaultProfiler, outputUnit)
+
+  end procedure fclDumpProfileData_2
   ! ---------------------------------------------------------------------------
 
 
@@ -495,7 +513,7 @@ submodule (Focal) Focal_Profile
   ! ---------------------------------------------------------------------------
 
 
-  module procedure fclDumpTracingData !(profiler,filename)
+  module procedure fclDumpTracingData_1 !(profiler,filename)
 
     integer :: fh, kb, j, i, N, tid
     integer(c_intptr_t), target :: qid
@@ -629,7 +647,15 @@ submodule (Focal) Focal_Profile
     write(fh,*) ']'
     close(fh)
 
-  end procedure fclDumpTracingData
+  end procedure fclDumpTracingData_1
+  ! ---------------------------------------------------------------------------
+
+  module procedure fclDumpTracingData_2 !(filename)
+    !! Writes a chrome://tracing data format for the default profiler
+
+    call fclDumpTracingData_1(fclDefaultProfiler,filename)
+
+  end procedure fclDumpTracingData_2
   ! ---------------------------------------------------------------------------
 
 
