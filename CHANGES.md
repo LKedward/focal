@@ -2,6 +2,19 @@
 
 Most recent release shown first.
 
+
+## Release v1.0.2
+*Backwards-compatible update.*
+__Date:__ 11/10/2025
+
+__Add: reference counting for fclKernel and fclProgram objects__
+Uses overloaded assignment and finalisation routines
+to call OpenCL reference counting routines for the
+underlying event objects.
+This fixes compatability with newer versions of gfortran and ifx
+which have finalisation implemented correctly.
+
+
 ## Release v1.0.1
 *Backwards-compatible update.*
 __Date:__ 29/05/2020
