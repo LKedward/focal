@@ -626,6 +626,24 @@ submodule (Focal) Focal_Setup
   ! ---------------------------------------------------------------------------
 
 
+  module procedure fclProgramCopy !(target, source)
+    !! Overloaded assignment for event assignment.
+    !!  Handles opencl reference counting for the underlying program object
+
+    if (target%cl_program > 0) then
+
+      call fclReleaseProgram(target)
+
+    end if
+
+    call fclRetainProgram(source)
+
+    target%cl_program = source%cl_program
+
+  end procedure fclProgramCopy
+  ! ---------------------------------------------------------------------------
+  
+  
   module procedure fclReleaseProgram !(prog)
     !! Release underlying memory associated with OpenCL program pointer
 
@@ -634,11 +652,27 @@ submodule (Focal) Focal_Setup
     if (prog%cl_program /= -1) then
       errcode = clReleaseProgram(prog%cl_program)
       call fclHandleError(errcode,'fclReleaseProgram','clReleaseProgram')
+      prog%cl_program = -1
     end if
 
   end procedure fclReleaseProgram
   ! ---------------------------------------------------------------------------
 
+
+
+  module procedure fclRetainProgram !(prog)
+    !! Light weight wrapper for clRetainProgram (increment reference count)
+    integer(c_int32_t) :: errcode
+
+    if (prog%cl_program > 0) then
+
+      errcode = clRetainProgram(prog%cl_program)
+      call fclHandleError(errcode,'fclRetainProgram','clRetainProgram')
+
+    end if
+
+  end procedure fclRetainProgram
+  ! ---------------------------------------------------------------------------
 
   module procedure fclLaunchKernelAfterEvent_1 !(kernel,cmdQ,event)
     !! Specific interface for a single event dependency on a specific command queue
@@ -1484,6 +1518,38 @@ submodule (Focal) Focal_Setup
   end procedure fclLocalDouble
   ! ---------------------------------------------------------------------------
 
+
+  module procedure fclKernelCopy !(target, source)
+    !! Overloaded assignment for kernel assignment.
+    !!  Handles opencl reference counting for the underlying program object
+
+    if (target%cl_kernel > 0) then
+
+      call fclReleaseKernel(target)
+
+    end if
+
+    call fclRetainKernel(source)
+
+    target%cl_kernel = source%cl_kernel
+    target%name = source%name
+    target%work_dim = source%work_dim
+    target%global_work_offset = source%global_work_offset
+    target%global_work_size = source%global_work_size
+    target%local_work_size = source%local_work_size
+    
+    target%profileName = source%profileName
+    target%profilingEnabled = source%profilingEnabled
+    target%profileEvents => source%profileEvents
+    target%profileSize = source%profileSize
+    target%nProfileEvent => source%nProfileEvent
+    target%profileEventType => source%profileEventType
+    
+
+  end procedure fclKernelCopy
+  ! ---------------------------------------------------------------------------
+  
+  
   module procedure fclReleaseKernel !(kernel)
     !! Release OpenCL memory associated with underlying kernel pointer
     integer :: errcode
@@ -1491,10 +1557,28 @@ submodule (Focal) Focal_Setup
     if (kernel%cl_kernel /= -1) then
       errcode = clReleaseKernel(kernel%cl_kernel)
       call fclHandleError(errcode,'fclReleaseKernel','clReleaseKernel')
+      kernel%cl_kernel = -1
     end if
 
   end procedure fclReleaseKernel
   ! ---------------------------------------------------------------------------
+
+
+  module procedure fclRetainKernel !(kernel)
+    !! Light weight wrapper for clRetainKernel (increment reference count)
+    integer(c_int32_t) :: errcode
+
+
+    if (kernel%cl_kernel > 0) then
+
+      errcode = clRetainEvent(kernel%cl_kernel)
+      call fclHandleError(errcode,'fclRetainKernel','clRetainKernel')
+
+    end if
+
+  end procedure fclRetainKernel
+  ! ---------------------------------------------------------------------------
+  
 
   module procedure fclBarrier_1 !(cmdq)
     !! Enqueue barrier on all events in command queue
@@ -1611,7 +1695,7 @@ submodule (Focal) Focal_Setup
 
       errcode = clReleaseEvent(event%cl_event)
       call fclHandleError(errcode,'fclReleaseEvent','clReleaseEvent')
-
+      event%cl_event = -1
     end if
 
   end procedure fclReleaseEvent
