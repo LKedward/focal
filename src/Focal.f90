@@ -1269,9 +1269,14 @@ module Focal
 
     module subroutine fclReleaseProgram(prog)
       !! Release underlying memory associated with OpenCL program pointer
-      type(fclProgram), intent(in) :: prog                   !! Compiled program object containing kernel
+      type(fclProgram), intent(inout) :: prog                !! Compiled program object containing kernel
     end subroutine fclReleaseProgram
 
+    module subroutine fclRetainProgram(prog)
+      !! Light weight wrapper for clRetainProgram (increment reference count)
+      type(fclProgram), intent(in) :: prog               !! Focal event object to retain
+    end subroutine fclRetainProgram
+    
   end interface
 
   interface fclLaunchKernelAfter
@@ -1441,9 +1446,14 @@ module Focal
 
     module subroutine fclReleaseKernel(kernel)
       !! Release OpenCL memory associated with underlying kernel pointer
-      type(fclKernel), intent(inout) :: kernel          !! Focal kernel object
+      type(fclKernel), intent(inout) :: kernel       !! Focal kernel object
     end subroutine fclReleaseKernel
 
+    module subroutine fclRetainKernel(kernel)
+      !! Light weight wrapper for clRetainKernel (increment reference count)
+      type(fclKernel), intent(in) :: kernel       !! Focal kernel object
+    end subroutine fclRetainKernel
+    
   end interface
 
   interface fclBarrier
@@ -1499,14 +1509,28 @@ module Focal
       type(fclEvent), intent(inout) :: target
       type(fclEvent), intent(in) :: source
     end subroutine fclEventCopy
-
+    
+    module subroutine fclProgramCopy(target,source)
+      !! Overloaded assignment for program assignment.
+      !!  Handles opencl reference counting for the underlying program object
+      type(fclProgram), intent(inout) :: target
+      type(fclProgram), intent(in) :: source
+    end subroutine fclProgramCopy
+    
+    module subroutine fclKernelCopy(target,source)
+      !! Overloaded assignment for kernel assignment.
+      !!  Handles opencl reference counting for the underlying program object
+      type(fclKernel), intent(inout) :: target
+      type(fclKernel), intent(in) :: source
+    end subroutine fclKernelCopy
+    
   end interface
     
   interface 
 
     module subroutine fclReleaseEvent(event)
       !! Light weight wrapper for clReleaseEvent (decrement reference count)
-      type(fclEvent), intent(in) :: event               !! Focal event object to release
+      type(fclEvent), intent(inout) :: event            !! Focal event object to release
     end subroutine fclReleaseEvent
 
     module subroutine fclRetainEvent(event)
